@@ -170,6 +170,14 @@ export function AdminTheme({ children }: { children: ReactNode }) {
             // globals.css rings focus in #FF4438 — 3.4:1 here, too weak.
             ':focus-visible': { outlineColor: BRAND.main },
 
+            // The global loader is shared with the storefront, so it reads its
+            // ground and caption from variables that default to the dark
+            // tokens. This is where the admin side relights them.
+            ':root': {
+              '--loader-ground': SURFACE.canvas,
+              '--loader-ink': INK.secondary,
+            },
+
             '*::-webkit-scrollbar': { width: 10, height: 10 },
             '*::-webkit-scrollbar-track': { background: 'transparent' },
             '*::-webkit-scrollbar-thumb': {

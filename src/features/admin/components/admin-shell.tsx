@@ -20,7 +20,6 @@ import {
   PanelLeftOpen,
   ReceiptText,
   ShieldCheck,
-  Store,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -29,7 +28,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useSyncExternalStore, type ReactNode } from 'react';
 
 import { BRAND, INK } from './admin-tokens';
-import { AdminWordmark } from './admin-wordmark';
+import { AdminLogo } from './admin-logo';
 
 const DRAWER_WIDTH = 260;
 const RAIL_WIDTH = 76;
@@ -73,9 +72,9 @@ const NAV: { section: string; items: NavItem[] }[] = [
   },
 ];
 
-// `exact` matters on "/": a prefix match would mark it active on every route.
+// The logo is the way back to the storefront, so a second link for it here
+// would be a duplicate.
 const FOOTER_NAV: NavItem[] = [
-  { href: '/', label: 'View storefront', icon: Store, exact: true },
   { href: '/sign-out', label: 'Sign out', icon: LogOut, exact: true, danger: true },
 ];
 
@@ -229,7 +228,7 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
           }}
         >
           {rail ? (
-            <Link href="/admin" aria-label="Motormats admin">
+            <Link href="/" aria-label="Motormats — go to the storefront">
               <Box
                 sx={{
                   width: 38,
@@ -247,8 +246,8 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
               </Box>
             </Link>
           ) : (
-            <Link href="/admin" aria-label="Motormats admin" style={{ display: 'flex' }}>
-              <AdminWordmark size="sm" />
+            <Link href="/" aria-label="Motormats — go to the storefront" style={{ display: 'flex' }}>
+              <AdminLogo size="sm" />
             </Link>
           )}
 

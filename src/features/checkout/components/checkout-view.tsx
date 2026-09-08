@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
+import { BrandLoader } from '@/components/feedback/brand-loader';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddressForm } from '@/features/checkout/components/address-form';
@@ -55,6 +56,8 @@ export function CheckoutView({
   const [isPaying, startPaying] = useTransition();
   const [, startPreview] = useTransition();
   const [isConfirming, setIsConfirming] = useState(false);
+  /** The loader caption while a hard navigation is in flight; null when not leaving. */
+  const [leavingFor, setLeavingFor] = useState<string | null>(null);
 
   const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
 
@@ -94,8 +97,12 @@ export function CheckoutView({
   }, [hydrated, lines.length, router]);
 
   // Hard navigation: Razorpay modal teardown + React navigation compete; window.location wins.
-  function leaveFor(destination: string) {
-    window.location.assign(destination);
+  function leaveFor(destination: string, label = 'Taking you to your order…') {
+    setLeavingFor(label);
+    // Commit the overlay to the screen before asking for the new document.
+    // Navigating in the same tick races React’s paint against the unload;
+    // two frames put the paint first, so it cannot be lost to that race.
+    requestAnimationFrame(() => requestAnimationFrame(() => window.location.assign(destination)));
   }
 
   function applyCoupon() {
@@ -197,27 +204,12 @@ export function CheckoutView({
 
   if (!hydrated || addresses === null) return <CheckoutSkeleton />;
 
-  if (isConfirming) {
-    return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-background">
-        <svg
-          aria-hidden
-          className="text-accent size-10 animate-spin"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-          />
-        </svg>
-        <p className="text-muted-foreground text-sm">Confirming your payment…</p>
-      </div>
-    );
-  }
+  // `leavingFor` is checked first: `isConfirming` is never cleared, so once the
+  // payment is confirmed and we start navigating, this is what updates the
+  // caption from "confirming" to "taking you to your order".
+  if (leavingFor) return <BrandLoader label={leavingFor} />;
+
+  if (isConfirming) return <BrandLoader label="Confirming your payment…" />;
 
   return (
     <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem] lg:items-start">
@@ -245,17 +237,17 @@ export function CheckoutView({
                     <span className="flex items-start justify-between gap-3">
                       <span>
                         <span className="block text-sm font-semibold">{address.fullName}</span>
-                        <span className="text-muted-foreground mt-1 block text-xs">
+                        <span className="mt-1 block text-xs text-muted-foreground">
                           {address.line1}
                           {address.line2 ? `, ${address.line2}` : ''}, {address.city},{' '}
                           {address.state} {address.postalCode}
                         </span>
-                        <span className="text-muted-foreground mt-1 block text-xs">
+                        <span className="mt-1 block text-xs text-muted-foreground">
                           {address.phone}
                         </span>
                       </span>
                       {selectedAddress === address.publicId ? (
-                        <Check aria-hidden className="text-accent-text size-5 shrink-0" />
+                        <Check aria-hidden className="size-5 shrink-0 text-accent-text" />
                       ) : null}
                     </span>
                   </button>
@@ -312,7 +304,7 @@ export function CheckoutView({
               placeholder="Enter a code"
               autoCapitalize="characters"
               disabled={Boolean(totals?.couponCode)}
-              className="border-border bg-surface h-12 flex-1 rounded-full border px-5 text-sm disabled:opacity-50"
+              className="h-12 flex-1 rounded-full border border-border bg-surface px-5 text-sm disabled:opacity-50"
             />
             <Button
               type="button"
@@ -325,14 +317,14 @@ export function CheckoutView({
           </div>
           {totals?.couponCode ? (
             <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-              <span className="text-accent-text font-semibold">{totals.couponCode}</span>
+              <span className="font-semibold text-accent-text">{totals.couponCode}</span>
               <span className="text-muted-foreground">
                 applied — you save {formatPaise(totals.discountPaise)}.
               </span>
               <button
                 type="button"
                 onClick={removeCoupon}
-                className="text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors duration-200"
+                className="text-muted-foreground underline underline-offset-4 transition-colors duration-200 hover:text-foreground"
               >
                 Remove
               </button>
@@ -341,19 +333,19 @@ export function CheckoutView({
         </section>
       </div>
 
-      <aside className="card-surface rounded-3xl p-6 lg:sticky lg:top-24">
+      <aside className="rounded-3xl card-surface p-6 lg:sticky lg:top-24">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-h3">Order summary</h2>
           {/* Without this the last thing anyone sees before paying is a number
               with no way back to what it is for. */}
           <Link
             href="/cart"
-            className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-4 transition-colors duration-200"
+            className="text-xs text-muted-foreground underline underline-offset-4 transition-colors duration-200 hover:text-foreground"
           >
             Edit cart
           </Link>
         </div>
-        <p className="text-muted-foreground mt-1 text-xs">
+        <p className="mt-1 text-xs text-muted-foreground">
           {itemCount} {itemCount === 1 ? 'item' : 'items'}
         </p>
 
@@ -367,11 +359,11 @@ export function CheckoutView({
               label="Shipping"
               value={totals.shippingPaise === 0 ? 'Free' : formatPaise(totals.shippingPaise)}
             />
-            <div className="border-border flex items-baseline justify-between border-t pt-3">
+            <div className="flex items-baseline justify-between border-t border-border pt-3">
               <dt className="font-semibold">Total</dt>
-              <dd className="text-h3 font-display">{formatPaise(totals.grandTotalPaise)}</dd>
+              <dd className="font-display text-h3">{formatPaise(totals.grandTotalPaise)}</dd>
             </div>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-xs text-muted-foreground">
               Includes {formatPaise(totals.taxPaise)} GST
             </p>
           </dl>
@@ -393,7 +385,7 @@ export function CheckoutView({
           Pay {totals ? formatPaise(totals.grandTotalPaise) : ''}
         </Button>
 
-        <p className="text-muted-foreground mt-3 text-center text-xs">
+        <p className="mt-3 text-center text-xs text-muted-foreground">
           Payments are processed securely by Razorpay.
         </p>
       </aside>

@@ -13,6 +13,8 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
+import { BrandLoader } from '@/components/feedback/brand-loader';
+
 import { AdminAuthLayout, QUIET_LINK } from './admin-auth-layout';
 import {
   authErrorMessage,
@@ -30,6 +32,8 @@ export function AdminSignInForm({ next, initialError }: { next: string; initialE
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
+  /** Set once the session is confirmed and the document is on its way out. */
+  const [leaving, setLeaving] = useState(false);
   const [error, setError] = useState(initialError === 'provider' ? PROVIDER_ERROR : '');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -71,7 +75,11 @@ export function AdminSignInForm({ next, initialError }: { next: string; initialE
       // A full document load, not `router.replace`: the App Router still holds
       // the RSC payload it cached for `next` while signed out, which is the
       // redirect back to this page.
-      window.location.replace(next);
+      setLeaving(true);
+      // Commit the overlay to the screen before asking for the new document.
+      // Navigating in the same tick races React’s paint against the unload;
+      // two frames put the paint first, so it cannot be lost to that race.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.location.replace(next)));
     } catch (cause) {
       setPassword('');
       setError(
@@ -85,98 +93,102 @@ export function AdminSignInForm({ next, initialError }: { next: string; initialE
   }
 
   return (
-    <AdminAuthLayout
-      title="Sign in"
-      subtitle="Use the email and password issued for your admin account."
-      footer={{ href: '/', label: 'Back to store' }}
-    >
-      <Collapse in={Boolean(error)} unmountOnExit>
-        <Alert severity="error" role="alert" sx={{ mb: 2.5, borderRadius: 2.5 }}>
-          {error}
-        </Alert>
-      </Collapse>
+    <>
+      {leaving ? <BrandLoader label="Opening the admin panel…" /> : null}
 
-      <form
-        onSubmit={(event) => {
-          void handleSubmit(event);
-        }}
-        noValidate
+      <AdminAuthLayout
+        title="Sign in"
+        subtitle="Use the email and password issued for your admin account."
+        footer={{ href: '/', label: 'Back to store' }}
       >
-        <Stack spacing={2.25}>
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            error={Boolean(emailError)}
-            helperText={emailError}
-            autoComplete="email"
-            autoFocus
-            fullWidth
-            disabled={pending}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Mail size={17} aria-hidden />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+        <Collapse in={Boolean(error)} unmountOnExit>
+          <Alert severity="error" role="alert" sx={{ mb: 2.5, borderRadius: 2.5 }}>
+            {error}
+          </Alert>
+        </Collapse>
 
-          <TextField
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            error={Boolean(passwordError)}
-            helperText={passwordError}
-            autoComplete="current-password"
-            fullWidth
-            disabled={pending}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Lock size={17} aria-hidden />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((value) => !value)}
-                      edge="end"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      sx={{ width: 44, height: 44 }}
-                    >
-                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+        <form
+          onSubmit={(event) => {
+            void handleSubmit(event);
+          }}
+          noValidate
+        >
+          <Stack spacing={2.25}>
+            <TextField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              error={Boolean(emailError)}
+              helperText={emailError}
+              autoComplete="email"
+              autoFocus
+              fullWidth
+              disabled={pending}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Mail size={17} aria-hidden />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -0.5, ...QUIET_LINK }}>
-            <Link href="/admin/forgot-password">Forgot password?</Link>
-          </Box>
+            <TextField
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              error={Boolean(passwordError)}
+              helperText={passwordError}
+              autoComplete="current-password"
+              fullWidth
+              disabled={pending}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock size={17} aria-hidden />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword((value) => !value)}
+                        edge="end"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        sx={{ width: 44, height: 44 }}
+                      >
+                        {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
 
-          <Button
-            type="submit"
-            variant="contained"
-            size="large"
-            fullWidth
-            disabled={pending}
-            sx={{ minHeight: 48, fontSize: 15 }}
-            startIcon={
-              pending ? <CircularProgress size={16} color="inherit" thickness={5} /> : null
-            }
-          >
-            {pending ? 'Signing in…' : 'Sign in'}
-          </Button>
-        </Stack>
-      </form>
-    </AdminAuthLayout>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -0.5, ...QUIET_LINK }}>
+              <Link href="/admin/forgot-password">Forgot password?</Link>
+            </Box>
+
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={pending}
+              sx={{ minHeight: 48, fontSize: 15 }}
+              startIcon={
+                pending ? <CircularProgress size={16} color="inherit" thickness={5} /> : null
+              }
+            >
+              {pending ? 'Signing in…' : 'Sign in'}
+            </Button>
+          </Stack>
+        </form>
+      </AdminAuthLayout>
+    </>
   );
 }

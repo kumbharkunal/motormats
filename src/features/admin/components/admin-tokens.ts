@@ -95,3 +95,10 @@ export const BRAND_PANEL = {
   inkMuted: 'rgba(245,245,244,0.72)',
   border: 'rgba(255,255,255,0.08)',
 } as const;
+
+/**
+ * Ground for the logo plate — see `admin-logo.tsx`. Deliberately the
+ * storefront's own background rather than this panel's ink: the mark was drawn
+ * for that colour, and the logo links back to the store.
+ */
+export const LOGO_PLATE = '#0A0A0B';

@@ -327,6 +327,28 @@
   }
 }
 
+/* The global loader's two brand bars, each streaking along its own ~46° slant.
+   `px` inside a transform on an SVG child resolves in USER units, because
+   `transform-box` defaults to `view-box` — so both bars travel the same
+   distance despite their different bounding boxes. The root <svg> clips at the
+   viewBox, so a streak leaves the frame cleanly. */
+@keyframes glyph-slipstream {
+  0% {
+    transform: translate(-30px, -29px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(30px, 29px);
+    opacity: 0;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    Homepage deck
    ═══════════════════════════════════════════════════════════════════════ */

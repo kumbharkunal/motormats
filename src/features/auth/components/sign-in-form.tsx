@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { BrandLoader } from '@/components/feedback/brand-loader';
 import { Button } from '@/components/ui/button';
 import { GoogleMark } from '@/features/auth/components/google-mark';
 import { OtpInput } from '@/features/auth/components/otp-input';
@@ -36,6 +37,8 @@ export function SignInForm({ next }: { next: string }) {
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
+  /** Set once sign-in has succeeded and the document is on its way out. */
+  const [leaving, setLeaving] = useState(false);
   /** True while the SMS is still being requested behind the code screen. */
   const [sending, setSending] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -162,163 +165,171 @@ export function SignInForm({ next }: { next: string }) {
    * re-enabling the button invites a second submission mid-navigation.
    */
   function leaveForDestination() {
-    window.location.replace(next);
+    setLeaving(true);
+    // Commit the overlay to the screen before asking for the new document.
+    // Navigating in the same tick races React’s paint against the unload;
+    // two frames put the paint first, so it cannot be lost to that race.
+    requestAnimationFrame(() => requestAnimationFrame(() => window.location.replace(next)));
   }
 
   return (
-    <div className="card-surface rounded-3xl p-6 sm:p-8">
-      {step === 'phone' ? (
-        <>
-          <h1 className="text-h2">Sign in</h1>
-          <p className="text-muted-foreground mt-2 text-sm">
-            We will text you a one-time code. No password to remember.
-          </p>
+    <>
+      {leaving ? <BrandLoader label="Signing you in…" /> : null}
 
-          <div className="mt-6">
-            <label
-              htmlFor="phone"
-              className="text-muted-foreground mb-1.5 block text-xs font-medium tracking-wide uppercase"
-            >
-              Mobile number
-            </label>
+      <div className="rounded-3xl card-surface p-6 sm:p-8">
+        {step === 'phone' ? (
+          <>
+            <h1 className="text-h2">Sign in</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We will text you a one-time code. No password to remember.
+            </p>
 
-            <div className="flex gap-2">
-              {/* Its own box, as asked. Static rather than a picker: sign-in
+            <div className="mt-6">
+              <label
+                htmlFor="phone"
+                className="mb-1.5 block text-xs font-medium tracking-wide text-muted-foreground uppercase"
+              >
+                Mobile number
+              </label>
+
+              <div className="flex gap-2">
+                {/* Its own box, as asked. Static rather than a picker: sign-in
                   validates Indian numbers and Firebase is handed +91, so an
                   editable country field would promise a choice that does not
                   exist yet. */}
-              <div className="border-border bg-surface-elevated text-foreground flex h-12 shrink-0 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium">
-                <span aria-hidden>🇮🇳</span>
-                +91
-                <span className="sr-only">Country code for India</span>
-              </div>
+                <div className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3.5 text-sm font-medium text-foreground">
+                  <span aria-hidden>🇮🇳</span>
+                  +91
+                  <span className="sr-only">Country code for India</span>
+                </div>
 
-              <div
-                className={cn(
-                  'bg-surface flex h-12 flex-1 items-center rounded-xl border px-4 transition-colors duration-200',
-                  phoneFocused ? 'border-accent bg-accent/5' : 'border-border',
-                )}
-              >
-                <input
-                  id="phone"
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel-national"
-                  maxLength={10}
-                  value={digits}
-                  onFocus={() => setPhoneFocused(true)}
-                  onBlur={() => setPhoneFocused(false)}
-                  onChange={(event) => setPhone(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') void requestOtp();
-                  }}
-                  placeholder="98765 43210"
-                  className="w-full bg-transparent text-sm tracking-wide outline-none"
-                />
-                {phoneValid ? (
-                  <Check aria-hidden size={16} className="text-accent-text shrink-0" />
-                ) : null}
+                <div
+                  className={cn(
+                    'flex h-12 flex-1 items-center rounded-xl border bg-surface px-4 transition-colors duration-200',
+                    phoneFocused ? 'border-accent bg-accent/5' : 'border-border',
+                  )}
+                >
+                  <input
+                    id="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    maxLength={10}
+                    value={digits}
+                    onFocus={() => setPhoneFocused(true)}
+                    onBlur={() => setPhoneFocused(false)}
+                    onChange={(event) => setPhone(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') void requestOtp();
+                    }}
+                    placeholder="98765 43210"
+                    className="w-full bg-transparent text-sm tracking-wide outline-none"
+                  />
+                  {phoneValid ? (
+                    <Check aria-hidden size={16} className="shrink-0 text-accent-text" />
+                  ) : null}
+                </div>
               </div>
             </div>
-          </div>
 
-          <Button
-            size="lg"
-            className="mt-5 w-full"
-            onClick={() => void requestOtp()}
-            isLoading={busy}
-            disabled={!phoneValid}
+            <Button
+              size="lg"
+              className="mt-5 w-full"
+              onClick={() => void requestOtp()}
+              isLoading={busy}
+              disabled={!phoneValid}
+            >
+              Send code
+            </Button>
+
+            <div className="my-6 flex items-center gap-3">
+              <span className="h-px flex-1 bg-border" />
+              <span className="text-xs text-muted-foreground uppercase">or</span>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+
+            <Button
+              variant="ghost"
+              size="lg"
+              className="w-full gap-3 tracking-normal normal-case"
+              onClick={() => void googleSignIn()}
+              disabled={busy}
+            >
+              <GoogleMark size={18} />
+              Continue with Google
+            </Button>
+          </>
+        ) : (
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.35, ease: [0.165, 0.84, 0.44, 1] }}
           >
-            Send code
-          </Button>
+            <button
+              type="button"
+              onClick={() => {
+                // The old confirmation belongs to the previous number; keeping it
+                // would let a code for that number verify against this screen.
+                confirmation.current = null;
+                resetRecaptcha();
+                setStep('phone');
+                setCode('');
+                setSecondsLeft(0);
+              }}
+              className="mb-4 -ml-2 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft aria-hidden size={16} />
+              Change number
+            </button>
 
-          <div className="my-6 flex items-center gap-3">
-            <span className="bg-border h-px flex-1" />
-            <span className="text-muted-foreground text-xs uppercase">or</span>
-            <span className="bg-border h-px flex-1" />
-          </div>
+            <h1 className="text-h2">Enter the code</h1>
+            <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+              {sending ? (
+                <>
+                  <Loader2 aria-hidden size={14} className="animate-spin" />
+                  Sending a code to +91 {digits}…
+                </>
+              ) : (
+                <>Sent to +91 {digits}. It expires shortly.</>
+              )}
+            </p>
 
-          <Button
-            variant="ghost"
-            size="lg"
-            className="w-full gap-3 tracking-normal normal-case"
-            onClick={() => void googleSignIn()}
-            disabled={busy}
-          >
-            <GoogleMark size={18} />
-            Continue with Google
-          </Button>
-        </>
-      ) : (
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35, ease: [0.165, 0.84, 0.44, 1] }}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              // The old confirmation belongs to the previous number; keeping it
-              // would let a code for that number verify against this screen.
-              confirmation.current = null;
-              resetRecaptcha();
-              setStep('phone');
-              setCode('');
-              setSecondsLeft(0);
-            }}
-            className="text-muted-foreground hover:text-foreground -ml-2 mb-4 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm"
-          >
-            <ArrowLeft aria-hidden size={16} />
-            Change number
-          </button>
+            <div className="mt-6">
+              <OtpInput
+                label="One-time code"
+                value={code}
+                onChange={setCode}
+                length={OTP_LENGTH}
+                disabled={sending}
+                // Six digits in means they are done; make them press nothing.
+                onComplete={() => void verifyOtp()}
+              />
+            </div>
 
-          <h1 className="text-h2">Enter the code</h1>
-          <p className="text-muted-foreground mt-2 flex items-center gap-2 text-sm">
-            {sending ? (
-              <>
-                <Loader2 aria-hidden size={14} className="animate-spin" />
-                Sending a code to +91 {digits}…
-              </>
-            ) : (
-              <>Sent to +91 {digits}. It expires shortly.</>
-            )}
-          </p>
+            <Button
+              size="lg"
+              className="mt-5 w-full"
+              onClick={() => void verifyOtp()}
+              isLoading={busy && !sending}
+              disabled={code.length !== OTP_LENGTH || sending}
+            >
+              Verify and continue
+            </Button>
 
-          <div className="mt-6">
-            <OtpInput
-              label="One-time code"
-              value={code}
-              onChange={setCode}
-              length={OTP_LENGTH}
-              disabled={sending}
-              // Six digits in means they are done; make them press nothing.
-              onComplete={() => void verifyOtp()}
-            />
-          </div>
+            <Button
+              variant="ghost"
+              className="mt-3 w-full"
+              onClick={() => void requestOtp()}
+              disabled={busy || secondsLeft > 0}
+            >
+              {secondsLeft > 0 ? 'Resend in ' + secondsLeft + 's' : 'Resend code'}
+            </Button>
+          </motion.div>
+        )}
 
-          <Button
-            size="lg"
-            className="mt-5 w-full"
-            onClick={() => void verifyOtp()}
-            isLoading={busy && !sending}
-            disabled={code.length !== OTP_LENGTH || sending}
-          >
-            Verify and continue
-          </Button>
-
-          <Button
-            variant="ghost"
-            className="mt-3 w-full"
-            onClick={() => void requestOtp()}
-            disabled={busy || secondsLeft > 0}
-          >
-            {secondsLeft > 0 ? 'Resend in ' + secondsLeft + 's' : 'Resend code'}
-          </Button>
-        </motion.div>
-      )}
-
-      {/* Invisible reCAPTCHA mounts here; Firebase requires a real element. */}
-      <div id={RECAPTCHA_CONTAINER} />
-    </div>
+        {/* Invisible reCAPTCHA mounts here; Firebase requires a real element. */}
+        <div id={RECAPTCHA_CONTAINER} />
+      </div>
+    </>
   );
 }

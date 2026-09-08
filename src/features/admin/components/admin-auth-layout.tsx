@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
 import { MotormatsLogo } from '@/components/layout/motormats-logo';
 
 import { BRAND, BRAND_PANEL } from './admin-tokens';
-import { AdminWordmark } from './admin-wordmark';
+import { AdminLogo } from './admin-logo';
 
 /**
  * Shared chrome for the unauthenticated admin pages (sign in, reset password).
@@ -59,7 +59,7 @@ export function AdminAuthLayout({
           {/* Below md the brand panel is gone, so the mark lands on this light
               column and has to be the dark-ink one. */}
           <Box sx={{ display: { md: 'none' }, mb: 4 }}>
-            <AdminWordmark size="md" />
+            <AdminLogo size="sm" />
           </Box>
 
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1.5 }}>
