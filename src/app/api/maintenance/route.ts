@@ -11,7 +11,7 @@ import { pruneRateLimits } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+async function runMaintenance(request: NextRequest) {
   const requestId = newRequestId();
 
   try {
@@ -32,3 +32,14 @@ export async function POST(request: NextRequest) {
     return fail(error, requestId);
   }
 }
+
+/**
+ * Two verbs for one job.
+ *
+ * Hosted schedulers disagree on the method: Vercel Cron issues a GET, while a
+ * curl-based external scheduler normally POSTs. Both are gated by the same
+ * constant-time `CRON_SECRET` check, so exposing GET adds no surface — without
+ * the secret it is a 403 either way, and the work itself is idempotent.
+ */
+export const GET = runMaintenance;
+export const POST = runMaintenance;

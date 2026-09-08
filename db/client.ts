@@ -7,7 +7,15 @@ import { serverEnv } from '@/lib/env.server';
 
 import * as schema from './schema/index.ts';
 
-// Cached on globalThis so HMR does not open a new pool on every reload.
+/**
+ * Cached on globalThis in every environment.
+ *
+ * In development that stops HMR opening a new pool per reload. In production it
+ * matters more: Next builds several server bundles, so this module can be
+ * evaluated more than once in a single process, and on a serverless host every
+ * warm instance would otherwise stack another pool against a connection cap
+ * that is shared account-wide.
+ */
 const globalForDb = globalThis as unknown as {
   motormatsPool?: mysql.Pool;
 };
@@ -17,7 +25,9 @@ function createPool(): mysql.Pool {
 
   return mysql.createPool({
     uri: serverEnv.DATABASE_URL,
-    connectionLimit: 8,
+    connectionLimit: serverEnv.DATABASE_POOL_SIZE,
+    // Queue rather than throw when the pool is saturated: a slow request beats
+    // a failed checkout.
     waitForConnections: true,
     queueLimit: 0,
     enableKeepAlive: true,
@@ -30,7 +40,7 @@ function createPool(): mysql.Pool {
 }
 
 export const pool = globalForDb.motormatsPool ?? createPool();
-if (process.env.NODE_ENV !== 'production') globalForDb.motormatsPool = pool;
+globalForDb.motormatsPool = pool;
 
 export const db = drizzle(pool, { schema, mode: 'default', casing: 'snake_case' });
 

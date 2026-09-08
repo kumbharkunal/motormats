@@ -7,6 +7,12 @@ const serverEnvSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).optional(),
 
   DATABASE_URL: z.string().startsWith('mysql://', 'DATABASE_URL must be a mysql:// URI'),
+  /**
+   * Connections per pool. The default suits a serverless host, where every warm
+   * instance holds its own pool and the managed database's connection cap is
+   * shared across all of them. A single long-lived Node server can afford more.
+   */
+  DATABASE_POOL_SIZE: z.coerce.number().int().min(1).max(50).default(3),
   // Accepted as PEM or base64(PEM) because some hosting panels mangle newlines.
   DATABASE_SSL_CA: z
     .string()
