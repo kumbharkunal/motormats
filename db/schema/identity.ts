@@ -57,6 +57,11 @@ export const sessions = mysqlTable(
     tokenHash: char({ length: 64 }).notNull(),
     familyId: char({ length: 26 }).notNull(),
 
+    // How this session was established. Carried across every rotation so the
+    // admin gate can require the password provider for the lifetime of the
+    // session; null on rows predating the column, which is treated as untrusted.
+    signInProvider: varchar({ length: 32 }),
+
     userAgentHash: char({ length: 64 }),
     ipHash: char({ length: 64 }),
 

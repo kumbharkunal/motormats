@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import { USER_ROLES } from '@db/schema/identity';
-import { can, isAdminRole, PERMISSIONS, ROLE_PERMISSIONS } from '@/lib/auth/rbac';
+import {
+  can,
+  isAdminRole,
+  isElevatedPermission,
+  PERMISSIONS,
+  ROLE_PERMISSIONS,
+} from '@/lib/auth/rbac';
 
 describe('rbac', () => {
   it('defines permissions for exactly the known roles', () => {
@@ -50,5 +56,32 @@ describe('rbac', () => {
     for (const permission of ROLE_PERMISSIONS.customer) {
       expect(can('admin', permission)).toBe(true);
     }
+  });
+
+  /**
+   * Elevated permissions additionally demand an admin sign-in method. If a
+   * back-office permission ever slipped into the customer set it would silently
+   * lose that second gate, so the split is asserted directly.
+   */
+  describe('elevation', () => {
+    it('treats every non-customer permission as elevated', () => {
+      for (const permission of PERMISSIONS) {
+        expect(isElevatedPermission(permission)).toBe(
+          !ROLE_PERMISSIONS.customer.includes(permission),
+        );
+      }
+    });
+
+    it('does not elevate the permissions customers hold', () => {
+      expect(isElevatedPermission('product:read')).toBe(false);
+      expect(isElevatedPermission('order:read:own')).toBe(false);
+    });
+
+    it('elevates back-office permissions', () => {
+      expect(isElevatedPermission('admin:access')).toBe(true);
+      expect(isElevatedPermission('product:write')).toBe(true);
+      expect(isElevatedPermission('order:refund')).toBe(true);
+      expect(isElevatedPermission('user:assign_role')).toBe(true);
+    });
   });
 });

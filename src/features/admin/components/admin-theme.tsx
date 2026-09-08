@@ -6,9 +6,14 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import type { ReactNode } from 'react';
 
+import { BRAND, INK, LINE, SHADOW, STATUS, SURFACE } from './admin-tokens';
+
 /**
- * Material UI theme for the admin panel, tuned to the storefront's palette so
- * the two do not look like different products.
+ * Material UI theme for the admin panel.
+ *
+ * The panel is light while the storefront is dark — a working surface people
+ * stare at all day is a different job from a showroom. Every colour comes from
+ * `admin-tokens.ts`; nothing is decided here.
  *
  * MUI is confined to this route group — a lint rule blocks importing it
  * anywhere else, because Emotion plus MUI in a storefront bundle would blow the
@@ -17,15 +22,20 @@ import type { ReactNode } from 'react';
 const theme = createTheme({
   cssVariables: true,
   palette: {
-    mode: 'dark',
-    primary: { main: '#E10600', dark: '#B00400', light: '#FF4438' },
-    background: { default: '#0A0A0B', paper: '#141416' },
-    text: { primary: '#F5F5F4', secondary: '#A1A1AA' },
-    divider: 'rgba(255,255,255,0.08)',
-    success: { main: '#0CA30C' },
-    warning: { main: '#FAB219' },
-    error: { main: '#D03B3B' },
-    info: { main: '#3987E5' },
+    mode: 'light',
+    primary: {
+      main: BRAND.main,
+      dark: BRAND.dark,
+      light: BRAND.tint,
+      contrastText: BRAND.contrast,
+    },
+    background: { default: SURFACE.canvas, paper: SURFACE.card },
+    text: { primary: INK.primary, secondary: INK.secondary, disabled: INK.disabled },
+    divider: LINE.hairline,
+    success: { main: STATUS.success },
+    warning: { main: STATUS.warning },
+    error: { main: STATUS.error },
+    info: { main: STATUS.info },
   },
   shape: { borderRadius: 14 },
   typography: {
@@ -40,21 +50,28 @@ const theme = createTheme({
     overline: { letterSpacing: '0.08em', fontWeight: 600 },
   },
   components: {
-    MuiPaper: {
-      // Deliberately no blanket border: Drawer, Menu and Popover are Papers too,
-      // and a border on the drawer offsets its content by 1px, which throws the
-      // sidebar header out of line with the content header.
-      styleOverrides: { root: { backgroundImage: 'none' } },
-    },
     MuiCard: {
       styleOverrides: {
         root: {
-          border: '1px solid rgba(255,255,255,0.08)',
-          backgroundImage:
-            'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 120px)',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.4)',
+          // The border lives on Card rather than Paper: Drawer, Menu and Popover
+          // are Papers too, and a border on the drawer offsets its content by
+          // 1px, which throws the sidebar header out of line with the content
+          // header.
+          border: `1px solid ${LINE.hairline}`,
+          // A light surface rises by casting a real shadow, not by tinting
+          // itself lighter — so no elevation gradient, and a shadow small
+          // enough to read as a lift rather than a drop.
+          boxShadow: SHADOW.card,
           transition: 'border-color 200ms ease, box-shadow 200ms ease',
         },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        // The sidebar is the tinted plane; cards and the header are the white
+        // ones on top of it. Same at every breakpoint, so the mobile overlay
+        // still reads as the same sidebar.
+        paper: { backgroundColor: SURFACE.canvas, backgroundImage: 'none' },
       },
     },
     MuiButton: {
@@ -73,25 +90,58 @@ const theme = createTheme({
         root: { fontWeight: 600, letterSpacing: '0.01em' },
       },
     },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          // MUI's light input is unfilled, which reads as unfinished against
+          // cards that are already white. Give it its own ground and a visible
+          // resting border.
+          backgroundColor: SURFACE.card,
+          '& .MuiOutlinedInput-notchedOutline': { borderColor: LINE.strong },
+          '&:hover:not(.Mui-focused) .MuiOutlinedInput-notchedOutline': {
+            borderColor: INK.disabled,
+          },
+          // Focus is drawn in ink, not in the brand red. On a white field a red
+          // ring and a red label read as 'this is wrong', and `error.main` is
+          // another red a hair away from it — focus and failure would look the
+          // same. On the dark panel that red read as brand, which is why this
+          // override did not need to exist before.
+          '&.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
+            borderColor: INK.primary,
+            borderWidth: 2,
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: { '&.Mui-focused:not(.Mui-error)': { color: INK.primary } },
+      },
+    },
     MuiListItemButton: {
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(225,6,0,0.14)',
-            '&:hover': { backgroundColor: 'rgba(225,6,0,0.2)' },
+            // Much weaker than the dark panel's wash: the same red over white
+            // reads roughly twice as loud.
+            backgroundColor: BRAND.wash,
+            '&:hover': { backgroundColor: BRAND.washHover },
           },
         },
       },
     },
     MuiTooltip: {
       styleOverrides: {
+        // Deliberately dark. A dark tooltip on a light panel is the convention
+        // and the most legible option; inverting it with the rest would be a
+        // downgrade.
         tooltip: {
-          backgroundColor: '#1F1F23',
-          border: '1px solid rgba(255,255,255,0.1)',
+          backgroundColor: INK.primary,
           fontSize: 12,
           fontWeight: 500,
           padding: '6px 10px',
         },
+        arrow: { color: INK.primary },
       },
     },
   },
@@ -101,20 +151,35 @@ export function AdminTheme({ children }: { children: ReactNode }) {
   return (
     <AppRouterCacheProvider options={{ key: 'mui' }}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
+        {/* `enableColorScheme` so native controls, autofill and the scrollbar
+            gutter render light too — the root layout declares a dark scheme. */}
+        <CssBaseline enableColorScheme />
         <GlobalStyles
           styles={{
-            // The default dark scrollbar is a bright slab against these surfaces.
+            // The root layout paints the storefront's near-black onto <body>
+            // through Tailwind, which lives in a cascade layer. Emotion injects
+            // unlayered, and unlayered beats every layer regardless of
+            // specificity — so this is what actually lights the page, including
+            // the overscroll gutter no component background can reach.
+            body: { backgroundColor: SURFACE.canvas, color: INK.primary },
+
+            // globals.css selects with white text on translucent red, which is
+            // unreadable once the ground is light.
+            '::selection': { backgroundColor: 'rgba(225,6,0,0.16)', color: INK.primary },
+
+            // globals.css rings focus in #FF4438 — 3.4:1 here, too weak.
+            ':focus-visible': { outlineColor: BRAND.main },
+
             '*::-webkit-scrollbar': { width: 10, height: 10 },
             '*::-webkit-scrollbar-track': { background: 'transparent' },
             '*::-webkit-scrollbar-thumb': {
-              background: 'rgba(255,255,255,0.14)',
+              background: 'rgba(16,24,40,0.18)',
               borderRadius: 8,
               border: '2px solid transparent',
               backgroundClip: 'content-box',
             },
             '*::-webkit-scrollbar-thumb:hover': {
-              background: 'rgba(255,255,255,0.24)',
+              background: 'rgba(16,24,40,0.30)',
               backgroundClip: 'content-box',
             },
           }}

@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
 
+import { STATUS } from '../admin-tokens';
 import { INK } from './chart-tokens';
 
 /**
@@ -65,7 +66,7 @@ export function StatCard({
               showTooltip={false}
               height={34}
               margin={{ top: 4, bottom: 4, left: 0, right: 0 }}
-              sx={{ '& .MuiAreaElement-root': { opacity: 0.18 } }}
+              sx={{ '& .MuiLineChart-area': { opacity: 0.14 } }}
             />
           </Box>
         ) : null}
@@ -96,7 +97,7 @@ function DeltaBadge({ deltaPct, hint }: { deltaPct?: number | null; hint?: strin
   const flat = rounded === 0;
   const up = rounded > 0;
   const Icon = flat ? Minus : up ? TrendingUp : TrendingDown;
-  const tone = flat ? INK.muted : up ? '#0CA30C' : '#D03B3B';
+  const tone = flat ? INK.muted : up ? STATUS.success : STATUS.error;
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>

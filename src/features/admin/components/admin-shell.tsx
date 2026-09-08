@@ -28,7 +28,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useSyncExternalStore, type ReactNode } from 'react';
 
-import { MotormatsLogo } from '@/components/layout/motormats-logo';
+import { BRAND, INK } from './admin-tokens';
+import { AdminWordmark } from './admin-wordmark';
 
 const DRAWER_WIDTH = 260;
 const RAIL_WIDTH = 76;
@@ -57,7 +58,7 @@ type NavItem = {
 const NAV: { section: string; items: NavItem[] }[] = [
   {
     section: 'Overview',
-    items: [{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true }],
+    items: [{ href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: true }],
   },
   {
     section: 'Commerce',
@@ -161,12 +162,13 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
             position: 'relative',
             justifyContent: rail ? 'center' : 'flex-start',
             px: rail ? 0 : 1.5,
-            // `primary.light` (#FF4438) rather than the darker brand red: at 14px
-            // this is body copy, and #E10600 on this ground fails WCAG AA.
-            color: item.danger ? 'primary.light' : active ? 'text.primary' : 'text.secondary',
+            // `primary.main` (#E10600) rather than the lighter `primary.light`: at
+            // 14px this is body copy, and on a light ground the brand red is the
+            // shade that clears WCAG AA — the inverse of the storefront's rule.
+            color: item.danger ? 'primary.main' : active ? 'text.primary' : 'text.secondary',
             '&:hover': {
-              color: item.danger ? 'primary.light' : 'text.primary',
-              ...(item.danger ? { backgroundColor: 'rgba(225,6,0,0.12)' } : undefined),
+              color: item.danger ? 'primary.dark' : 'text.primary',
+              ...(item.danger ? { backgroundColor: BRAND.wash } : undefined),
             },
             // The rail marks the active route when the label is not there to.
             '&::before': active
@@ -179,7 +181,7 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
                   width: 3,
                   height: 20,
                   borderRadius: 999,
-                  backgroundColor: 'primary.light',
+                  backgroundColor: 'primary.main',
                 }
               : undefined,
           }}
@@ -235,8 +237,8 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
                   borderRadius: 2,
                   display: 'grid',
                   placeItems: 'center',
-                  bgcolor: 'rgba(225,6,0,0.15)',
-                  color: 'primary.light',
+                  bgcolor: BRAND.wash,
+                  color: 'primary.main',
                   fontWeight: 800,
                   fontSize: 16,
                 }}
@@ -246,7 +248,7 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
             </Link>
           ) : (
             <Link href="/admin" aria-label="Motormats admin" style={{ display: 'flex' }}>
-              <MotormatsLogo size="sm" className="h-8" />
+              <AdminWordmark size="sm" />
             </Link>
           )}
 
@@ -254,12 +256,12 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
             <Typography
               variant="caption"
               sx={{
-                color: 'primary.light',
+                color: 'primary.main',
                 fontWeight: 800,
                 letterSpacing: '0.1em',
                 fontSize: 10,
                 border: '1px solid',
-                borderColor: 'rgba(225,6,0,0.35)',
+                borderColor: BRAND.washBorder,
                 borderRadius: 1,
                 px: 0.75,
                 py: 0.25,
@@ -278,9 +280,8 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
                   variant="overline"
                   sx={{
                     display: 'block',
-                    color: 'text.secondary',
+                    color: INK.muted,
                     fontSize: 10,
-                    opacity: 0.7,
                     px: 1.5,
                     mb: 0.5,
                   }}
@@ -329,8 +330,8 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
                     width: 30,
                     height: 30,
                     borderRadius: 2,
-                    bgcolor: 'rgba(225,6,0,0.16)',
-                    color: 'primary.light',
+                    bgcolor: BRAND.wash,
+                    color: 'primary.main',
                   }}
                 >
                   <ShieldCheck size={16} strokeWidth={2} aria-hidden />
@@ -420,8 +421,10 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
             px: { xs: 2, md: 3 },
             borderBottom: '1px solid',
             borderColor: 'divider',
-            bgcolor: 'rgba(10,10,11,0.85)',
-            backdropFilter: 'blur(8px)',
+            // Opaque rather than translucent-and-blurred: on a light ground a
+            // see-through header reads as a smear over the scrolling content, and
+            // dropping the blur removes a per-frame re-sample.
+            bgcolor: 'background.paper',
           }}
         >
           <IconButton

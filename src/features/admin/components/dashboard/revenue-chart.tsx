@@ -115,11 +115,19 @@ export function RevenueChart({ trend }: { trend: TrendPoint[] }) {
   );
 }
 
-/** Recessive grid and axes; the data is the only thing that should draw the eye. */
+/**
+ * Recessive grid and axes; the data is the only thing that should draw the eye.
+ *
+ * The class names are x-charts v9's: the area is `MuiLineChart-area`, not the
+ * v7 `MuiAreaElement-root`. The old selector matched nothing, which is why the
+ * area was rendering at full opacity as a solid slab of brand red. The axis
+ * rules are qualified through `MuiChartsAxis-root` because the component's own
+ * styles land at the same specificity and would otherwise win on insertion order.
+ */
 const chartSx = {
   '& .MuiChartsGrid-line': { stroke: INK.grid },
-  '& .MuiChartsAxis-line': { stroke: INK.axis },
-  '& .MuiChartsAxis-tick': { stroke: INK.axis },
-  '& .MuiAreaElement-root': { opacity: 0.16 },
-  '& .MuiLineElement-root': { strokeWidth: 2 },
+  '& .MuiChartsAxis-root .MuiChartsAxis-line': { stroke: INK.axis },
+  '& .MuiChartsAxis-root .MuiChartsAxis-tick': { stroke: INK.axis },
+  '& .MuiLineChart-area': { opacity: 0.12 },
+  '& .MuiLineChart-line': { strokeWidth: 2 },
 } as const;

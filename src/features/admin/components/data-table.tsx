@@ -10,6 +10,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
+import { LINE, SHADOW, SURFACE } from './admin-tokens';
+
 export type Column<T> = {
   field: string;
   header: string;
@@ -68,7 +70,7 @@ export function ResponsiveDataTable<T extends { id: string }>({
                 transition: 'border-color 200ms ease, transform 120ms ease',
                 '&:active': onRowClick ? { transform: 'scale(0.995)' } : undefined,
                 ...(onRowClick
-                  ? { '&:hover': { borderColor: 'rgba(255,255,255,0.16)' } }
+                  ? { '&:hover': { borderColor: LINE.strong, boxShadow: SHADOW.raised } }
                   : undefined),
               }}
             >
@@ -115,6 +117,9 @@ export function ResponsiveDataTable<T extends { id: string }>({
         pageSizeOptions={[25, 50, 100]}
         sx={{
           border: 0,
+          // A light table needs its head filled to read as a head; the dark
+          // one got that separation from the surrounding surface for free.
+          '--DataGrid-t-header-background-base': SURFACE.sunken,
           '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': { outline: 'none' },
           '& .MuiDataGrid-columnHeaders': { borderBottom: '1px solid', borderColor: 'divider' },
           '& .MuiDataGrid-columnHeaderTitle': {
@@ -129,7 +134,7 @@ export function ResponsiveDataTable<T extends { id: string }>({
             cursor: onRowClick ? 'pointer' : 'default',
             transition: 'background-color 150ms ease',
           },
-          '& .MuiDataGrid-row:hover': { backgroundColor: 'rgba(255,255,255,0.03)' },
+          '& .MuiDataGrid-row:hover': { backgroundColor: 'rgba(16,24,40,0.03)' },
           '& .MuiDataGrid-footerContainer': { borderColor: 'divider' },
         }}
         autoHeight

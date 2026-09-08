@@ -27,10 +27,18 @@ export type SessionClaims = {
   pid: string;
   role: UserRole;
   epoch: number;
+  // Firebase sign-in provider ('password', 'phone', 'google.com'). Required on
+  // the type so no caller can forget it; null means unknown, never privileged.
+  prv: string | null;
 };
 
 export async function signAccessToken(claims: SessionClaims): Promise<string> {
-  return new SignJWT({ pid: claims.pid, role: claims.role, epoch: claims.epoch })
+  return new SignJWT({
+    pid: claims.pid,
+    role: claims.role,
+    epoch: claims.epoch,
+    prv: claims.prv,
+  })
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .setSubject(claims.sub)
     .setIssuer(ISSUER)
@@ -58,6 +66,9 @@ export async function verifyAccessToken(token: string): Promise<SessionClaims | 
       pid: payload.pid,
       role: payload.role as UserRole,
       epoch: payload.epoch,
+      // Read leniently: a token minted before this claim existed must still
+      // verify, it simply does not carry a trusted provider.
+      prv: typeof payload.prv === 'string' ? payload.prv : null,
     };
   } catch {
     return null;
@@ -66,13 +77,19 @@ export async function verifyAccessToken(token: string): Promise<SessionClaims | 
 
 export async function issueRefreshToken(
   userId: number,
-  context: { familyId?: string; userAgent?: string | null; ip?: string | null } = {},
+  context: {
+    familyId?: string;
+    userAgent?: string | null;
+    ip?: string | null;
+    signInProvider?: string | null;
+  } = {},
 ): Promise<string> {
   const raw = randomToken();
   await db.insert(sessions).values({
     userId,
     tokenHash: sha256(raw),
     familyId: context.familyId ?? newPublicId(),
+    signInProvider: context.signInProvider ?? null,
     userAgentHash: context.userAgent ? sha256(context.userAgent) : null,
     ipHash: context.ip ? sha256(context.ip) : null,
     expiresAt: new Date(Date.now() + REFRESH_TTL_MS),
@@ -81,7 +98,7 @@ export async function issueRefreshToken(
 }
 
 type RotationResult =
-  | { status: 'ok'; userId: number; refreshToken: string }
+  | { status: 'ok'; userId: number; refreshToken: string; signInProvider: string | null }
   | { status: 'invalid' }
   | { status: 'reused' };
 
@@ -97,6 +114,7 @@ export async function rotateRefreshToken(
       id: sessions.id,
       userId: sessions.userId,
       familyId: sessions.familyId,
+      signInProvider: sessions.signInProvider,
       revokedAt: sessions.revokedAt,
       expiresAt: sessions.expiresAt,
     })
@@ -116,12 +134,20 @@ export async function rotateRefreshToken(
   const now = new Date();
   await db.update(sessions).set({ revokedAt: now }).where(eq(sessions.id, existing.id));
 
+  // The provider is a property of the original sign-in, so it rides along the
+  // whole family — without this the admin gate would fail on the first refresh.
   const refreshToken = await issueRefreshToken(existing.userId, {
     familyId: existing.familyId,
+    signInProvider: existing.signInProvider,
     ...context,
   });
 
-  return { status: 'ok', userId: existing.userId, refreshToken };
+  return {
+    status: 'ok',
+    userId: existing.userId,
+    refreshToken,
+    signInProvider: existing.signInProvider,
+  };
 }
 
 export async function revokeSessionFamily(familyId: string): Promise<void> {

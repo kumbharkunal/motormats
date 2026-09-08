@@ -1,0 +1,1 @@
+ALTER TABLE `sessions` ADD `sign_in_provider` varchar(32);

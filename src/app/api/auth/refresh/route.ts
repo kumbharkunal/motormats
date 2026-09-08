@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       pid: user.publicId,
       role: user.role,
       epoch: user.sessionEpoch,
+      prv: rotation.signInProvider,
     });
 
     const csrfToken = await setSessionCookies(accessToken, rotation.refreshToken);

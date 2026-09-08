@@ -91,6 +91,7 @@ function anonymousUser(): CurrentUser {
     name: null,
     phone: null,
     email: null,
+    signInProvider: null,
   };
 }
 

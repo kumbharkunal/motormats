@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 
 import { formatPaise } from '@/lib/money';
 
-import { SERIES } from './chart-tokens';
+import { INK, SERIES } from './chart-tokens';
 
 /**
  * Best sellers by revenue.
@@ -63,7 +63,7 @@ export function TopProductsChart({
                   flex: 1,
                   height: 8,
                   borderRadius: 999,
-                  bgcolor: 'rgba(255,255,255,0.06)',
+                  bgcolor: INK.grid,
                   overflow: 'hidden',
                 }}
               >
@@ -74,7 +74,7 @@ export function TopProductsChart({
                     borderRadius: 999,
                     // One hue, magnitude by length — the leader is darkest.
                     bgcolor: SERIES.units,
-                    opacity: 1 - index * 0.14,
+                    opacity: Math.max(1 - index * 0.1, 0.6),
                     transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 />

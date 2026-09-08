@@ -50,6 +50,20 @@ export function can(role: UserRole, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role].includes(permission);
 }
 
+/** Narrows a role that arrived as plain text, e.g. from a JSON response. */
+export function isUserRole(value: string): value is UserRole {
+  return Object.hasOwn(ROLE_PERMISSIONS, value);
+}
+
 export function isAdminRole(role: UserRole): boolean {
   return can(role, 'admin:access');
+}
+
+/**
+ * Anything a plain customer cannot do is back-office work. Those permissions
+ * additionally require an admin sign-in method, so a session opened by OTP or
+ * Google cannot reach them even when the role would allow it.
+ */
+export function isElevatedPermission(permission: Permission): boolean {
+  return !ROLE_PERMISSIONS.customer.includes(permission);
 }

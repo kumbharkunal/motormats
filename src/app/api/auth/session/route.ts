@@ -35,10 +35,12 @@ export async function POST(request: NextRequest) {
       pid: user.publicId,
       role: user.role,
       epoch: user.sessionEpoch,
+      prv: identity.signInProvider,
     });
     const refreshToken = await issueRefreshToken(user.id, {
       userAgent: request.headers.get('user-agent'),
       ip: address,
+      signInProvider: identity.signInProvider,
     });
 
     const csrfToken = await setSessionCookies(accessToken, refreshToken);

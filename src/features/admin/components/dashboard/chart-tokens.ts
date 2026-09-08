@@ -1,46 +1,48 @@
+import { INK as ADMIN_INK, SERIES as ADMIN_SERIES, LINE, SURFACE } from '../admin-tokens';
+
 /**
  * Chart ink for the admin panel.
  *
- * These are not arbitrary picks. The categorical slots were run through the
- * data-viz palette validator against this panel's card surface (#141416) and
- * clear the lightness band, chroma floor, adjacent-pair colour-blind separation
- * (worst ΔE 8.4) and the 3:1 contrast gate. Re-run the validator before
- * changing one — a hue that "looks fine" routinely fails under protanopia.
+ * Colour itself lives in `admin-tokens.ts`; this file is the chart-shaped view
+ * of it plus the pieces only charts need.
  */
 
-/** Card surface the charts are drawn on; the validator's reference surface. */
-export const CHART_SURFACE = '#141416';
+/** Card surface the charts are drawn on; the palette validator's reference. */
+export const CHART_SURFACE = SURFACE.card;
 
 export const INK = {
-  primary: '#F5F5F4',
-  secondary: '#A1A1AA',
-  muted: '#898781',
-  grid: 'rgba(255,255,255,0.06)',
-  axis: 'rgba(255,255,255,0.12)',
+  primary: ADMIN_INK.primary,
+  secondary: ADMIN_INK.secondary,
+  muted: ADMIN_INK.muted,
+  /** Recessive enough to sit under the data without disappearing on white. */
+  grid: '#EAECF0',
+  axis: LINE.strong,
 } as const;
 
-/** Brand red, stepped up for the dark surface. The storefront's `accent-text`. */
-export const SERIES = {
-  revenue: '#FF4438',
-  orders: '#3987E5',
-  units: '#199E70',
-} as const;
+export const SERIES = ADMIN_SERIES;
 
 /**
- * Order status colours. Reserved — never reused as a generic series hue, and
- * always shipped beside a written label so colour never carries meaning alone.
+ * Order status as *slice fill*, which is a different job from order status as
+ * text — see the note on `STATUS` in `admin-tokens.ts`. A filled shape owes 3:1
+ * rather than 4.5:1, and spending that headroom is what lets five states stay
+ * apart: these clear the validator on all pairs at worst ΔE 8.7 under
+ * colour-blind simulation, where the text-grade set collapses to ΔE 8.6 between
+ * amber and red.
+ *
+ * Reserved — never reused as a generic series hue, and always shipped beside a
+ * written label so colour never carries meaning alone.
  */
 export const STATUS_COLOR: Record<string, string> = {
-  paid: '#0CA30C',
-  delivered: '#0CA30C',
-  processing: '#3987E5',
-  shipped: '#3987E5',
-  pending_payment: '#FAB219',
-  cancelled: '#D03B3B',
-  refunded: '#EC835A',
+  paid: '#0A7C4A',
+  delivered: '#0A7C4A',
+  processing: '#175CD3',
+  shipped: '#175CD3',
+  pending_payment: '#D97706',
+  cancelled: '#E11D48',
+  refunded: '#0891B2',
 };
 
-export const STATUS_FALLBACK = '#898781';
+export const STATUS_FALLBACK = ADMIN_INK.muted;
 
 export function statusColor(status: string): string {
   return STATUS_COLOR[status] ?? STATUS_FALLBACK;

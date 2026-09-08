@@ -39,14 +39,46 @@ afterAll(async () => {
 
 describe('access tokens', () => {
   it('round-trips its claims', async () => {
-    const token = await signAccessToken({ sub: '42', pid: 'PID', role: 'admin', epoch: 3 });
+    const token = await signAccessToken({
+      sub: '42',
+      pid: 'PID',
+      role: 'admin',
+      epoch: 3,
+      prv: 'password',
+    });
     const claims = await verifyAccessToken(token);
 
-    expect(claims).toEqual({ sub: '42', pid: 'PID', role: 'admin', epoch: 3 });
+    expect(claims).toEqual({
+      sub: '42',
+      pid: 'PID',
+      role: 'admin',
+      epoch: 3,
+      prv: 'password',
+    });
+  });
+
+  // A token minted before the provider claim existed must still verify, or every
+  // live session breaks on deploy. It simply carries no trusted provider.
+  it('verifies a legacy token with no provider claim as prv: null', async () => {
+    const token = await signAccessToken({
+      sub: '7',
+      pid: 'PID',
+      role: 'customer',
+      epoch: 0,
+      prv: null,
+    });
+
+    expect(await verifyAccessToken(token)).toMatchObject({ prv: null });
   });
 
   it('rejects a tampered payload', async () => {
-    const token = await signAccessToken({ sub: '1', pid: 'PID', role: 'customer', epoch: 0 });
+    const token = await signAccessToken({
+      sub: '1',
+      pid: 'PID',
+      role: 'customer',
+      epoch: 0,
+      prv: 'phone',
+    });
     const [header, payload, signature] = token.split('.');
 
     // Re-encode the payload claiming super_admin, keeping the original signature.
@@ -107,6 +139,40 @@ describe('refresh token rotation', () => {
       .where(eq(sessions.tokenHash, sha256(first)))
       .limit(1);
     expect(old?.revokedAt).not.toBeNull();
+  });
+
+  /**
+   * The admin gate requires the password provider, and the access token lives
+   * only 15 minutes. If the provider did not survive rotation the admin would be
+   * silently ejected at the first refresh, so this is the regression that the
+   * `sessions.sign_in_provider` column exists to prevent.
+   */
+  it('carries the sign-in provider across a rotation', async () => {
+    const first = await issueRefreshToken(userId, { signInProvider: 'password' });
+    const rotation = await rotateRefreshToken(first);
+
+    expect(rotation.status).toBe('ok');
+    if (rotation.status !== 'ok') return;
+    expect(rotation.signInProvider).toBe('password');
+
+    // And it is persisted on the replacement row, so the next rotation keeps it too.
+    const [row] = await db
+      .select({ signInProvider: sessions.signInProvider })
+      .from(sessions)
+      .where(eq(sessions.tokenHash, sha256(rotation.refreshToken)))
+      .limit(1);
+    expect(row?.signInProvider).toBe('password');
+
+    const second = await rotateRefreshToken(rotation.refreshToken);
+    expect(second.status === 'ok' && second.signInProvider).toBe('password');
+  });
+
+  it('reports no provider for a session issued without one', async () => {
+    const raw = await issueRefreshToken(userId);
+    const rotation = await rotateRefreshToken(raw);
+
+    // Null is the untrusted default: such a session must never pass the admin gate.
+    expect(rotation.status === 'ok' && rotation.signInProvider).toBeNull();
   });
 
   it('treats replay of a retired token as theft and revokes the whole family', async () => {

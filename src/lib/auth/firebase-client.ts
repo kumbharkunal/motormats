@@ -5,6 +5,8 @@ import {
   getAuth,
   GoogleAuthProvider,
   RecaptchaVerifier,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
   signInWithPhoneNumber,
   signInWithPopup,
   type Auth,
@@ -74,6 +76,14 @@ const AUTH_MESSAGES: Record<string, string> = {
   'auth/invalid-verification-code': 'That code is incorrect or has expired. Request a new one.',
   'auth/code-expired': 'That code has expired. Request a new one.',
   'auth/missing-verification-code': 'Enter the six-digit code we sent you.',
+  // Deliberately one message for all three: telling them apart would let an
+  // attacker enumerate which admin addresses exist.
+  'auth/invalid-credential': 'Incorrect email or password.',
+  'auth/wrong-password': 'Incorrect email or password.',
+  'auth/user-not-found': 'Incorrect email or password.',
+  'auth/invalid-email': 'That email address does not look right.',
+  'auth/user-disabled': 'This account has been disabled.',
+  'auth/missing-email': 'Enter the email address for your admin account.',
 };
 
 export function isCancelledByUser(error: unknown): boolean {
@@ -104,15 +114,44 @@ export async function signInWithGoogle(): Promise<string> {
   return credential.user.getIdToken();
 }
 
-export async function establishSession(idToken: string): Promise<void> {
+export async function signInWithEmailPassword(email: string, password: string): Promise<string> {
+  const credential = await signInWithEmailAndPassword(firebaseAuth(), email, password);
+  return credential.user.getIdToken();
+}
+
+/**
+ * Firebase delivers the email and hosts the reset form; this app has no mail
+ * transport of its own. Note there is no server hop here, so the app's own rate
+ * limiter cannot apply — Firebase's quota is the throttle.
+ */
+export async function sendPasswordReset(email: string): Promise<void> {
+  try {
+    await sendPasswordResetEmail(firebaseAuth(), email);
+  } catch (error) {
+    // An unknown address must behave exactly like a known one, or this page
+    // becomes an oracle for which admin emails exist. Every other failure
+    // (network, quota, malformed address) still surfaces to the caller.
+    if (authErrorCode(error) === 'auth/user-not-found') return;
+    throw error;
+  }
+}
+
+export type EstablishedSession = {
+  publicId: string;
+  role: string;
+  csrfToken: string;
+};
+
+export async function establishSession(idToken: string): Promise<EstablishedSession | null> {
   const response = await fetch('/api/auth/session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ idToken }),
   });
 
+  const body: unknown = await response.json().catch(() => null);
+
   if (!response.ok) {
-    const body: unknown = await response.json().catch(() => null);
     const message =
       typeof body === 'object' && body !== null && 'error' in body
         ? ((body as { error: { message?: string } }).error.message ??
@@ -122,4 +161,14 @@ export async function establishSession(idToken: string): Promise<void> {
   }
 
   await firebaseAuth().signOut();
+
+  // Callers that only need the cookie ignore this; the admin form reads `role`
+  // so it can explain a refusal instead of bouncing the visitor silently.
+  return typeof body === 'object' && body !== null && 'data' in body
+    ? ((body as { data: EstablishedSession }).data ?? null)
+    : null;
+}
+
+export async function endSession(): Promise<void> {
+  await fetch('/api/auth/sign-out', { method: 'POST' }).catch(() => undefined);
 }

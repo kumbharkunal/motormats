@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 
 import { SignInForm } from '@/features/auth/components/sign-in-form';
 import { getCurrentUser } from '@/lib/auth/current-user';
+import { safeNextPath } from '@/lib/auth/safe-next-path';
 
 export const metadata: Metadata = {
   title: 'Sign in',
@@ -17,9 +18,9 @@ export default async function SignInPage({
   const user = await getCurrentUser();
   const { next } = await searchParams;
 
-  // Only same-site relative paths are honoured, so `?next=` cannot be used to
-  // bounce a signed-in visitor to another origin.
-  const destination = next && /^\/(?!\/)/.test(next) ? next : '/';
+  // A deep link still wins: arriving from /checkout returns there, not to the
+  // default landing page.
+  const destination = safeNextPath(next, '/collections');
 
   if (user) redirect(destination);
 

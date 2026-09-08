@@ -7,7 +7,7 @@ import { productVariants, products } from '@db/schema/catalog';
 import { orderItems, orders } from '@db/schema/commerce';
 import { users } from '@db/schema/identity';
 
-import { requirePermission } from '@/lib/auth/current-user';
+import { requireAdminSession, requirePermission } from '@/lib/auth/current-user';
 import type { TrendPoint } from '@/features/admin/types';
 
 /**
@@ -255,7 +255,9 @@ export type AdminProductRow = {
 };
 
 export async function listAdminProducts(): Promise<AdminProductRow[]> {
-  await requirePermission('product:read');
+  // Not `product:read` — customers hold that, and this row exposes draft status
+  // and stock levels the storefront never shows.
+  await requireAdminSession();
 
   const rows = await db
     .select({

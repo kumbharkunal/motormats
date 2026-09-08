@@ -33,6 +33,9 @@ const ROUTES = [
   { path: '/products/7d-sport-luxury-mat', name: 'pdp' },
   { path: '/cart', name: 'cart' },
   { path: '/sign-in', name: 'sign-in' },
+  // Reachable without a session by design, so it sweeps like any public route.
+  { path: '/admin/sign-in', name: 'admin-sign-in' },
+  { path: '/admin/forgot-password', name: 'admin-forgot-password' },
   { path: '/this-route-does-not-exist', name: '404' },
 ] as const;
 
