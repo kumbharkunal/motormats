@@ -91,19 +91,45 @@ export function SignInForm({ next }: { next: string }) {
     }
   }
 
+  /**
+   * Two failures with two different causes, so two catches.
+   *
+   * Firebase checking the code and this app issuing its own session are
+   * separate steps. Reporting both as "that code is incorrect" sends someone to
+   * request a new code when the code was never the problem — and hides a server
+   * outage behind a message that blames the customer.
+   */
   async function verifyOtp() {
     if (code.length !== OTP_LENGTH || !confirmation.current) return;
 
     setBusy(true);
+
+    let idToken: string;
     try {
       const credential = await confirmation.current.confirm(code);
-      await establishSession(await credential.user.getIdToken());
-      leaveForDestination();
+      idToken = await credential.user.getIdToken();
     } catch (error) {
+      // Deliberately generic: distinguishing "wrong code" from "unknown number"
+      // tells an attacker which numbers are registered.
       toast.error(
         authErrorMessage(error, 'That code is incorrect or has expired. Request a new one.'),
       );
       setCode('');
+      setBusy(false);
+      return;
+    }
+
+    try {
+      await establishSession(idToken);
+      leaveForDestination();
+    } catch (error) {
+      // The code was right; this is our side failing. `establishSession` throws
+      // with the server's own mapped message, so surface that.
+      toast.error(authErrorMessage(error, 'We could not complete your sign-in. Please try again.'));
+      // The confirmation is spent, so verifying again cannot work — clear the
+      // cooldown to make "Resend code" the immediate way out.
+      setCode('');
+      setSecondsLeft(0);
       setBusy(false);
     }
   }
