@@ -15,29 +15,53 @@ export type ProvisionedUser = {
   sessionEpoch: number;
 };
 
+const identityColumns = {
+  id: users.id,
+  publicId: users.publicId,
+  role: users.role,
+  sessionEpoch: users.sessionEpoch,
+  firebaseUid: users.firebaseUid,
+  name: users.name,
+  email: users.email,
+  phone: users.phone,
+  status: users.status,
+};
+
 export async function provisionUserFromFirebase(
   identity: FirebaseIdentity,
 ): Promise<ProvisionedUser> {
-  const [existing] = await db
-    .select({
-      id: users.id,
-      publicId: users.publicId,
-      role: users.role,
-      sessionEpoch: users.sessionEpoch,
-      name: users.name,
-      email: users.email,
-      phone: users.phone,
-      status: users.status,
-    })
+  const [byUid] = await db
+    .select(identityColumns)
     .from(users)
     .where(eq(users.firebaseUid, identity.uid))
     .limit(1);
 
+  /**
+   * A Firebase account that was deleted and remade returns with a new uid but
+   * the same phone number. `phone` is unique, so falling through to the insert
+   * fails the constraint and the whole sign-in 500s. Match on the number and
+   * re-link instead: Firebase only mints a phone-provider token after the OTP
+   * succeeds, so the number is proven to belong to whoever is signing in.
+   */
+  const [byPhone] = byUid || !identity.phone
+    ? []
+    : await db.select(identityColumns).from(users).where(eq(users.phone, identity.phone)).limit(1);
+
+  const existing = byUid ?? byPhone;
+
   if (existing) {
+    const relinking = existing.firebaseUid !== identity.uid;
+
     const patch: Partial<typeof users.$inferInsert> = {};
+    if (relinking) patch.firebaseUid = identity.uid;
     if (identity.phone && !existing.phone) patch.phone = identity.phone;
     if (identity.email && !existing.email) patch.email = identity.email;
     if (identity.name && !existing.name) patch.name = identity.name;
+
+    // The account is being attached to a different Firebase identity, so any
+    // session issued against the old one must stop verifying immediately.
+    const sessionEpoch = relinking ? existing.sessionEpoch + 1 : existing.sessionEpoch;
+    if (relinking) patch.sessionEpoch = sessionEpoch;
 
     if (Object.keys(patch).length > 0) {
       await db.update(users).set(patch).where(eq(users.id, existing.id));
@@ -47,7 +71,7 @@ export async function provisionUserFromFirebase(
       id: existing.id,
       publicId: existing.publicId,
       role: existing.role,
-      sessionEpoch: existing.sessionEpoch,
+      sessionEpoch,
     };
   }
 
