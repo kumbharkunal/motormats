@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+.next-docs/
+
+# Production build
+/build
+/dist
+
+# Environment — never commit real secrets
+.env
+.env.development
+.env.production
+.env*.local
+!.env.example
+
+# Testing
+/coverage
+/playwright-report
+/blob-report
+/test-results
+/.playwright
+.vitest
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Caches
+.turbo
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local scratch — analysis notes, debug screenshots, temp scripts
+/scratch/
+/tmp/
+*.local.*
+
+# Markdown — internal notes stay local; only the repo's README is published.
+# The `/` anchors the exception to the root file, so a docs/README.md would
+# still be ignored.
+*.md
+!/README.md

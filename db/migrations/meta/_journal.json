@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1788691178521,
+      "tag": "0000_identity_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1788691762652,
+      "tag": "0001_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1788693072376,
+      "tag": "0002_commerce",
+      "breakpoints": true
+    }
+  ]
+}

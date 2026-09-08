@@ -1,0 +1,75 @@
+import { gzipSync } from 'node:zlib';
+import { expect, test, type APIRequestContext } from '@playwright/test';
+
+/**
+ * Bundle guards.
+ *
+ * Measures what the server actually tells the browser to load for a route, by
+ * reading the script tags out of the SSR HTML. Watching the network instead
+ * over-counts: Next prefetches linked routes, and the HTTP cache hides chunks
+ * that a previous test already fetched.
+ *
+ * Next 16 + React 19 ship a ~163KB gzip runtime floor that no application
+ * change can reduce, so the budgets below are total first-load figures with
+ * that floor included. See docs/performance.md.
+ */
+
+async function firstLoad(request: APIRequestContext, path: string) {
+  const html = await (await request.get(path)).text();
+
+  const scripts = [
+    ...new Set(
+      [...html.matchAll(/(?:src|href)="(\/_next\/static\/[^"]+\.js)"/g)].map((match) => match[1]!),
+    ),
+  ];
+
+  let gzipBytes = 0;
+  const contents: string[] = [];
+
+  for (const src of scripts) {
+    const body = await (await request.get(src)).body();
+    gzipBytes += gzipSync(body, { level: 6 }).length;
+    contents.push(body.toString());
+  }
+
+  const joined = contents.join('');
+  return {
+    kb: Math.round(gzipBytes / 1024),
+    hasMui: /@mui\/|@emotion\/react|MuiDataGrid/.test(joined),
+    hasSwiper: /swiper/i.test(joined),
+  };
+}
+
+const STOREFRONT = [
+  { name: 'home (deck)', path: '/', maxKb: 300, swiper: true },
+  { name: 'collections', path: '/collections', maxKb: 260, swiper: false },
+  { name: 'product', path: '/products/7d-sport-luxury-mat', maxKb: 260, swiper: false },
+  { name: 'cart', path: '/cart', maxKb: 260, swiper: false },
+] as const;
+
+test.describe('bundle budget', () => {
+  for (const route of STOREFRONT) {
+    test(`${route.name} stays within budget and excludes MUI`, async ({ request }) => {
+      const result = await firstLoad(request, route.path);
+
+      // Material UI on a storefront route would add Emotion's runtime to every
+      // page for the benefit of the admin panel alone.
+      expect(result.hasMui, `MUI leaked into ${route.path}`).toBe(false);
+
+      expect(
+        result.kb,
+        `${route.path} first load is ${result.kb}KB gzip, over its ${route.maxKb}KB budget`,
+      ).toBeLessThanOrEqual(route.maxKb);
+    });
+  }
+
+  test('Swiper loads only on the homepage deck', async ({ request }) => {
+    // Swiper powers the deck. A listing or detail page pulling it in means the
+    // code split has broken.
+    expect((await firstLoad(request, '/')).hasSwiper).toBe(true);
+
+    for (const path of ['/collections', '/products/7d-sport-luxury-mat', '/cart']) {
+      expect((await firstLoad(request, path)).hasSwiper, `Swiper leaked into ${path}`).toBe(false);
+    }
+  });
+});
