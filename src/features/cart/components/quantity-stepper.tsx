@@ -2,6 +2,7 @@
 
 import { Minus, Plus } from 'lucide-react';
 
+import { tapFeedback } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 
 /**
@@ -29,14 +30,15 @@ export function QuantityStepper({
 
   function step(next: number) {
     if (next < 1 || next > max) return;
-    // Same confirmation the quick-add button gives; absent on iOS Safari.
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate(10);
+    tapFeedback();
     onChange(next);
   }
 
   return (
+    // No fixed height: with a border, h-11 gives a 42px content box and clips
+    // the 44px children. Hugging them keeps the tap targets honest.
     <div
-      className="border-border bg-surface inline-flex h-11 items-center rounded-full border"
+      className="inline-flex items-center rounded-full border border-border bg-surface"
       role="group"
       aria-label={label}
     >
@@ -89,8 +91,8 @@ function StepButton({
       className={cn(
         'flex size-11 shrink-0 items-center justify-center rounded-full transition-colors duration-200',
         disabled
-          ? 'text-subtle-foreground cursor-not-allowed'
-          : 'text-muted-foreground hover:text-foreground hover:bg-white/8 active:scale-90',
+          ? 'cursor-not-allowed text-subtle-foreground'
+          : 'text-muted-foreground hover:bg-white/8 hover:text-foreground active:scale-90',
       )}
     >
       {children}

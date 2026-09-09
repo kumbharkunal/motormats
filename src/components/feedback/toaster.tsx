@@ -6,13 +6,13 @@ import { Toaster as SonnerToaster } from 'sonner';
 /**
  * The single toast surface for the whole app.
  *
- * The palette is the brand's: near-black surface, white copy, red for anything
- * that needs attention. Sonner's stock green/amber states were the only colours
- * on the storefront that belonged to no token.
+ * Each state carries its own hue over a dark, near-opaque ground, so a toast
+ * reads at a glance without leaving the brand's palette — sonner's stock
+ * `richColors` are far brighter than anything else here, which is why they stay
+ * off and the tints are hand-set from our own tokens.
  *
- * State is carried by the icon rather than by hue — red reads as "look here"
- * for both errors and warnings, and colour alone was never a safe signal for
- * anyone who cannot separate red from green.
+ * Colour is reinforcement, never the signal on its own: every state also ships
+ * its own icon, so the meaning survives for anyone who cannot separate the hues.
  */
 export function Toaster() {
   return (
@@ -24,19 +24,25 @@ export function Toaster() {
       duration={4500}
       icons={{
         // `!` again: sonner colours its own icon slot, and would otherwise win.
-        success: <CheckCircle2 aria-hidden className="!text-foreground size-4.5" />,
-        error: <XCircle aria-hidden className="!text-accent-text size-4.5" />,
-        warning: <AlertTriangle aria-hidden className="!text-accent-text size-4.5" />,
-        info: <Info aria-hidden className="!text-foreground/70 size-4.5" />,
-        loading: <Loader2 aria-hidden className="!text-foreground/70 size-4.5 animate-spin" />,
+        success: <CheckCircle2 aria-hidden className="size-4.5 !text-success" />,
+        error: <XCircle aria-hidden className="size-4.5 !text-danger" />,
+        warning: <AlertTriangle aria-hidden className="size-4.5 !text-warning" />,
+        info: <Info aria-hidden className="size-4.5 !text-accent-text" />,
+        loading: <Loader2 aria-hidden className="size-4.5 animate-spin !text-foreground/70" />,
       }}
       toastOptions={{
         classNames: {
           // Every colour needs `!`: sonner paints the toast with a `background`
           // shorthand of its own, which would otherwise reset any background
           // set here (an unprefixed `card-surface` renders a white toast).
+          //
+          // Ground and border live on the per-state keys below, never here.
+          // Two `!important` utilities for the same property are settled by
+          // stylesheet order, not by which is more specific — a base
+          // `!bg-surface` silently beat `!bg-success/12` and every toast came
+          // out the same near-black.
           toast:
-            'group !bg-surface !border !border-border-strong !rounded-2xl !gap-3 !text-foreground !shadow-[0_16px_50px_rgba(0,0,0,0.65)]',
+            'group !border !rounded-2xl !gap-3 !text-foreground !shadow-[0_16px_50px_rgba(0,0,0,0.65)]',
           title: '!text-sm !font-semibold !text-foreground',
           description: '!text-xs !text-muted-foreground',
           actionButton:
@@ -44,10 +50,14 @@ export function Toaster() {
           cancelButton: '!bg-white/5 !text-muted-foreground !rounded-full !text-xs',
           closeButton:
             '!bg-surface-elevated !border-border !text-muted-foreground hover:!text-foreground',
-          // Only the state that needs attention takes the brand red.
-          error: '!border-accent/45',
-          warning: '!border-accent/45',
-          success: '!border-border-strong',
+          // A tint rather than a fill: the copy stays on `--color-foreground`,
+          // so contrast is unchanged and only the frame carries the state.
+          default: '!bg-surface !border-border-strong',
+          loading: '!bg-surface !border-border-strong',
+          success: '!bg-toast-success !border-success/40',
+          error: '!bg-toast-error !border-danger/45',
+          warning: '!bg-toast-warning !border-warning/40',
+          info: '!bg-toast-info !border-accent/40',
         },
       }}
     />

@@ -97,8 +97,12 @@ export const BRAND_PANEL = {
 } as const;
 
 /**
- * Ground for the logo plate — see `admin-logo.tsx`. Deliberately the
- * storefront's own background rather than this panel's ink: the mark was drawn
- * for that colour, and the logo links back to the store.
+ * Ground for the logo plate — see `admin-logo.tsx`. The panel's own ink rather
+ * than the storefront's near-black: on a light sidebar #0A0A0B reads as a hole
+ * punched through the surface, while the slate sits in the same family as the
+ * rest of the type.
  */
-export const LOGO_PLATE = '#0A0A0B';
+export const LOGO_PLATE = {
+  ground: INK.primary,
+  border: 'rgba(255,255,255,0.10)',
+} as const;

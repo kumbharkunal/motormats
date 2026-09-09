@@ -165,9 +165,19 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
             // 14px this is body copy, and on a light ground the brand red is the
             // shade that clears WCAG AA — the inverse of the storefront's rule.
             color: item.danger ? 'primary.main' : active ? 'text.primary' : 'text.secondary',
+            ...(item.danger
+              ? {
+                  backgroundColor: BRAND.wash,
+                  border: '1px solid',
+                  borderColor: BRAND.washBorder,
+                  fontWeight: 600,
+                }
+              : undefined),
             '&:hover': {
               color: item.danger ? 'primary.dark' : 'text.primary',
-              ...(item.danger ? { backgroundColor: BRAND.wash } : undefined),
+              ...(item.danger
+                ? { backgroundColor: BRAND.washHover, borderColor: 'primary.main' }
+                : undefined),
             },
             // The rail marks the active route when the label is not there to.
             '&::before': active
@@ -246,7 +256,11 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
               </Box>
             </Link>
           ) : (
-            <Link href="/" aria-label="Motormats — go to the storefront" style={{ display: 'flex' }}>
+            <Link
+              href="/"
+              aria-label="Motormats — go to the storefront"
+              style={{ display: 'flex' }}
+            >
               <AdminLogo size="sm" />
             </Link>
           )}
@@ -298,20 +312,31 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
         <Divider />
 
         <Box sx={{ px: rail ? 1 : 1.5, py: 1.5 }}>
+          {/* Ending a session is destructive, so it gets a tinted block of its
+              own rather than looking like one more place to navigate to. */}
           <List disablePadding>
             {FOOTER_NAV.map((item) => itemButton(item, () => setMobileOpen(false)))}
           </List>
 
-          {/* Same icon slot and padding as a nav row, so the avatar and the
-              identity text sit on the nav's two vertical rules. */}
-          <Tooltip title={rail ? `${email} · Administrator` : ''} placement="right">
+          {/* A card on the same left inset as the block above, so the avatar and
+              the sign-out icon share one vertical rule. */}
+          <Tooltip title={rail ? `${email} · Admin` : ''} placement="right">
             <Box
               sx={{
-                mt: 1,
+                mt: 1.25,
                 display: 'flex',
                 alignItems: 'center',
-                minHeight: 44,
-                px: rail ? 0 : 1.5,
+                minHeight: 48,
+                px: rail ? 0 : 1.25,
+                py: rail ? 0 : 1,
+                borderRadius: 2.5,
+                ...(rail
+                  ? {}
+                  : {
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                    }),
                 justifyContent: rail ? 'center' : 'flex-start',
               }}
             >
@@ -347,7 +372,7 @@ export function AdminShell({ children, email }: { children: ReactNode; email: st
                     color="text.secondary"
                     sx={{ display: 'block', lineHeight: 1.35 }}
                   >
-                    Administrator
+                    Admin
                   </Typography>
                 </Box>
               )}

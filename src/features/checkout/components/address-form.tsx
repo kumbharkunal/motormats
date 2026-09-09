@@ -1,10 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
 import { createAddressAction } from '@/features/addresses/actions/address-actions';
 import { addressInputSchema, INDIAN_STATES, type AddressInput } from '@/features/addresses/schemas';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ export function AddressForm({
 }) {
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
@@ -56,7 +58,9 @@ export function AddressForm({
       onSubmit={(event) => {
         void onSubmit(event);
       }}
-      noValidate className="border-border rounded-2xl border p-5">
+      noValidate
+      className="rounded-2xl border border-border p-5"
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Full name" error={errors.fullName?.message}>
           <input {...register('fullName')} autoComplete="name" className={inputClass} />
@@ -98,14 +102,29 @@ export function AddressForm({
           />
         </Field>
 
-        <Field label="State" error={errors.state?.message} className="sm:col-span-2">
-          <select {...register('state')} autoComplete="address-level1" className={inputClass}>
-            {INDIAN_STATES.map((state) => (
-              <option key={state} value={state}>
-                {state}
-              </option>
-            ))}
-          </select>
+        {/* `labelFor` rather than the wrapping label the inputs use: the
+            trigger is a button, and a click inside a <label> is re-dispatched
+            to it, which would open and immediately close the list. */}
+        <Field
+          label="State"
+          error={errors.state?.message}
+          labelFor="address-state"
+          className="sm:col-span-2"
+        >
+          <Controller
+            control={control}
+            name="state"
+            render={({ field }) => (
+              <Select
+                id="address-state"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                options={INDIAN_STATES}
+                invalid={Boolean(errors.state)}
+                placeholder="Choose a state"
+              />
+            )}
+          />
         </Field>
       </div>
 
@@ -126,28 +145,53 @@ export function AddressForm({
 const inputClass =
   'border-border bg-surface h-12 w-full rounded-xl border px-4 text-sm focus-visible:border-accent';
 
+/**
+ * Wraps a control in its label.
+ *
+ * Native inputs get the implicit association of being inside the `<label>`.
+ * A control that is really a button has to be associated explicitly instead —
+ * nesting one would make every click on it fire twice.
+ */
 function Field({
   label,
   error,
   className,
+  labelFor,
   children,
 }: {
   label: string;
   error?: string | undefined;
   className?: string;
+  labelFor?: string;
   children: React.ReactNode;
 }) {
+  const caption = (
+    <span className="mb-1.5 block text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      {label}
+    </span>
+  );
+
+  const message = error ? (
+    <span role="alert" className="mt-1.5 block text-xs text-danger">
+      {error}
+    </span>
+  ) : null;
+
+  if (labelFor) {
+    return (
+      <div className={cn('block', className)}>
+        <label htmlFor={labelFor}>{caption}</label>
+        {children}
+        {message}
+      </div>
+    );
+  }
+
   return (
     <label className={cn('block', className)}>
-      <span className="text-muted-foreground mb-1.5 block text-xs font-medium tracking-wide uppercase">
-        {label}
-      </span>
+      {caption}
       {children}
-      {error ? (
-        <span role="alert" className="text-danger mt-1.5 block text-xs">
-          {error}
-        </span>
-      ) : null}
+      {message}
     </label>
   );
 }

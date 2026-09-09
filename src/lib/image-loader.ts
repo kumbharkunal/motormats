@@ -28,3 +28,20 @@ export default function cloudinaryLoader({ src, width, quality }: LoaderArgs): s
 function transforms(width: number, quality?: number): string {
   return ['f_auto', `q_${quality ?? 'auto'}`, `w_${width}`, 'c_limit', 'dpr_auto'].join(',');
 }
+
+/**
+ * Cloudinary video delivery URL.
+ *
+ * The hero footage used to be two MP4s committed to `public/` (4.9 MB), served
+ * by the Node process itself on the LCP path of the homepage — no CDN, no edge
+ * cache, and one fixed encode for every device. `f_auto` lets Cloudinary hand
+ * WebM to Chrome and MP4 to Safari from a single upload.
+ *
+ * Falls back to the local path when the cloud name is unset, so a checkout
+ * without Cloudinary credentials still renders.
+ */
+export function cloudinaryVideoUrl(name: string, fallback: string): string {
+  const folder = process.env.NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER;
+  if (!CLOUD_NAME || !folder) return fallback;
+  return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/f_auto,q_auto/${folder}/${name}`;
+}

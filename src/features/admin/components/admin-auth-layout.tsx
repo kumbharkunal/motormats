@@ -59,7 +59,9 @@ export function AdminAuthLayout({
           {/* Below md the brand panel is gone, so the mark lands on this light
               column and has to be the dark-ink one. */}
           <Box sx={{ display: { md: 'none' }, mb: 4 }}>
-            <AdminLogo size="sm" />
+            <Link href="/" aria-label="Motormats — go to the storefront">
+              <AdminLogo size="sm" />
+            </Link>
           </Box>
 
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1.5 }}>
@@ -163,7 +165,13 @@ function BrandPanel() {
       />
 
       <Box sx={{ position: 'relative' }}>
-        <MotormatsLogo size="md" priority />
+        <Link
+          href="/"
+          aria-label="Motormats — go to the storefront"
+          style={{ display: 'inline-flex' }}
+        >
+          <MotormatsLogo size="md" priority />
+        </Link>
       </Box>
 
       <Box sx={{ position: 'relative', maxWidth: 380 }}>

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -19,19 +19,35 @@ export function OtpInput({
   value,
   onChange,
   onComplete,
+  onEnter,
   length = 6,
   disabled = false,
   label,
+  autoFocus = false,
 }: {
   value: string;
   onChange: (next: string) => void;
   onComplete?: (code: string) => void;
+  /** Enter on a complete code, matching how the phone field submits. */
+  onEnter?: () => void;
   length?: number;
   disabled?: boolean;
   label: string;
+  /** Take focus as soon as the field goes live. */
+  autoFocus?: boolean;
 }) {
   const input = useRef<HTMLInputElement>(null);
+  const claimedFocus = useRef(false);
   const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    // The field is disabled while the SMS is still on its way, and focusing a
+    // disabled input does nothing — so wait for it to go live, and only once,
+    // or every re-enable would yank focus back from wherever it had moved.
+    if (!autoFocus || disabled || claimedFocus.current) return;
+    claimedFocus.current = true;
+    input.current?.focus();
+  }, [autoFocus, disabled]);
   const prefersReducedMotion = useReducedMotion();
 
   // The caret sits on the first empty box, or the last one when full.
@@ -64,6 +80,11 @@ export function OtpInput({
           onChange(digits);
           if (digits.length === length) onComplete?.(digits);
         }}
+        onKeyDown={(event) => {
+          // Belt and braces with the focus move in SignInForm: if focus is
+          // still in here when the code is complete, Enter must submit anyway.
+          if (event.key === 'Enter' && value.length === length) onEnter?.();
+        }}
         className="absolute inset-0 z-10 h-full w-full cursor-default opacity-0"
       />
 
@@ -81,9 +102,7 @@ export function OtpInput({
               className={cn(
                 'relative flex h-14 flex-1 items-center justify-center rounded-xl border text-xl font-semibold transition-colors duration-200 sm:h-16 sm:text-2xl',
                 disabled && 'opacity-50',
-                char
-                  ? 'border-border-strong bg-surface-elevated'
-                  : 'border-border bg-surface',
+                char ? 'border-border-strong bg-surface-elevated' : 'border-border bg-surface',
                 isActive && 'border-accent bg-accent/5',
               )}
             >
@@ -99,7 +118,7 @@ export function OtpInput({
               ) : null}
 
               {isActive && !char ? (
-                <span className="bg-accent-text h-6 w-px animate-[caret-blink_1s_steps(1)_infinite] sm:h-7" />
+                <span className="h-6 w-px animate-[caret-blink_1s_steps(1)_infinite] bg-accent-text sm:h-7" />
               ) : null}
             </motion.div>
           );

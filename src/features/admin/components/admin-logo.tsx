@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 
 import { MotormatsLogo } from '@/components/layout/motormats-logo';
 
-import { LOGO_PLATE } from './admin-tokens';
+import { LOGO_PLATE, SHADOW } from './admin-tokens';
 
 /** Plate padding per size, sized so the mark keeps its own breathing room. */
 const PAD = {
@@ -28,7 +28,10 @@ export function AdminLogo({ size = 'sm' }: { size?: keyof typeof PAD }) {
       sx={{
         display: 'inline-flex',
         alignItems: 'center',
-        bgcolor: LOGO_PLATE,
+        bgcolor: LOGO_PLATE.ground,
+        border: '1px solid',
+        borderColor: LOGO_PLATE.border,
+        boxShadow: SHADOW.card,
         borderRadius: 2.5,
         ...PAD[size],
       }}

@@ -76,7 +76,7 @@ export function CartView() {
   if (!resolved) return <CartSkeleton />;
 
   return (
-    <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem] lg:items-start">
+    <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_22rem] lg:items-start">
       <ul className="space-y-3">
         {resolved.lines.map((line) => {
           const max = Math.min(MAX_QUANTITY_PER_LINE, line.availableQuantity);
@@ -84,11 +84,11 @@ export function CartView() {
           return (
             <li
               key={line.variantPublicId}
-              className="card-surface flex gap-4 rounded-2xl p-4 md:gap-5 md:rounded-3xl md:p-5"
+              className="flex gap-4 rounded-2xl card-surface p-4 md:gap-5 md:rounded-3xl md:p-5"
             >
               <Link
                 href={`/products/${line.productSlug}`}
-                className="bg-surface relative size-20 shrink-0 overflow-hidden rounded-xl md:size-28 md:rounded-2xl"
+                className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-surface md:size-28 md:rounded-2xl"
               >
                 {line.imageAssetId ? (
                   <Image
@@ -106,12 +106,12 @@ export function CartView() {
                   <div className="min-w-0">
                     <Link
                       href={`/products/${line.productSlug}`}
-                      className="hover:text-accent-text text-sm font-semibold transition-colors duration-200 md:text-base"
+                      className="text-sm font-semibold transition-colors duration-200 hover:text-accent-text md:text-base"
                     >
                       {line.productName}
                     </Link>
-                    <p className="text-muted-foreground mt-0.5 text-xs">{line.variantName}</p>
-                    <p className="text-muted-foreground mt-0.5 text-xs">
+                    <p className="mt-0.5 text-xs text-muted-foreground">{line.variantName}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {formatPaise(line.unitPricePaise)} each
                     </p>
                   </div>
@@ -134,16 +134,14 @@ export function CartView() {
                   <button
                     type="button"
                     onClick={() => dispatch(itemRemoved(line.variantPublicId))}
-                    className="text-muted-foreground hover:text-accent-text flex size-11 items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/5"
+                    className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 hover:bg-white/5 hover:text-accent-text"
                     aria-label={`Remove ${line.productName}`}
                   >
                     <Trash2 aria-hidden size={16} />
                   </button>
 
                   {line.quantity >= max ? (
-                    <span className="text-subtle-foreground text-[0.6875rem]">
-                      Only {max} left
-                    </span>
+                    <span className="text-[0.6875rem] text-subtle-foreground">Only {max} left</span>
                   ) : null}
                 </div>
               </div>
@@ -152,7 +150,7 @@ export function CartView() {
         })}
       </ul>
 
-      <aside className="card-surface rounded-3xl p-6 lg:sticky lg:top-24">
+      <aside className="rounded-3xl card-surface p-6 lg:sticky lg:top-[calc(var(--header-height)+var(--checkout-steps-height)+1rem)]">
         <h2 className="text-h3">Order summary</h2>
 
         <dl className="mt-5 space-y-3 text-sm">
@@ -172,13 +170,11 @@ export function CartView() {
                 : formatPaise(resolved.totals.shippingPaise)
             }
           />
-          <div className="border-border flex items-baseline justify-between border-t pt-3">
+          <div className="flex items-baseline justify-between border-t border-border pt-3">
             <dt className="font-semibold">Total</dt>
-            <dd className="text-h3 font-display">
-              {formatPaise(resolved.totals.grandTotalPaise)}
-            </dd>
+            <dd className="font-display text-h3">{formatPaise(resolved.totals.grandTotalPaise)}</dd>
           </div>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-xs text-muted-foreground">
             Includes {formatPaise(resolved.totals.taxPaise)} GST
           </p>
         </dl>
@@ -209,10 +205,10 @@ function Row({ label, value, accent = false }: { label: string; value: string; a
 
 function EmptyCart() {
   return (
-    <div className="border-border mt-8 flex flex-col items-center rounded-3xl border border-dashed px-6 py-20 text-center">
-      <ShoppingBag aria-hidden className="text-subtle-foreground size-10" strokeWidth={1.2} />
-      <h2 className="text-h3 mt-5">Your cart is empty</h2>
-      <p className="text-muted-foreground mt-2 max-w-sm text-sm text-balance">
+    <div className="mt-8 flex flex-col items-center rounded-3xl border border-dashed border-border px-6 py-20 text-center">
+      <ShoppingBag aria-hidden className="size-10 text-subtle-foreground" strokeWidth={1.2} />
+      <h2 className="mt-5 text-h3">Your cart is empty</h2>
+      <p className="mt-2 max-w-sm text-sm text-balance text-muted-foreground">
         Once you add a set of mats, it will appear here.
       </p>
       <Button asChild size="lg" className="mt-6">
@@ -224,9 +220,9 @@ function EmptyCart() {
 
 function CartError() {
   return (
-    <div className="border-border mt-8 rounded-3xl border border-dashed px-6 py-16 text-center">
+    <div className="mt-8 rounded-3xl border border-dashed border-border px-6 py-16 text-center">
       <h2 className="text-h3">We couldn&apos;t load your cart</h2>
-      <p className="text-muted-foreground mt-2 text-sm">
+      <p className="mt-2 text-sm text-muted-foreground">
         Please refresh the page. Your items are still saved.
       </p>
     </div>
@@ -235,15 +231,18 @@ function CartError() {
 
 function CartSkeleton() {
   return (
-    <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]" aria-busy="true">
+    <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_22rem]" aria-busy="true">
       <ul className="space-y-3">
         {Array.from({ length: 2 }, (_, i) => (
-          <li key={i} className="card-surface flex gap-4 rounded-2xl p-4 md:gap-5 md:rounded-3xl md:p-5">
+          <li
+            key={i}
+            className="flex gap-4 rounded-2xl card-surface p-4 md:gap-5 md:rounded-3xl md:p-5"
+          >
             <Skeleton className="size-20 shrink-0 rounded-xl md:size-28 md:rounded-2xl" />
-            <div className="flex-1 space-y-2">
+            <div className="min-w-0 flex-1 space-y-2">
               <Skeleton className="h-4 w-2/5" />
               <Skeleton className="h-3 w-1/4" />
-              <Skeleton className="mt-3 h-11 w-36 rounded-full" />
+              <Skeleton className="mt-3 h-11 w-full max-w-36 rounded-full" />
             </div>
             <Skeleton className="h-4 w-16" />
           </li>

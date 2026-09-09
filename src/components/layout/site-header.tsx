@@ -18,46 +18,51 @@ export async function SiteHeader({ overlay = false }: { overlay?: boolean }) {
     <header
       className={cn(
         'z-40 w-full shrink-0 px-4 pt-4 md:px-6 md:pt-5',
-        overlay ? 'pointer-events-none absolute inset-x-0 top-0' : 'sticky top-0',
+        // The sticky variant needs a ground of its own. The pill is the only
+        // thing here with a background, so page content was scrolling straight
+        // through the band around it and colliding with the nav.
+        // The overlay variant stays transparent by design — it floats over the
+        // homepage hero.
+        overlay ? 'pointer-events-none absolute inset-x-0 top-0' : 'sticky top-0 bg-background',
       )}
     >
       <div
         className={cn(
-          'relative mx-auto flex h-12 items-center justify-between gap-4',
+          // A grid below lg, so the logo sits in its own centre track and the
+          // account pill can grow without ever reaching it. Above lg the logo
+          // moves left and the nav pill takes the centre, absolutely.
+          'relative mx-auto grid h-12 grid-cols-[1fr_auto_1fr] items-center gap-2',
+          'lg:flex lg:justify-between lg:gap-4',
           'max-w-(--container-page)',
           overlay && '*:pointer-events-auto',
         )}
       >
         <div className="flex items-center gap-3">
-          <MobileNav isSignedIn={Boolean(user)} isAdmin={isAdmin} />
+          <MobileNav isSignedIn={Boolean(user)} isAdmin={isAdmin} userName={user?.name ?? null} />
           <Link href="/" aria-label="Motormats home" className="hidden lg:flex">
             <MotormatsLogo size="md" priority className="h-11" />
           </Link>
         </div>
 
-        <Link
-          href="/"
-          aria-label="Motormats home"
-          className="absolute left-1/2 -translate-x-1/2 lg:hidden"
-        >
+        <Link href="/" aria-label="Motormats home" className="justify-self-center lg:hidden">
           <MotormatsLogo size="sm" priority className="h-9" />
         </Link>
 
         <nav
           aria-label="Primary"
-          className="nav-pill absolute left-1/2 hidden h-12 -translate-x-1/2 items-center rounded-full px-7 lg:flex"
+          className="absolute left-1/2 hidden h-12 -translate-x-1/2 items-center rounded-full nav-pill px-7 lg:flex"
         >
           <ul className="flex items-center gap-8">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-foreground/70 hover:text-foreground group relative block py-2 text-sm tracking-[0.04em] transition-colors duration-300"
+                  className="group relative block py-2 text-sm tracking-[0.04em] text-foreground/70 transition-colors duration-300 hover:text-foreground"
                 >
                   {link.label}
                   <span
                     aria-hidden
-                    className="from-accent to-accent/50 absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 rounded-full bg-gradient-to-r transition-transform duration-300 ease-out group-hover:scale-x-100"
+                    className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 rounded-full bg-gradient-to-r from-accent to-accent/50 transition-transform duration-300 ease-out group-hover:scale-x-100"
                   />
                 </Link>
               </li>
@@ -65,7 +70,7 @@ export async function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center justify-end gap-2 md:gap-3">
           <CartButton />
           {user ? (
             <AccountMenu name={user.name} isAdmin={isAdmin} />

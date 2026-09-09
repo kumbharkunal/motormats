@@ -7,22 +7,27 @@ import { Skeleton } from '@/components/ui/skeleton';
 export function ListingSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div className="mt-8" aria-busy="true" aria-label="Loading products">
-      <div className="border-border flex flex-col gap-5 border-b pb-6">
-        <div className="flex gap-2">
+      {/* Same two 44px tracks the real bar renders, with overflow hidden so a
+          narrow screen does not scroll a skeleton. */}
+      <div className="flex flex-col gap-3 border-b border-border pb-5">
+        <div className="flex gap-2 overflow-hidden py-1">
           {Array.from({ length: 5 }, (_, i) => (
-            <Skeleton key={i} className="h-11 w-24 rounded-full" />
+            <Skeleton key={i} className="h-11 w-24 shrink-0 rounded-full" />
           ))}
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <Skeleton className="h-5 w-24" />
-          <Skeleton className="h-11 w-64 rounded-full" />
+        <div className="flex items-center gap-2 overflow-hidden py-1">
+          <Skeleton className="h-5 w-24 shrink-0" />
+          <span aria-hidden className="min-w-4 flex-1" />
+          <Skeleton className="h-11 w-28 shrink-0 rounded-full" />
+          <Skeleton className="h-11 w-24 shrink-0 rounded-full" />
+          <Skeleton className="h-11 w-32 shrink-0 rounded-full" />
         </div>
       </div>
 
       <ul className="mt-8 grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4 md:gap-6">
         {Array.from({ length: count }, (_, i) => (
-          <li key={i} className="card-surface overflow-hidden rounded-2xl md:rounded-3xl">
-            <Skeleton className="aspect-square rounded-none" />
+          <li key={i} className="overflow-hidden rounded-2xl card-surface md:rounded-3xl">
+            <Skeleton className="aspect-4/3 rounded-none lg:aspect-square" />
             <div className="space-y-2 p-4">
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-3 w-full" />

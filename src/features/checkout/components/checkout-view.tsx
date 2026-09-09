@@ -212,7 +212,7 @@ export function CheckoutView({
   if (isConfirming) return <BrandLoader label="Confirming your payment…" />;
 
   return (
-    <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem] lg:items-start">
+    <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_22rem] lg:items-start">
       <div className="space-y-8">
         <section aria-labelledby="address-heading">
           <h2 id="address-heading" className="text-h3">
@@ -333,7 +333,7 @@ export function CheckoutView({
         </section>
       </div>
 
-      <aside className="rounded-3xl card-surface p-6 lg:sticky lg:top-24">
+      <aside className="rounded-3xl card-surface p-6 lg:sticky lg:top-[calc(var(--header-height)+var(--checkout-steps-height)+1rem)]">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-h3">Order summary</h2>
           {/* Without this the last thing anyone sees before paying is a number
@@ -404,7 +404,7 @@ function Row({ label, value, accent = false }: { label: string; value: string; a
 
 function CheckoutSkeleton() {
   return (
-    <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]" aria-busy="true">
+    <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_22rem]" aria-busy="true">
       <div className="space-y-4">
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-24 rounded-2xl" />

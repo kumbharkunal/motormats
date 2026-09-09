@@ -46,6 +46,14 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
 
+  /* Toast grounds: the status hue at 12% (10% for info) already flattened
+     onto --color-surface. Composited here rather than layered at runtime,
+     because a translucent toast lets the page show through it. */
+  --color-toast-success: #16291f;
+  --color-toast-error: #2e1a1c;
+  --color-toast-warning: #2f2515;
+  --color-toast-info: #291314;
+
   /* ── Typography ──────────────────────────────────────────────────────── */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: var(--font-display), 'Roboto Condensed', ui-sans-serif, system-ui, sans-serif;
@@ -89,6 +97,20 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 @layer base {
+  /* The heights of the two stacked sticky bars. Anything that sticks below
+     them offsets by these rather than by a hardcoded number, which is how
+     the cart summary ended up sliding under the checkout steps. */
+  :root {
+    --header-height: 4rem;
+    --checkout-steps-height: 3.25rem;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --header-height: 4.25rem;
+    }
+  }
+
   *,
   *::before,
   *::after {
@@ -209,7 +231,10 @@
  * top highlight give the depth for free.
  */
 @utility nav-pill {
-  background-image: linear-gradient(180deg, rgba(40, 40, 45, 0.9) 0%, rgba(15, 15, 17, 0.94) 100%);
+  /* Deliberately no backdrop-filter: the smoothness contract forbids it on the
+     header, and home-deck.spec.ts asserts its absence. Transparency here is a
+     lower alpha on a static gradient, which costs nothing per frame. */
+  background-image: linear-gradient(180deg, rgba(44, 44, 50, 0.55) 0%, rgba(15, 15, 17, 0.65) 100%);
   border: 1px solid var(--color-border-strong);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.55),

@@ -1,7 +1,7 @@
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -26,8 +26,7 @@ const buttonVariants = cva(
           'bg-gradient-to-br from-accent-gradient-from to-accent-gradient-to text-white shadow-[0_4px_15px_rgba(225,6,0,0.2)] hover:shadow-[0_8px_25px_rgba(225,6,0,0.4)] hover:-translate-y-0.5 active:translate-y-px active:scale-[0.97]',
         ghost:
           'border border-border-strong bg-white/[0.02] text-foreground hover:border-accent/80 hover:bg-accent/5 hover:-translate-y-0.5 active:translate-y-px active:scale-[0.97]',
-        subtle:
-          'bg-surface-elevated text-foreground hover:bg-surface-hover active:scale-[0.97]',
+        subtle: 'bg-surface-elevated text-foreground hover:bg-surface-hover active:scale-[0.97]',
         icon: 'bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground active:scale-95',
       },
       size: {
@@ -45,7 +44,7 @@ const buttonVariants = cva(
   },
 );
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+type ButtonProps = ComponentPropsWithRef<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
     isLoading?: boolean;

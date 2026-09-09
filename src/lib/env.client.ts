@@ -9,6 +9,12 @@ const clientEnvSchema = z.object({
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1),
   NEXT_PUBLIC_RAZORPAY_KEY_ID: z.string().min(1),
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().min(1),
+  /**
+   * Cloudinary folder holding the hero footage, e.g. "motormats/hero".
+   * Optional on purpose: until the videos are uploaded the hero falls back to
+   * the files in `public/video`, so a checkout without them still renders.
+   */
+  NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER: z.string().optional(),
 });
 
 const parsed = clientEnvSchema.safeParse({
@@ -19,6 +25,7 @@ const parsed = clientEnvSchema.safeParse({
   NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER: process.env.NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER,
 });
 
 if (!parsed.success) {

@@ -2,7 +2,7 @@
 
 import { ChevronDown, LayoutDashboard, LogOut, Package, User } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useId, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ const BASE_ITEMS = [
 ] as const;
 
 const ADMIN_ITEM = { label: 'Admin panel', href: '/admin', icon: LayoutDashboard } as const;
-const SIGN_OUT_ITEM = { label: 'Sign out', href: '/sign-out', icon: LogOut } as const;
+const SIGN_OUT_ITEM = { label: 'Sign out', href: '/sign-out', icon: LogOut, danger: true } as const;
 
 /**
  * Signed-in account menu.
@@ -66,9 +66,9 @@ export function AccountMenu({ name, isAdmin = false }: { name: string | null; is
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className="nav-pill text-foreground/80 hover:text-foreground flex h-12 items-center gap-2 rounded-full pr-3 pl-2 transition-colors duration-200"
+        className="flex h-12 items-center gap-2 rounded-full nav-pill pr-3 pl-2 text-foreground/80 transition-colors duration-200 hover:text-foreground"
       >
-        <span className="bg-accent/15 text-accent-text flex size-8 items-center justify-center rounded-full">
+        <span className="flex size-8 items-center justify-center rounded-full bg-accent/15 text-accent-text">
           <User aria-hidden size={16} strokeWidth={1.8} />
         </span>
         <span className="hidden max-w-24 truncate text-sm font-medium xl:block">{label}</span>
@@ -84,26 +84,50 @@ export function AccountMenu({ name, isAdmin = false }: { name: string | null; is
           id={menuId}
           role="menu"
           aria-label="Account"
-          className="nav-pill absolute right-0 top-[calc(100%+0.5rem)] z-50 w-52 overflow-hidden rounded-2xl p-1.5"
+          className="absolute top-[calc(100%+0.5rem)] right-0 z-50 w-52 overflow-hidden rounded-2xl card-surface p-1.5"
         >
           {name ? (
-            <p className="text-muted-foreground border-border mb-1 truncate border-b px-3 pt-2 pb-3 text-xs">
-              Signed in as <span className="text-foreground font-medium">{name}</span>
+            <p className="mb-1 truncate border-b border-border px-3 pt-2 pb-3 text-xs text-muted-foreground">
+              Signed in as <span className="font-medium text-foreground">{name}</span>
             </p>
           ) : null}
 
-          {items.map(({ label: itemLabel, href, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              role="menuitem"
-              onClick={() => setOpen(false)}
-              className="text-foreground/80 hover:text-foreground flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors duration-200 hover:bg-white/5"
-            >
-              <Icon aria-hidden size={16} className="text-muted-foreground shrink-0" />
-              {itemLabel}
-            </Link>
-          ))}
+          {items.map(({ label: itemLabel, href, icon: Icon, ...item }) => {
+            const danger = 'danger' in item && item.danger;
+
+            return (
+              <Fragment key={href}>
+                {/* The rule is its own element. As a `border-t` + `pt-3` on the
+                    row itself, the padding pushed the label below the row's
+                    centre line. */}
+                {danger ? <div aria-hidden className="my-1.5 border-t border-border" /> : null}
+
+                <Link
+                  href={href}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    'flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors duration-200',
+                    danger
+                      ? // accent-text, not the brand red: at 14px this is body copy,
+                        // and #E10600 is only 3.98:1 on this ground.
+                        'font-medium text-accent-text hover:bg-accent/10'
+                      : 'text-foreground/80 hover:bg-white/5 hover:text-foreground',
+                  )}
+                >
+                  <Icon
+                    aria-hidden
+                    size={16}
+                    className={cn(
+                      'shrink-0',
+                      danger ? 'text-accent-text' : 'text-muted-foreground',
+                    )}
+                  />
+                  {itemLabel}
+                </Link>
+              </Fragment>
+            );
+          })}
         </div>
       ) : null}
     </div>

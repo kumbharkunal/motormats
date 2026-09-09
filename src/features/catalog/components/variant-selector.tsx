@@ -2,10 +2,11 @@
 
 import { Check, ShoppingBag } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { QuantityStepper } from '@/features/cart/components/quantity-stepper';
 import type { ProductDetail } from '@/features/catalog/server/queries';
+import { tapFeedback } from '@/lib/haptics';
 import { formatPaise } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import { useAppDispatch } from '@/store';
@@ -43,31 +44,29 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
   function addToCart() {
     if (!selectedVariant || outOfStock) return;
 
+    tapFeedback();
     dispatch(itemAdded({ variantPublicId: selectedVariant.publicId, quantity }));
     dispatch(cartDrawerToggled(true));
-    toast.success('Added to your cart', {
-      description: `${product.name} · ${selectedVariant.name}`,
-    });
   }
 
   return (
     <div className="space-y-6">
       <p className="flex items-baseline gap-3">
-        <span className="text-h2 font-display">
+        <span className="font-display text-h2">
           {formatPaise(selectedVariant?.pricePaise ?? product.basePricePaise)}
         </span>
         {product.compareAtPricePaise &&
         product.compareAtPricePaise > (selectedVariant?.pricePaise ?? product.basePricePaise) ? (
-          <span className="text-muted-foreground text-sm line-through">
+          <span className="text-sm text-muted-foreground line-through">
             {formatPaise(product.compareAtPricePaise)}
           </span>
         ) : null}
-        <span className="text-muted-foreground text-xs">incl. GST</span>
+        <span className="text-xs text-muted-foreground">incl. GST</span>
       </p>
 
       {optionGroups.map((group) => (
         <fieldset key={group.name}>
-          <legend className="text-muted-foreground mb-2 text-xs font-semibold tracking-[0.12em] uppercase">
+          <legend className="mb-2 text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase">
             {group.label}
           </legend>
           <div className="flex flex-wrap gap-2">
@@ -107,32 +106,22 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
 
       <StockNotice variant={selectedVariant} />
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="border-border flex h-12 items-center rounded-full border">
-          <button
-            type="button"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            disabled={quantity <= 1 || outOfStock}
-            aria-label="Decrease quantity"
-            className="text-muted-foreground hover:text-foreground flex size-12 items-center justify-center rounded-full text-lg disabled:opacity-40"
-          >
-            −
-          </button>
-          <span aria-live="polite" className="w-8 text-center text-sm font-semibold">
-            {quantity}
-          </span>
-          <button
-            type="button"
-            onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
-            disabled={quantity >= maxQuantity || outOfStock}
-            aria-label="Increase quantity"
-            className="text-muted-foreground hover:text-foreground flex size-12 items-center justify-center rounded-full text-lg disabled:opacity-40"
-          >
-            +
-          </button>
+      {/* Stacked below sm, so the button must not be a flex item that grows:
+          in a column, `flex-1` resolves against the HEIGHT, and `size="lg"`
+          carries a fixed h-14 with no vertical padding to fall back on — the
+          button collapsed to the height of its own label. It only stretches
+          once the row direction makes `flex-1` mean width again. */}
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+        <div className="self-start sm:self-auto">
+          <QuantityStepper
+            value={quantity}
+            max={Math.max(1, maxQuantity)}
+            onChange={setQuantity}
+            label={product.name}
+          />
         </div>
 
-        <Button size="lg" onClick={addToCart} disabled={outOfStock} className="flex-1">
+        <Button size="lg" onClick={addToCart} disabled={outOfStock} className="sm:flex-1">
           <ShoppingBag aria-hidden size={18} />
           {outOfStock ? 'Sold out' : 'Add to cart'}
         </Button>
@@ -143,17 +132,17 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
 
 function StockNotice({ variant }: { variant: Variant | undefined }) {
   if (!variant) {
-    return <p className="text-muted-foreground text-sm">This combination isn&apos;t available.</p>;
+    return <p className="text-sm text-muted-foreground">This combination isn&apos;t available.</p>;
   }
   if (variant.stockQuantity <= 0) {
-    return <p className="text-muted-foreground text-sm">Out of stock in this finish.</p>;
+    return <p className="text-sm text-muted-foreground">Out of stock in this finish.</p>;
   }
   if (variant.isLowStock) {
     return (
-      <p className="text-accent-text text-sm">Only {variant.stockQuantity} left in this finish.</p>
+      <p className="text-sm text-accent-text">Only {variant.stockQuantity} left in this finish.</p>
     );
   }
-  return <p className="text-success text-sm">In stock, ships in 2–4 days.</p>;
+  return <p className="text-sm text-success">In stock, ships in 2–4 days.</p>;
 }
 
 type OptionGroup = { name: string; label: string; values: string[] };

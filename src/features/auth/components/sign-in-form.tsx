@@ -25,6 +25,21 @@ const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
 /**
+ * The emoji flag has no glyph on Windows, so desktop Chrome fell back to
+ * rendering the two regional-indicator letters, "IN".
+ */
+function IndiaFlag() {
+  return (
+    <svg viewBox="0 0 21 14" aria-hidden className="h-3.5 w-5 shrink-0 rounded-[2px]">
+      <rect width="21" height="14" fill="#FFFFFF" />
+      <rect width="21" height="4.667" fill="#FF9933" />
+      <rect y="9.333" width="21" height="4.667" fill="#138808" />
+      <circle cx="10.5" cy="7" r="1.7" fill="none" stroke="#000080" strokeWidth="0.55" />
+    </svg>
+  );
+}
+
+/**
  * Phone-first sign-in, with Google as the alternative.
  *
  * Firebase authenticates; the app then issues its own session cookie. Errors
@@ -36,7 +51,13 @@ export function SignInForm({ next }: { next: string }) {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
-  const [busy, setBusy] = useState(false);
+  /**
+   * Which action is in flight, not merely "something is". A single boolean
+   * meant choosing Google spun the phone form’s "Send code" button, which
+   * read as the wrong thing happening.
+   */
+  const [pending, setPending] = useState<'otp' | 'verify' | 'google' | null>(null);
+  const busy = pending !== null;
   /** Set once sign-in has succeeded and the document is on its way out. */
   const [leaving, setLeaving] = useState(false);
   /** True while the SMS is still being requested behind the code screen. */
@@ -46,6 +67,7 @@ export function SignInForm({ next }: { next: string }) {
   const prefersReducedMotion = useReducedMotion();
 
   const confirmation = useRef<ConfirmationResult | null>(null);
+  const verifyButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (secondsLeft <= 0) return;
@@ -56,6 +78,19 @@ export function SignInForm({ next }: { next: string }) {
   // The verifier is bound to a DOM node, so it must not outlive this screen.
   useEffect(() => resetRecaptcha, []);
 
+  /**
+   * Hand the completed code to the submit button so Enter works on it.
+   *
+   * This cannot be done from `OtpInput`'s `onComplete`: that fires inside the
+   * input's `onChange`, before React has committed the sixth digit, so the
+   * button is still `disabled` at that moment and `focus()` is a no-op. Waiting
+   * for the commit is the whole point of doing it here.
+   */
+  useEffect(() => {
+    if (step !== 'otp' || sending || code.length !== OTP_LENGTH) return;
+    verifyButton.current?.focus();
+  }, [step, sending, code]);
+
   const digits = phone.replace(/\D/g, '');
   const phoneValid = /^[6-9]\d{9}$/.test(digits);
 
@@ -65,7 +100,7 @@ export function SignInForm({ next }: { next: string }) {
       return;
     }
 
-    setBusy(true);
+    setPending('otp');
     setSending(true);
     // Move to the code screen before the network call, not after. Sending an
     // SMS involves a reCAPTCHA round trip, and waiting on it left the button
@@ -89,7 +124,7 @@ export function SignInForm({ next }: { next: string }) {
         authErrorMessage(error, 'We could not send the code. Please try again in a moment.'),
       );
     } finally {
-      setBusy(false);
+      setPending(null);
       setSending(false);
     }
   }
@@ -105,7 +140,7 @@ export function SignInForm({ next }: { next: string }) {
   async function verifyOtp() {
     if (code.length !== OTP_LENGTH || !confirmation.current) return;
 
-    setBusy(true);
+    setPending('verify');
 
     let idToken: string;
     try {
@@ -118,7 +153,7 @@ export function SignInForm({ next }: { next: string }) {
         authErrorMessage(error, 'That code is incorrect or has expired. Request a new one.'),
       );
       setCode('');
-      setBusy(false);
+      setPending(null);
       return;
     }
 
@@ -133,12 +168,12 @@ export function SignInForm({ next }: { next: string }) {
       // cooldown to make "Resend code" the immediate way out.
       setCode('');
       setSecondsLeft(0);
-      setBusy(false);
+      setPending(null);
     }
   }
 
   async function googleSignIn() {
-    setBusy(true);
+    setPending('google');
     try {
       await establishSession(await signInWithGoogle());
       leaveForDestination();
@@ -147,7 +182,7 @@ export function SignInForm({ next }: { next: string }) {
       if (!isCancelledByUser(error)) {
         toast.error(authErrorMessage(error, 'Google sign-in did not complete.'));
       }
-      setBusy(false);
+      setPending(null);
     }
   }
 
@@ -197,8 +232,8 @@ export function SignInForm({ next }: { next: string }) {
                   validates Indian numbers and Firebase is handed +91, so an
                   editable country field would promise a choice that does not
                   exist yet. */}
-                <div className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-border bg-surface-elevated px-3.5 text-sm font-medium text-foreground">
-                  <span aria-hidden>🇮🇳</span>
+                <div className="flex h-12 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3.5 text-sm font-medium text-foreground">
+                  <IndiaFlag />
                   +91
                   <span className="sr-only">Country code for India</span>
                 </div>
@@ -236,8 +271,8 @@ export function SignInForm({ next }: { next: string }) {
               size="lg"
               className="mt-5 w-full"
               onClick={() => void requestOtp()}
-              isLoading={busy}
-              disabled={!phoneValid}
+              isLoading={pending === 'otp'}
+              disabled={!phoneValid || busy}
             >
               Send code
             </Button>
@@ -253,6 +288,7 @@ export function SignInForm({ next }: { next: string }) {
               size="lg"
               className="w-full gap-3 tracking-normal normal-case"
               onClick={() => void googleSignIn()}
+              isLoading={pending === 'google'}
               disabled={busy}
             >
               <GoogleMark size={18} />
@@ -301,17 +337,22 @@ export function SignInForm({ next }: { next: string }) {
                 onChange={setCode}
                 length={OTP_LENGTH}
                 disabled={sending}
-                // Six digits in means they are done; make them press nothing.
-                onComplete={() => void verifyOtp()}
+                autoFocus
+                // Hand the sixth digit to the submit button rather than firing
+                // straight away, so the code can be checked before it is spent
+                // and Enter does the obvious thing.
+                onComplete={() => verifyButton.current?.focus()}
+                onEnter={() => void verifyOtp()}
               />
             </div>
 
             <Button
               size="lg"
               className="mt-5 w-full"
+              ref={verifyButton}
               onClick={() => void verifyOtp()}
-              isLoading={busy && !sending}
-              disabled={code.length !== OTP_LENGTH || sending}
+              isLoading={pending === 'verify'}
+              disabled={code.length !== OTP_LENGTH || sending || busy}
             >
               Verify and continue
             </Button>

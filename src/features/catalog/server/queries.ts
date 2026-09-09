@@ -30,6 +30,8 @@ export type ProductListItem = {
   inStock: boolean;
   ratingAverage: number | null;
   ratingCount: number;
+  /** Cheapest in-stock variant, for quick-add from a card. Null when sold out. */
+  defaultVariantPublicId: string | null;
 };
 
 export type ProductListResult = {
@@ -40,12 +42,50 @@ export type ProductListResult = {
   totalPages: number;
 };
 
+/**
+ * Cheapest in-stock variant per product, in a single round trip.
+ *
+ * Both listings need it to offer quick-add, and doing it per row would be an
+ * N+1 across a full page of cards.
+ */
+async function cheapestInStockVariants(productPublicIds: string[]): Promise<Map<string, string>> {
+  const cheapest = new Map<string, string>();
+  if (productPublicIds.length === 0) return cheapest;
+
+  const variantRows = await db
+    .select({
+      productPublicId: products.publicId,
+      publicId: productVariants.publicId,
+    })
+    .from(productVariants)
+    .innerJoin(products, eq(products.id, productVariants.productId))
+    .where(
+      and(
+        inArray(products.publicId, productPublicIds),
+        eq(productVariants.isActive, true),
+        gte(productVariants.stockQuantity, 1),
+      ),
+    )
+    .orderBy(asc(productVariants.pricePaise), asc(productVariants.id));
+
+  for (const variant of variantRows) {
+    if (!cheapest.has(variant.productPublicId)) {
+      cheapest.set(variant.productPublicId, variant.publicId);
+    }
+  }
+
+  return cheapest;
+}
+
 const DEFAULT_PER_PAGE = 12;
 const MAX_PER_PAGE = 48;
 
 export async function listProducts(filters: ProductListFilters = {}): Promise<ProductListResult> {
   const page = Math.max(1, Math.trunc(filters.page ?? 1));
-  const perPage = Math.min(MAX_PER_PAGE, Math.max(1, Math.trunc(filters.perPage ?? DEFAULT_PER_PAGE)));
+  const perPage = Math.min(
+    MAX_PER_PAGE,
+    Math.max(1, Math.trunc(filters.perPage ?? DEFAULT_PER_PAGE)),
+  );
 
   const conditions: SQL[] = [eq(products.status, 'active')];
 
@@ -124,6 +164,8 @@ export async function listProducts(filters: ProductListFilters = {}): Promise<Pr
 
   const total = Number(counted?.total ?? 0);
 
+  const cheapestVariant = await cheapestInStockVariants(rows.map((row) => row.publicId));
+
   return {
     items: rows.map((row) => ({
       publicId: row.publicId,
@@ -137,6 +179,7 @@ export async function listProducts(filters: ProductListFilters = {}): Promise<Pr
       inStock: Number(row.stockTotal ?? 0) > 0,
       ratingAverage: row.ratingCount > 0 ? row.ratingSum / row.ratingCount : null,
       ratingCount: row.ratingCount,
+      defaultVariantPublicId: cheapestVariant.get(row.publicId) ?? null,
     })),
     total,
     page,
@@ -154,7 +197,10 @@ function orderFor(sort: ProductSort) {
     case 'newest':
       return [desc(products.createdAt), asc(products.id)];
     case 'rating':
-      return [desc(sql`${products.ratingSum} / NULLIF(${products.ratingCount}, 0)`), asc(products.id)];
+      return [
+        desc(sql`${products.ratingSum} / NULLIF(${products.ratingCount}, 0)`),
+        asc(products.id),
+      ];
     case 'featured':
     default:
       return [desc(products.isFeatured), asc(products.id)];
@@ -211,32 +257,7 @@ export async function listFeaturedProducts(limit = 4): Promise<FeaturedProduct[]
 
   if (rows.length === 0) return [];
 
-  const variantRows = await db
-    .select({
-      productPublicId: products.publicId,
-      publicId: productVariants.publicId,
-      pricePaise: productVariants.pricePaise,
-    })
-    .from(productVariants)
-    .innerJoin(products, eq(products.id, productVariants.productId))
-    .where(
-      and(
-        inArray(
-          products.publicId,
-          rows.map((row) => row.publicId),
-        ),
-        eq(productVariants.isActive, true),
-        gte(productVariants.stockQuantity, 1),
-      ),
-    )
-    .orderBy(asc(productVariants.pricePaise), asc(productVariants.id));
-
-  const cheapestVariant = new Map<string, string>();
-  for (const variant of variantRows) {
-    if (!cheapestVariant.has(variant.productPublicId)) {
-      cheapestVariant.set(variant.productPublicId, variant.publicId);
-    }
-  }
+  const cheapestVariant = await cheapestInStockVariants(rows.map((row) => row.publicId));
 
   return rows.map((row) => ({
     publicId: row.publicId,
