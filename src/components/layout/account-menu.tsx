@@ -66,7 +66,7 @@ export function AccountMenu({ name, isAdmin = false }: { name: string | null; is
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className="flex h-12 items-center gap-2 rounded-full nav-pill pr-3 pl-2 text-foreground/80 transition-colors duration-200 hover:text-foreground"
+        className="flex h-12 items-center gap-2 rounded-full nav-pill pr-3 pl-2 text-foreground/80 transition-colors duration-200 group-data-[over-hero=true]/header:text-white/85 hover:text-foreground group-data-[over-hero=true]/header:hover:text-white"
       >
         <span className="flex size-8 items-center justify-center rounded-full bg-accent/15 text-accent-text">
           <User aria-hidden size={16} strokeWidth={1.8} />
@@ -75,7 +75,7 @@ export function AccountMenu({ name, isAdmin = false }: { name: string | null; is
         <ChevronDown
           aria-hidden
           size={15}
-          className={cn('transition-transform duration-200', open && 'rotate-180')}
+          className={cn('transition-motion duration-200', open && 'rotate-180')}
         />
       </button>
 
@@ -109,10 +109,10 @@ export function AccountMenu({ name, isAdmin = false }: { name: string | null; is
                   className={cn(
                     'flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors duration-200',
                     danger
-                      ? // accent-text, not the brand red: at 14px this is body copy,
-                        // and #E10600 is only 3.98:1 on this ground.
+                      ? // accent-text, which on this light ground resolves to the brand
+                        // red itself at 4.97:1 — safe for 14px body copy.
                         'font-medium text-accent-text hover:bg-accent/10'
-                      : 'text-foreground/80 hover:bg-white/5 hover:text-foreground',
+                      : 'text-foreground/80 hover:bg-surface-hover hover:text-foreground',
                   )}
                 >
                   <Icon

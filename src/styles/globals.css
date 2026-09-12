@@ -16,61 +16,82 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* ── Surfaces: near-black ramp, anchored on the approved #0A0A0B ─────── */
-  --color-background: #0a0a0b;
-  --color-surface: #141416;
-  --color-surface-elevated: #1c1c1f;
-  --color-surface-hover: #232326;
+  /* ── Surfaces ────────────────────────────────────────────────────────── */
+  /* Elevation inverts with the theme. A dark surface rises by lightening; a
+     light one rises by whitening toward pure #FFF and taking a real shadow. */
+  --color-background: #f6f7f9; /* app canvas — the plane cards sit on */
+  --color-surface: #ffffff; /* cards, header, menus */
+  --color-surface-elevated: #f9fafb; /* recessed strips inside a card */
+  --color-surface-hover: #f2f4f7;
 
   /* ── Text ────────────────────────────────────────────────────────────── */
-  --color-foreground: #f5f5f4; /* 18.1:1 on background */
-  --color-muted-foreground: #a1a1aa; /*  7.7:1 on background */
-  --color-subtle-foreground: #71717a; /* decorative only — not for body text */
+  --color-foreground: #101828; /* 17.8:1 — near-black slate; pure black is harsh on white */
+  --color-muted-foreground: #475467; /*  7.7:1 — body copy and captions */
+  --color-subtle-foreground: #667085; /*  5.0:1 — tertiary labels */
 
   /* ── Racing red ──────────────────────────────────────────────────────── */
-  --color-accent: #e10600; /* surfaces, borders, icons, large text */
-  --color-accent-hover: #ff1e1e;
-  --color-accent-dark: #b00400;
-  --color-accent-gradient-from: #f21811;
+  --color-accent: #e10600; /* 4.97:1 on white — surfaces, CTAs and, here, ink */
+  --color-accent-hover: #b00400; /* on a light ground hover DARKENS, never lightens */
+  --color-accent-dark: #8f0300;
+  --color-accent-gradient-from: #e10600;
   --color-accent-gradient-to: #b00400;
-  /* #E10600 as TEXT on background is only 3.98:1 — fails AA for body copy.
-     Use accent-text for small red type; it reaches 5.8:1. */
-  --color-accent-text: #ff4438;
+  /* The brand red flips with the ground. On the near-black theme #FF4438 was
+     the accessible ink (5.8:1) and #E10600 failed body copy (3.98:1). On white
+     it is exactly the other way round: #E10600 reaches 4.97:1 while #FF4438
+     drops to 3.42:1. So #FF4438 is decoration only here — never text. */
+  --color-accent-text: #e10600;
+  /* The same flip, for the dark islands — the hero scrim, the product-zone
+     captions, the assurance band and the footer. Red text there is back on a
+     near-black ground, where #E10600 drops to 3.57:1 and this reaches 5.19:1.
+     Use it *only* on those bands; on the page's own light ground it is the one
+     that fails. */
+  --color-accent-on-dark: #ff4438;
 
   /* ── Lines ───────────────────────────────────────────────────────────── */
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
+  /* Solid, not rgba: a translucent line muddies over the tinted canvas. */
+  --color-border: #e4e7ec;
+  --color-border-strong: #d0d5dd;
 
-  /* ── Status ──────────────────────────────────────────────────────────── */
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  /* ── Status — text-grade against white ───────────────────────────────── */
+  --color-success: #15803d; /* the dark theme's #22c55e is 2.3:1 here */
+  --color-warning: #b45309; /* #f59e0b is 1.9:1 here — effectively unreadable */
+  --color-danger: #b42318;
 
-  /* Toast grounds: the status hue at 12% (10% for info) already flattened
-     onto --color-surface. Composited here rather than layered at runtime,
-     because a translucent toast lets the page show through it. */
-  --color-toast-success: #16291f;
-  --color-toast-error: #2e1a1c;
-  --color-toast-warning: #2f2515;
-  --color-toast-info: #291314;
+  /* Toast grounds: the status hue at 10% already flattened onto
+     --color-surface. Composited here rather than layered at runtime, because a
+     translucent toast lets the page show through it. */
+  --color-toast-success: #e8f2ec;
+  --color-toast-error: #f8e9e8;
+  --color-toast-warning: #f8eee6;
+  --color-toast-info: #e8effb;
 
   /* ── Typography ──────────────────────────────────────────────────────── */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-display), 'Roboto Condensed', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cormorant), Georgia, ui-serif, serif;
 
-  /* Fluid scale — preserves the demo's clamp() rhythm */
-  --text-display: clamp(2.25rem, 5vw + 1rem, 4rem);
-  --text-display--line-height: 1.05;
-  --text-display--letter-spacing: -0.035em;
-  --text-h1: clamp(1.875rem, 3.5vw + 0.5rem, 3rem);
-  --text-h1--line-height: 1.1;
-  --text-h1--letter-spacing: -0.03em;
-  --text-h2: clamp(1.5rem, 2.5vw + 0.25rem, 2.25rem);
-  --text-h2--line-height: 1.15;
-  --text-h2--letter-spacing: -0.02em;
-  --text-h3: clamp(1.125rem, 1.5vw + 0.25rem, 1.375rem);
-  --text-h3--line-height: 1.25;
-  --text-h3--letter-spacing: -0.01em;
+  /* Fluid scale.
+     Bigger and looser than the sans scale it replaces: a 400-weight Garamond
+     has far less presence per pixel than a 600-weight geometric sans, so it
+     earns its place through size and air instead. Tracking goes slightly
+     negative — a serif at display size already carries its own rhythm, and
+     positive tracking on lowercase serif reads as a mistake. */
+  --text-display: clamp(2.75rem, 6vw + 1rem, 5.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: clamp(2.25rem, 4vw + 0.5rem, 3.75rem);
+  --text-h1--line-height: 1.05;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h2: clamp(1.875rem, 3vw + 0.25rem, 3rem);
+  --text-h2--line-height: 1.1;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h3: clamp(1.25rem, 1.5vw + 0.4rem, 1.625rem);
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: 0;
+  /* The small uppercase label that sits above a heading — Inter, not the
+     serif, because a display serif at 12px is noise. */
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.22em;
   --text-body: clamp(0.9375rem, 0.5vw + 0.75rem, 1.0625rem);
   --text-body--line-height: 1.7;
 
@@ -78,16 +99,23 @@
   --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --ease-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
-  --ease-deck: cubic-bezier(0.25, 1, 0.5, 1);
 
-  /* ── Elevation — no backdrop-filter; see the smoothness contract ─────── */
-  --shadow-glow-sm: 0 0 20px rgba(225, 6, 0, 0.3);
-  --shadow-glow: 0 0 35px rgba(225, 6, 0, 0.45);
-  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-  --shadow-panel: 0 -20px 60px rgba(0, 0, 0, 0.8);
+  /* ── Elevation ───────────────────────────────────────────────────────── */
+  /* Red reads roughly twice as loud on white, so the glows are far tighter
+     than their dark-theme equivalents and carry a real offset. */
+  --shadow-glow-sm: 0 2px 8px rgba(225, 6, 0, 0.18);
+  --shadow-glow: 0 6px 20px rgba(225, 6, 0, 0.22);
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-raised: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-panel: 0 -8px 32px rgba(16, 24, 40, 0.08);
 
   --radius-card: 1rem;
   --radius-card-lg: 1.5rem;
+
+  /* Section rhythm, matching the reference: 130px between bands and 100px
+     inside one, collapsing to ~45%/50% of that on a phone. */
+  --spacing-section: clamp(3.625rem, 7vw, 8.125rem);
+  --spacing-band: clamp(3.125rem, 5vw, 6.25rem);
 
   --container-page: 1340px;
 }
@@ -101,13 +129,17 @@
      them offsets by these rather than by a hardcoded number, which is how
      the cart summary ended up sliding under the checkout steps. */
   :root {
-    --header-height: 4rem;
+    /* Padding above AND below the 3rem pill row, so the band is symmetric:
+       16 + 48 + 16. It used to be padded only on top, which left the pills
+       sitting flush on the band's bottom edge with content running right up
+       under them. */
+    --header-height: 5rem;
     --checkout-steps-height: 3.25rem;
   }
 
   @media (min-width: 768px) {
     :root {
-      --header-height: 4.25rem;
+      --header-height: 5.5rem;
     }
   }
 
@@ -117,9 +149,16 @@
     box-sizing: border-box;
   }
 
+  /* `:not(.lenis)` matters: Lenis adds that class when it takes over the
+     document, and native smooth scrolling running underneath it makes anchor
+     jumps fight the animation. When Lenis is off — reduced motion, or before
+     hydration — the native behaviour is the right fallback. */
+  html:not(.lenis) {
+    scroll-behavior: smooth;
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-behavior: smooth;
   }
 
   body {
@@ -132,17 +171,34 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
+    /* `clip`, never `hidden`. Setting one axis to `hidden` forces the other to
+       compute to `auto`, which made <body> the scrolling element — so Lenis,
+       which cancels the wheel event and then scrolls the document element,
+       scrolled something that was no longer the scrollport and the page sat
+       still under the wheel while `scrollTo` still worked. `clip` leaves
+       overflow-y `visible` and still contains a stray wide child. */
+    overflow-x: clip;
   }
 
   h1,
   h2,
-  h3,
+  h3 {
+    font-family: var(--font-display);
+    /* 400, and sentence case. The previous uppercase-600 treatment belonged to
+       a geometric sans; run through a Garamond it reads as a stretched
+       monument. Lowercase is where this face actually has its drawing. */
+    font-weight: 400;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  /* h4 and below are labels and captions, not display type — they stay on the
+     UI face, where they keep their legibility at small sizes. */
   h4,
   h5,
   h6 {
-    font-family: var(--font-display);
-    font-weight: 700;
+    font-family: var(--font-sans);
+    font-weight: 600;
     margin: 0;
     text-wrap: balance;
   }
@@ -159,13 +215,15 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent-text);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
     border-radius: 4px;
   }
 
+  /* 16%, not the dark theme's 35%: a red wash this size over dark text stays
+     readable, where the heavier alpha turns the glyphs muddy. */
   ::selection {
-    background-color: rgba(225, 6, 0, 0.35);
+    background-color: rgba(225, 6, 0, 0.16);
     color: var(--color-foreground);
   }
 
@@ -177,11 +235,11 @@
     background: var(--color-background);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-surface-elevated);
+    background: var(--color-border-strong);
     border-radius: 100px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-muted-foreground);
+    background: var(--color-subtle-foreground);
   }
 
   /* Honour the OS setting globally. Component-level guards still apply for
@@ -210,13 +268,17 @@
 }
 
 /*
- * Card surface. The demo used backdrop-filter: blur(32px) here, which is the
- * single largest cause of jank when these cards live inside an animating
- * deck panel. This reproduces the look with a static gradient — same visual
- * weight, zero per-frame cost.
+ * Card surface.
+ *
+ * The dark theme faked depth with a 145° near-black gradient, standing in for a
+ * `backdrop-filter: blur(32px)` that was the single largest cause of jank
+ * on the old homepage deck. On a light ground that device is wrong twice
+ * over: a card rises by going *whiter* than the canvas, not by gradient, and a
+ * light surface needs a real cast shadow to separate at all. So this is now a
+ * flat white plane on a tinted canvas — cheaper still, and no gradient to band.
  */
 @utility card-surface {
-  background-image: linear-gradient(145deg, rgba(36, 36, 40, 0.9) 0%, rgba(14, 14, 16, 0.95) 100%);
+  background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-card);
 }
@@ -224,21 +286,62 @@
 /*
  * Floating navigation capsule.
  *
- * Reads as frosted glass without `backdrop-filter`. The header sits fixed over
- * the animating deck, so a real backdrop blur would force the GPU to re-sample
- * a backdrop that changes every frame — the same measured jank documented in
- * site-header.tsx. A layered gradient, a bright hairline border and an inner
- * top highlight give the depth for free.
+ * Frosted glass, simulated. `backdrop-filter` is forbidden here: the header
+ * floats over the hero video, and a real backdrop blur forces the GPU to
+ * re-sample a backdrop that changes every frame — the measured jank documented
+ * in site-header.tsx. Transparency is a lower alpha on a static gradient
+ * instead, which costs nothing per frame.
+ *
+ * Translucent, not solid. The dark theme layered 55%-to-65% near-black; this is
+ * the same construction inverted, so the video still reads through the capsule
+ * rather than being blocked by a flat white slab. The inner top highlight is
+ * gone on purpose — it imitated light raking onto a raised dark surface and
+ * says nothing on white, where a cast shadow does that job instead.
  */
 @utility nav-pill {
-  /* Deliberately no backdrop-filter: the smoothness contract forbids it on the
-     header, and home-deck.spec.ts asserts its absence. Transparency here is a
-     lower alpha on a static gradient, which costs nothing per frame. */
-  background-image: linear-gradient(180deg, rgba(44, 44, 50, 0.55) 0%, rgba(15, 15, 17, 0.65) 100%);
-  border: 1px solid var(--color-border-strong);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(255, 255, 255, 0.88) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
+    0 8px 24px rgba(16, 24, 40, 0.1),
+    0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+/*
+ * Over the hero the pills go back to the original dark glass.
+ *
+ * The hero is a deliberate dark island — video under a dark scrim — so a light
+ * capsule there would be a bright slab on top of the footage, and the brand
+ * asset's white "MOTOR" would have nothing to sit against. This is the exact
+ * gradient the dark theme used, at a lower alpha so more of the video reads
+ * through. A descendant selector rather than a second utility, so every pill in
+ * the header follows the band without any of them knowing where they are.
+ */
+header[data-over-hero='true'] .nav-pill {
+  background-image: linear-gradient(180deg, rgba(44, 44, 50, 0.45) 0%, rgba(15, 15, 17, 0.55) 100%);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/*
+ * Transition for the motion utilities.
+ *
+ * Tailwind v4 compiles `translate-*`, `scale-*` and `rotate-*` to the
+ * standalone `translate`, `scale` and `rotate` properties, not to `transform`
+ * functions. `transition-transform` therefore animates nothing and every one of
+ * those changes snaps — which is what it was doing across the site: the card
+ * image zoom, the nav underline, the chevrons, the retracting header.
+ *
+ * Enumerated rather than `transition-all`, and all three still run on the
+ * compositor. Pair it with a `duration-*`; this sets no duration of its own so
+ * the call site always wins.
+ */
+@utility transition-motion {
+  transition-property: translate, scale, rotate;
+  transition-timing-function: var(--ease-smooth);
 }
 
 @utility text-gradient {
@@ -251,11 +354,6 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-}
-
-/* Applied by ScrollDeck only for the duration of a transition, then removed. */
-@utility deck-animating {
-  will-change: transform;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -372,59 +470,4 @@
     transform: translate(30px, 29px);
     opacity: 0;
   }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
-   Homepage deck
-   ═══════════════════════════════════════════════════════════════════════ */
-
-/*
- * Swiper's EffectCreative writes `transition-duration` inline on each slide but
- * never a timing function, and `transition-timing-function` is not inherited.
- * The demo set its curve on `.swiper-wrapper`, which never moves under
- * `virtualTranslate` — so the signature easing silently never applied and the
- * deck ran on the browser default. Target the slides themselves.
- */
-.swiper-creative .swiper-slide {
-  transition-timing-function: var(--ease-deck);
-}
-
-/* Panels size themselves from the shell, so they need no knowledge of which
-   mode they were rendered into. */
-.deck-shell .deck-panel {
-  height: 100%;
-}
-
-.flow-shell .deck-panel {
-  min-height: 100svh;
-}
-
-/* Granted on transition start, removed on transition end — never permanent.
- *
- * Scoped to the three panels that can be on screen rather than every slide:
- * promoting the whole deck at the instant motion begins makes the compositor
- * raster several full-viewport layers in the same frame it starts animating
- * them, and a layer that is not finished rasterising paints as a partly blank
- * panel. `backface-visibility` keeps each one on a single stable layer. */
-.deck-animating .swiper-slide-active,
-.deck-animating .swiper-slide-prev,
-.deck-animating .swiper-slide-next {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/*
- * Scrolling back up has to look like the top panel sliding away, not like the
- * one underneath appearing.
- *
- * The creative effect derives z-index from |progress|, so the slide becoming
- * active is always raised to the front. Going forward that is exactly right —
- * the incoming panel covers. Going back it is wrong: the panel underneath is
- * painted over the one still sliding down, and the whole reveal happens out of
- * sight. Measured at frame 1 of 96, which is why it read as no animation at all.
- *
- * `!important` is unavoidable: Swiper writes that z-index as an inline style.
- */
-.deck-reversing .swiper-slide-next {
-  z-index: 5 !important;
 }

@@ -2,16 +2,31 @@
 
 import { useRouter } from 'next/navigation';
 
-import { ResponsiveDataTable, StatusChip, type Column } from '@/features/admin/components/data-table';
+import {
+  ResponsiveDataTable,
+  StatusChip,
+  type Column,
+} from '@/features/admin/components/data-table';
 import type { AdminOrderRow } from '@/features/admin/server/admin-queries';
 import { formatPaise } from '@/lib/money';
 
 type Row = AdminOrderRow & { id: string };
 
 const columns: Column<Row>[] = [
-  { field: 'orderNumber', header: 'Order', primary: true, flex: 1, render: (row) => row.orderNumber },
+  {
+    field: 'orderNumber',
+    header: 'Order',
+    primary: true,
+    flex: 1,
+    render: (row) => row.orderNumber,
+  },
   { field: 'customer', header: 'Customer', flex: 1, render: (row) => row.customer },
-  { field: 'status', header: 'Status', width: 160, render: (row) => <StatusChip status={row.status} /> },
+  {
+    field: 'status',
+    header: 'Status',
+    width: 160,
+    render: (row) => <StatusChip status={row.status} />,
+  },
   {
     field: 'grandTotalPaise',
     header: 'Total',
@@ -23,7 +38,11 @@ const columns: Column<Row>[] = [
     header: 'Placed',
     width: 150,
     render: (row) =>
-      row.createdAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      row.createdAt.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }),
   },
 ];
 

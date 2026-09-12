@@ -63,12 +63,13 @@ test.describe('bundle budget', () => {
     });
   }
 
-  test('Swiper loads only on the homepage deck', async ({ request }) => {
-    // Swiper powers the deck. A listing or detail page pulling it in means the
-    // code split has broken.
-    expect((await firstLoad(request, '/')).hasSwiper).toBe(true);
-
-    for (const path of ['/collections', '/products/7d-sport-luxury-mat', '/cart']) {
+  test('Swiper is not shipped to any route', async ({ request }) => {
+    // Swiper powered the homepage deck, which was removed — the carousels that
+    // remain are CSS scroll-snap. The package is still installed so the deck can
+    // be restored from docs/reference/scroll-deck.md, and that is exactly why
+    // this assertion matters: an accidental import would put 29KB back on a
+    // route with nothing to show for it.
+    for (const path of ['/', '/collections', '/products/7d-sport-luxury-mat', '/cart']) {
       expect((await firstLoad(request, path)).hasSwiper, `Swiper leaked into ${path}`).toBe(false);
     }
   });

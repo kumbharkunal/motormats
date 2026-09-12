@@ -69,7 +69,7 @@ export function ProductCard({
             fill
             priority={priority}
             sizes="(max-width: 639px) 70vw, (max-width: 1023px) 46vw, 22vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="object-cover transition-motion duration-700 group-hover:scale-105"
           />
         ) : (
           <div className="grid h-full place-items-center text-xs text-subtle-foreground">

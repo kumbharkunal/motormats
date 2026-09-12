@@ -13,7 +13,7 @@ export function AnnouncementMarquee() {
     <div
       role="region"
       aria-label="Announcements"
-      className="bg-accent relative z-50 flex h-7 shrink-0 items-center overflow-hidden text-white"
+      className="relative z-50 flex h-7 shrink-0 items-center overflow-hidden bg-accent text-white"
     >
       <div className="flex w-max animate-[marquee-scroll_38s_linear_infinite] hover:[animation-play-state:paused] motion-reduce:animate-none motion-reduce:justify-center">
         {[0, 1].map((copy) => (

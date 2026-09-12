@@ -106,10 +106,10 @@ export async function ProductListing({
 /** Shown when the catalogue itself cannot be reached, as opposed to being empty. */
 export function ListingUnavailable() {
   return (
-    <div className="border-border mt-8 flex flex-col items-center rounded-3xl border border-dashed px-6 py-20 text-center">
-      <PackageSearch aria-hidden className="text-subtle-foreground size-10" strokeWidth={1.2} />
-      <h2 className="text-h3 mt-5">We can&apos;t load the catalogue right now</h2>
-      <p className="text-muted-foreground mt-2 max-w-sm text-sm text-balance">
+    <div className="mt-8 flex flex-col items-center rounded-3xl border border-dashed border-border px-6 py-20 text-center">
+      <PackageSearch aria-hidden className="size-10 text-subtle-foreground" strokeWidth={1.2} />
+      <h2 className="mt-5 text-h3">We can&apos;t load the catalogue right now</h2>
+      <p className="mt-2 max-w-sm text-sm text-balance text-muted-foreground">
         This is on our side, not yours. Please refresh in a moment.
       </p>
       <Button asChild variant="ghost" className="mt-6">
@@ -121,10 +121,10 @@ export function ListingUnavailable() {
 
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   return (
-    <div className="border-border mt-8 flex flex-col items-center rounded-3xl border border-dashed px-6 py-20 text-center">
-      <PackageSearch aria-hidden className="text-subtle-foreground size-10" strokeWidth={1.2} />
-      <h2 className="text-h3 mt-5">Nothing matches that yet</h2>
-      <p className="text-muted-foreground mt-2 max-w-sm text-sm text-balance">
+    <div className="mt-8 flex flex-col items-center rounded-3xl border border-dashed border-border px-6 py-20 text-center">
+      <PackageSearch aria-hidden className="size-10 text-subtle-foreground" strokeWidth={1.2} />
+      <h2 className="mt-5 text-h3">Nothing matches that yet</h2>
+      <p className="mt-2 max-w-sm text-sm text-balance text-muted-foreground">
         {hasFilters
           ? 'Try removing a filter or widening your search.'
           : 'This collection is being restocked. Check back shortly.'}

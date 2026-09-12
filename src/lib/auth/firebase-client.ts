@@ -45,10 +45,7 @@ export function resetRecaptcha(): void {
   verifier = null;
 }
 
-export async function sendOtp(
-  e164Phone: string,
-  containerId: string,
-): Promise<ConfirmationResult> {
+export async function sendOtp(e164Phone: string, containerId: string): Promise<ConfirmationResult> {
   resetRecaptcha();
   return signInWithPhoneNumber(firebaseAuth(), e164Phone, getRecaptchaVerifier(containerId));
 }
@@ -69,8 +66,7 @@ const AUTH_MESSAGES: Record<string, string> = {
     'Sign-in by SMS is unavailable right now. Please use Google instead.',
   'auth/operation-not-allowed':
     'Sign-in by SMS is unavailable right now. Please use Google instead.',
-  'auth/unauthorized-domain':
-    'Sign-in by SMS is unavailable right now. Please use Google instead.',
+  'auth/unauthorized-domain': 'Sign-in by SMS is unavailable right now. Please use Google instead.',
   'auth/captcha-check-failed': 'The security check did not pass. Please try again.',
   'auth/invalid-phone-number': 'That mobile number does not look right.',
   'auth/invalid-verification-code': 'That code is incorrect or has expired. Request a new one.',

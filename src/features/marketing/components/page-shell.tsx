@@ -23,10 +23,8 @@ export function PageShell({
     <div className={`container-page py-12 md:py-16 ${wide ? '' : 'max-w-3xl'}`}>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: breadcrumb }]} />
 
-      <h1 className="text-h1 mt-6">{title}</h1>
-      {intro ? (
-        <p className="text-muted-foreground mt-4 text-balance md:text-lg">{intro}</p>
-      ) : null}
+      <h1 className="mt-6 text-h1">{title}</h1>
+      {intro ? <p className="mt-4 text-balance text-muted-foreground md:text-lg">{intro}</p> : null}
 
       <div className="mt-10">{children}</div>
     </div>
@@ -36,7 +34,7 @@ export function PageShell({
 /** Body copy for the policy pages: readable measure, consistent spacing. */
 export function Prose({ children }: { children: ReactNode }) {
   return (
-    <div className="[&_a]:text-accent-text [&_h2]:text-h3 space-y-6 text-sm leading-relaxed [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mt-10 [&_h2]:mb-3 [&_li]:mt-1.5 [&_p]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-muted-foreground">
+    <div className="space-y-6 text-sm leading-relaxed [&_a]:text-accent-text [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:text-h3 [&_li]:mt-1.5 [&_p]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-muted-foreground">
       {children}
     </div>
   );

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 
 import { Toaster } from '@/components/feedback/toaster';
+import { SmoothScroll } from '@/components/layout/smooth-scroll';
 import { StoreProvider } from '@/store/store-provider';
 import { clientEnv } from '@/lib/env.client';
 import { fontDisplay, fontSans } from '@/lib/fonts';
@@ -30,8 +31,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0A0A0B',
-  colorScheme: 'dark',
+  themeColor: '#F6F7F9',
+  colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
@@ -40,13 +41,14 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={cn(fontSans.variable, fontDisplay.variable)}>
-      <body className="bg-background text-foreground font-sans antialiased">
+      <body className="bg-background font-sans text-foreground antialiased">
         <a
           href="#main"
-          className="bg-accent sr-only rounded px-4 py-2 font-medium text-white focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200]"
+          className="sr-only rounded bg-accent px-4 py-2 font-medium text-white focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200]"
         >
           Skip to content
         </a>
+        <SmoothScroll />
         <StoreProvider>{children}</StoreProvider>
         <Toaster />
       </body>

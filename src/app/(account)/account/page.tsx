@@ -20,12 +20,12 @@ export default async function AccountPage() {
     <div className="container-page max-w-3xl py-12 md:py-16">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My account' }]} />
 
-      <h1 className="text-h1 mt-6">My account</h1>
-      <p className="text-muted-foreground mt-3">
+      <h1 className="mt-6 text-h1">My account</h1>
+      <p className="mt-3 text-muted-foreground">
         {user.name ? `Signed in as ${user.name}.` : 'You are signed in.'}
       </p>
 
-      <dl className="card-surface mt-8 grid gap-5 rounded-3xl p-6 sm:grid-cols-2">
+      <dl className="mt-8 grid gap-5 rounded-3xl card-surface p-6 sm:grid-cols-2">
         <Detail icon={User} label="Name">
           {user.name ?? <span className="text-subtle-foreground">Not provided</span>}
         </Detail>
@@ -40,27 +40,27 @@ export default async function AccountPage() {
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         <Link
           href="/account/orders"
-          className="card-surface hover:border-accent/30 flex items-center gap-4 rounded-2xl p-5 transition-colors duration-300"
+          className="flex items-center gap-4 rounded-2xl card-surface p-5 transition-colors duration-300 hover:border-accent/30"
         >
-          <span className="bg-accent/15 text-accent-text flex size-11 shrink-0 items-center justify-center rounded-full">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-text">
             <Package aria-hidden size={18} />
           </span>
           <span>
             <span className="block text-sm font-semibold">My orders</span>
-            <span className="text-muted-foreground text-xs">Track and review past purchases</span>
+            <span className="text-xs text-muted-foreground">Track and review past purchases</span>
           </span>
         </Link>
 
         <Link
           href="/sign-out"
-          className="card-surface hover:border-accent/30 flex items-center gap-4 rounded-2xl p-5 transition-colors duration-300"
+          className="flex items-center gap-4 rounded-2xl card-surface p-5 transition-colors duration-300 hover:border-accent/30"
         >
-          <span className="text-muted-foreground flex size-11 shrink-0 items-center justify-center rounded-full bg-white/5">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-surface-elevated text-muted-foreground">
             <LogOut aria-hidden size={18} />
           </span>
           <span>
             <span className="block text-sm font-semibold">Sign out</span>
-            <span className="text-muted-foreground text-xs">End this session</span>
+            <span className="text-xs text-muted-foreground">End this session</span>
           </span>
         </Link>
       </div>
@@ -83,10 +83,10 @@ function Detail({
 }) {
   return (
     <div className="flex gap-3">
-      <Icon aria-hidden size={18} className="text-accent-text mt-0.5 shrink-0" />
+      <Icon aria-hidden size={18} className="mt-0.5 shrink-0 text-accent-text" />
       <div className="min-w-0">
-        <dt className="text-foreground/80 text-xs tracking-[0.12em] uppercase">{label}</dt>
-        <dd className="text-muted-foreground mt-1 truncate text-sm">{children}</dd>
+        <dt className="text-xs tracking-[0.12em] text-foreground/80 uppercase">{label}</dt>
+        <dd className="mt-1 truncate text-sm text-muted-foreground">{children}</dd>
       </div>
     </div>
   );

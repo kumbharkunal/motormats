@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { ProductListing, type ListingSearchParams } from '@/features/catalog/components/product-listing';
+import {
+  ProductListing,
+  type ListingSearchParams,
+} from '@/features/catalog/components/product-listing';
 import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton';
 
 export const metadata: Metadata = {
@@ -22,7 +25,7 @@ export default async function CollectionsPage({
     <div className="container-page py-12 md:py-16">
       <header className="max-w-2xl">
         <h1 className="text-h1">All Collections</h1>
-        <p className="text-muted-foreground mt-3 text-balance">
+        <p className="mt-3 text-balance text-muted-foreground">
           Four ranges, each laser-cut to your vehicle. Filter by fit, finish and availability.
         </p>
       </header>

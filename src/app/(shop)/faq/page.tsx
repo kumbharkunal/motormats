@@ -54,16 +54,16 @@ export default function FaqPage() {
       title="Frequently asked questions"
       intro="Fitment, delivery, payment and warranty. If your question is not here, ask us directly."
     >
-      <dl className="divide-border divide-y">
+      <dl className="divide-y divide-border">
         {FAQS.map((item) => (
           <div key={item.q} className="py-6 first:pt-0">
             <dt className="text-sm font-semibold md:text-base">{item.q}</dt>
-            <dd className="text-muted-foreground mt-2 text-sm leading-relaxed">{item.a}</dd>
+            <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
           </div>
         ))}
       </dl>
 
-      <p className="text-muted-foreground mt-10 text-sm">
+      <p className="mt-10 text-sm text-muted-foreground">
         Still unsure?{' '}
         <Link href="/contact" className="text-accent-text underline underline-offset-4">
           Talk to us

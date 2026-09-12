@@ -43,9 +43,14 @@ export async function provisionUserFromFirebase(
    * re-link instead: Firebase only mints a phone-provider token after the OTP
    * succeeds, so the number is proven to belong to whoever is signing in.
    */
-  const [byPhone] = byUid || !identity.phone
-    ? []
-    : await db.select(identityColumns).from(users).where(eq(users.phone, identity.phone)).limit(1);
+  const [byPhone] =
+    byUid || !identity.phone
+      ? []
+      : await db
+          .select(identityColumns)
+          .from(users)
+          .where(eq(users.phone, identity.phone))
+          .limit(1);
 
   const existing = byUid ?? byPhone;
 

@@ -201,7 +201,10 @@ const COOKIE_BASE = {
   path: '/',
 } as const;
 
-export async function setSessionCookies(accessToken: string, refreshToken: string): Promise<string> {
+export async function setSessionCookies(
+  accessToken: string,
+  refreshToken: string,
+): Promise<string> {
   const store = await cookies();
   const csrfToken = randomToken(24);
 

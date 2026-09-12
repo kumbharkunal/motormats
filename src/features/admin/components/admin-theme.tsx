@@ -40,9 +40,9 @@ const theme = createTheme({
   shape: { borderRadius: 14 },
   typography: {
     fontFamily: 'var(--font-inter), system-ui, sans-serif',
-    h1: { fontFamily: 'var(--font-display), sans-serif', fontWeight: 700 },
-    h2: { fontFamily: 'var(--font-display), sans-serif', fontWeight: 700 },
-    h3: { fontFamily: 'var(--font-display), sans-serif', fontWeight: 700 },
+    h1: { fontFamily: 'var(--font-sans), sans-serif', fontWeight: 700 },
+    h2: { fontFamily: 'var(--font-sans), sans-serif', fontWeight: 700 },
+    h3: { fontFamily: 'var(--font-sans), sans-serif', fontWeight: 700 },
     h4: { fontWeight: 700, letterSpacing: '-0.02em' },
     h6: { fontWeight: 700, letterSpacing: '-0.01em' },
     button: { textTransform: 'none', fontWeight: 600 },

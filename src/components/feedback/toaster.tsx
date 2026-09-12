@@ -6,10 +6,10 @@ import { Toaster as SonnerToaster } from 'sonner';
 /**
  * The single toast surface for the whole app.
  *
- * Each state carries its own hue over a dark, near-opaque ground, so a toast
- * reads at a glance without leaving the brand's palette — sonner's stock
- * `richColors` are far brighter than anything else here, which is why they stay
- * off and the tints are hand-set from our own tokens.
+ * Each state carries its own hue over an opaque tinted ground, so a toast reads
+ * at a glance without leaving the brand's palette — sonner's stock `richColors`
+ * are far brighter than anything else here, which is why they stay off and the
+ * tints are hand-set from our own tokens.
  *
  * Colour is reinforcement, never the signal on its own: every state also ships
  * its own icon, so the meaning survives for anyone who cannot separate the hues.
@@ -34,20 +34,19 @@ export function Toaster() {
         classNames: {
           // Every colour needs `!`: sonner paints the toast with a `background`
           // shorthand of its own, which would otherwise reset any background
-          // set here (an unprefixed `card-surface` renders a white toast).
+          // set here.
           //
           // Ground and border live on the per-state keys below, never here.
           // Two `!important` utilities for the same property are settled by
           // stylesheet order, not by which is more specific — a base
           // `!bg-surface` silently beat `!bg-success/12` and every toast came
-          // out the same near-black.
-          toast:
-            'group !border !rounded-2xl !gap-3 !text-foreground !shadow-[0_16px_50px_rgba(0,0,0,0.65)]',
+          // out the same flat white.
+          toast: 'group !border !rounded-2xl !gap-3 !text-foreground !shadow-raised',
           title: '!text-sm !font-semibold !text-foreground',
           description: '!text-xs !text-muted-foreground',
           actionButton:
             '!bg-accent !text-white !rounded-full !text-xs !font-semibold hover:!bg-accent-hover',
-          cancelButton: '!bg-white/5 !text-muted-foreground !rounded-full !text-xs',
+          cancelButton: '!bg-surface-elevated !text-muted-foreground !rounded-full !text-xs',
           closeButton:
             '!bg-surface-elevated !border-border !text-muted-foreground hover:!text-foreground',
           // A tint rather than a fill: the copy stays on `--color-foreground`,

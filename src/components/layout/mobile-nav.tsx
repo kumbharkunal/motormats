@@ -48,16 +48,19 @@ export function MobileNav({
         <button
           type="button"
           aria-label="Open menu"
-          className="flex size-12 items-center justify-center rounded-full nav-pill text-foreground transition-colors duration-200 active:scale-95 lg:hidden"
+          className="flex size-12 items-center justify-center rounded-full nav-pill text-foreground transition-colors duration-200 group-data-[over-hero=true]/header:text-white active:scale-95 lg:hidden"
         >
           <Menu aria-hidden size={20} strokeWidth={1.5} />
         </button>
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm data-[state=closed]:animate-[overlay-out_200ms_ease-in] data-[state=open]:animate-[overlay-in_250ms_ease-out]" />
+        {/* Ink rather than black, and far lighter than the dark theme's 70%:
+            the drawer now reads as a white panel lifted off the page, so the
+            scrim only has to push the page back, not black it out. */}
+        <Dialog.Overlay className="fixed inset-0 z-[100] bg-foreground/40 backdrop-blur-sm data-[state=closed]:animate-[overlay-out_200ms_ease-in] data-[state=open]:animate-[overlay-in_250ms_ease-out]" />
 
-        <Dialog.Content className="fixed inset-y-0 left-0 z-[101] flex w-[86vw] max-w-sm flex-col border-r border-border bg-gradient-to-b from-surface-elevated to-background data-[state=closed]:animate-[drawer-out_220ms_ease-in] data-[state=open]:animate-[drawer-in_280ms_cubic-bezier(0.25,1,0.5,1)]">
+        <Dialog.Content className="fixed inset-y-0 left-0 z-[101] flex w-[86vw] max-w-sm flex-col border-r border-border bg-surface data-[state=closed]:animate-[drawer-out_220ms_ease-in] data-[state=open]:animate-[drawer-in_280ms_cubic-bezier(0.25,1,0.5,1)]">
           <VisuallyHidden>
             <Dialog.Title>Navigation menu</Dialog.Title>
           </VisuallyHidden>
@@ -76,7 +79,7 @@ export function MobileNav({
               <button
                 type="button"
                 aria-label="Close menu"
-                className="flex size-11 items-center justify-center rounded-xl text-muted-foreground transition-colors duration-200 hover:bg-white/5 hover:text-foreground active:scale-95"
+                className="flex size-11 items-center justify-center rounded-xl text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-foreground active:scale-95"
               >
                 <X aria-hidden size={20} strokeWidth={1.5} />
               </button>
@@ -125,14 +128,14 @@ export function MobileNav({
                         'group relative flex min-h-12 items-center justify-between rounded-xl py-3 pr-4 pl-5 text-lg transition-colors duration-200',
                         active
                           ? 'bg-accent/8 font-semibold text-foreground'
-                          : 'text-foreground/75 hover:bg-white/5 hover:text-foreground',
+                          : 'text-foreground/75 hover:bg-surface-hover hover:text-foreground',
                       )}
                     >
                       {/* The rail marks the current route, so it is not carried by colour alone. */}
                       <span
                         aria-hidden
                         className={cn(
-                          'absolute top-1/2 left-0 h-6 w-[3px] -translate-y-1/2 rounded-full bg-accent transition-transform duration-200',
+                          'absolute top-1/2 left-0 h-6 w-[3px] -translate-y-1/2 rounded-full bg-accent transition-motion duration-200',
                           active ? 'scale-y-100' : 'scale-y-0',
                         )}
                       />
@@ -140,7 +143,7 @@ export function MobileNav({
                       <ArrowRight
                         aria-hidden
                         size={16}
-                        className="text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent-text"
+                        className="text-muted-foreground transition-motion duration-200 group-hover:translate-x-1 group-hover:text-accent-text"
                       />
                     </Link>
                   </li>
@@ -154,7 +157,7 @@ export function MobileNav({
                   <Link
                     href={href}
                     onClick={close}
-                    className="flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-[0.9375rem] text-foreground/75 transition-colors duration-200 hover:bg-white/5 hover:text-foreground"
+                    className="flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-[0.9375rem] text-foreground/75 transition-colors duration-200 hover:bg-surface-hover hover:text-foreground"
                   >
                     <Icon aria-hidden size={17} className="shrink-0 text-muted-foreground" />
                     {label}
@@ -164,7 +167,7 @@ export function MobileNav({
 
               {isSignedIn ? (
                 <li>
-                  {/* accent-text rather than #E10600: at this size it is body copy. */}
+                  {/* accent-text: the AA-safe red for body copy on this ground. */}
                   <Link
                     href={SIGN_OUT_LINK.href}
                     onClick={close}

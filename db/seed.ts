@@ -42,9 +42,38 @@ type SeedProduct = {
   basePricePaise: number;
   compareAtPricePaise?: number;
   isFeatured?: boolean;
-  image: string;
+  imageBase: string;
   variants: SeedVariant[];
 };
+
+/**
+ * The three shots every product carries, derived from one base id.
+ *
+ * They are uploaded to Cloudinary under `motormats/products/<base>` with the
+ * `-fitted` and `-detail` suffixes, so the set is a convention rather than three
+ * strings repeated per product — and a missing suffix shows up as one broken
+ * thumbnail instead of a silently absent gallery.
+ *
+ * `width`/`height` are deliberately left null: the sources are a mix of 1254 and
+ * 1600 square, nothing lays out from them (the gallery and cards use `fill`),
+ * and the old hardcoded 600x600 was simply wrong.
+ */
+function buildImages(base: string, name: string) {
+  return [
+    {
+      assetId: `motormats/products/${base}`,
+      alt: `A set of ${name} car mats laid flat on a white background`,
+    },
+    {
+      assetId: `motormats/products/${base}-fitted`,
+      alt: `${name} fitted in the footwell of a car`,
+    },
+    {
+      assetId: `motormats/products/${base}-detail`,
+      alt: `Close-up of the material and edge finish on the ${name}`,
+    },
+  ];
+}
 
 const FITS = [
   { key: 'Hatchback', delta: 0, stock: 40 },
@@ -91,7 +120,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         basePricePaise: 449_900,
         compareAtPricePaise: 599_900,
         isFeatured: true,
-        image: 'motormats/products/sport',
+        imageBase: '7d-sport',
         variants: buildVariants('7DS', 449_900, ['Black', 'Tan', 'Red']),
       },
       {
@@ -102,7 +131,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
           'The Executive shares the 7D moulding but adds an acoustic foam core that measurably lowers road noise in the rear cabin. Finished with a stitched leatherette border.',
         brand: 'Motormats',
         basePricePaise: 529_900,
-        image: 'motormats/products/sport',
+        imageBase: '7d-executive',
         variants: buildVariants('7DE', 529_900, ['Black', 'Beige']),
       },
     ],
@@ -124,7 +153,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         basePricePaise: 529_900,
         compareAtPricePaise: 649_900,
         isFeatured: true,
-        image: 'motormats/products/carbon',
+        imageBase: 'carbon-series',
         variants: buildVariants('CBS', 529_900, ['Black', 'Graphite']),
       },
       {
@@ -135,7 +164,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
           'The GT trims 400g per mat against the standard Carbon Series and finishes the perimeter with a contrast stitch. Intended for performance interiors where weight is tracked.',
         brand: 'Motormats',
         basePricePaise: 589_900,
-        image: 'motormats/products/carbon',
+        imageBase: 'carbon-gt',
         variants: buildVariants('CGT', 589_900, ['Black', 'Red']),
       },
     ],
@@ -156,7 +185,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         brand: 'Motormats',
         basePricePaise: 389_900,
         isFeatured: true,
-        image: 'motormats/products/carpet',
+        imageBase: 'executive-carpet',
         variants: buildVariants('EXC', 389_900, ['Charcoal', 'Beige']),
       },
     ],
@@ -178,7 +207,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         basePricePaise: 299_900,
         compareAtPricePaise: 379_900,
         isFeatured: true,
-        image: 'motormats/products/all-weather',
+        imageBase: 'all-weather',
         variants: buildVariants('AWM', 299_900, ['Black', 'Grey']),
       },
       {
@@ -189,7 +218,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
           'Covers the full boot floor with a 40mm lip. Sized per model so the tailgate still closes on the liner rather than around it.',
         brand: 'Motormats',
         basePricePaise: 349_900,
-        image: 'motormats/products/all-weather',
+        imageBase: 'cargo-liner',
         variants: buildVariants('AWC', 349_900, ['Black']),
       },
     ],
@@ -236,14 +265,14 @@ async function seed() {
       });
       productCount += 1;
 
-      await db.insert(productImages).values({
-        productId: inserted.insertId,
-        assetId: item.image,
-        alt: `${item.name} for a car interior`,
-        width: 600,
-        height: 600,
-        position: 0,
-      });
+      await db.insert(productImages).values(
+        buildImages(item.imageBase, item.name).map((image, position) => ({
+          productId: inserted.insertId,
+          assetId: image.assetId,
+          alt: image.alt,
+          position,
+        })),
+      );
 
       await db.insert(productVariants).values(
         item.variants.map((variant, position) => ({

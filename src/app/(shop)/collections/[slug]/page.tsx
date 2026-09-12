@@ -78,7 +78,7 @@ export default async function CategoryPage({
       <header className="mt-6 max-w-2xl">
         <h1 className="text-h1">{category.name}</h1>
         {category.description ? (
-          <p className="text-muted-foreground mt-3 text-balance">{category.description}</p>
+          <p className="mt-3 text-balance text-muted-foreground">{category.description}</p>
         ) : null}
       </header>
 

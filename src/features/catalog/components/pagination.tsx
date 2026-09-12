@@ -35,7 +35,7 @@ export function Pagination({
             <li
               key={`gap-${index}`}
               aria-hidden
-              className="text-subtle-foreground px-1 text-sm select-none"
+              className="px-1 text-sm text-subtle-foreground select-none"
             >
               …
             </li>

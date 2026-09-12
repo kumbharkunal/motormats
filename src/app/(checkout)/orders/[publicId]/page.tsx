@@ -55,18 +55,18 @@ export default async function OrderPage({
         </div>
       ) : (
         <>
-          <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">
+          <p className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
             Order {order.orderNumber}
           </p>
-          <h1 className="text-h1 mt-2">{status.label}</h1>
-          <p className="text-muted-foreground mt-2">{status.detail}</p>
+          <h1 className="mt-2 text-h1">{status.label}</h1>
+          <p className="mt-2 text-muted-foreground">{status.detail}</p>
         </>
       )}
 
-      <ul className="divide-border mt-8 divide-y">
+      <ul className="mt-8 divide-y divide-border">
         {order.items.map((item, index) => (
           <li key={item.sku + String(index)} className="flex gap-4 py-4">
-            <div className="bg-surface relative size-20 shrink-0 overflow-hidden rounded-xl">
+            <div className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-surface">
               {item.imageAssetId ? (
                 <Image
                   src={item.imageAssetId}
@@ -81,8 +81,8 @@ export default async function OrderPage({
               <Link href={'/products/' + item.productSlug} className="text-sm font-semibold">
                 {item.productName}
               </Link>
-              <p className="text-muted-foreground mt-0.5 text-xs">{item.variantName}</p>
-              <p className="text-muted-foreground mt-0.5 text-xs">
+              <p className="mt-0.5 text-xs text-muted-foreground">{item.variantName}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 {formatPaise(item.unitPricePaise)} × {item.quantity}
               </p>
             </div>
@@ -91,7 +91,7 @@ export default async function OrderPage({
         ))}
       </ul>
 
-      <dl className="border-border mt-6 space-y-2 border-t pt-6 text-sm">
+      <dl className="mt-6 space-y-2 border-t border-border pt-6 text-sm">
         <Row label="Subtotal" value={formatPaise(order.subtotalPaise)} />
         {order.discountPaise > 0 ? (
           <Row
@@ -103,16 +103,18 @@ export default async function OrderPage({
           label="Shipping"
           value={order.shippingPaise === 0 ? 'Free' : formatPaise(order.shippingPaise)}
         />
-        <div className="border-border flex items-baseline justify-between border-t pt-3">
+        <div className="flex items-baseline justify-between border-t border-border pt-3">
           <dt className="font-semibold">Total</dt>
-          <dd className="text-h3 font-display">{formatPaise(order.grandTotalPaise)}</dd>
+          <dd className="font-sans text-h3 font-semibold tabular-nums">
+            {formatPaise(order.grandTotalPaise)}
+          </dd>
         </div>
-        <p className="text-muted-foreground text-xs">Includes {formatPaise(order.taxPaise)} GST</p>
+        <p className="text-xs text-muted-foreground">Includes {formatPaise(order.taxPaise)} GST</p>
       </dl>
 
-      <section className="border-border mt-8 border-t pt-6">
+      <section className="mt-8 border-t border-border pt-6">
         <h2 className="text-h3">Delivery address</h2>
-        <address className="text-muted-foreground mt-3 text-sm not-italic">
+        <address className="mt-3 text-sm text-muted-foreground not-italic">
           {address.fullName}
           <br />
           {address.line1}

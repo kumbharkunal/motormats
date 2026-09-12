@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { AccountMenu } from '@/components/layout/account-menu';
 import { CartButton } from '@/components/layout/cart-button';
+import { HeaderBand } from '@/components/layout/header-band';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { MotormatsLogo } from '@/components/layout/motormats-logo';
 import { NAV_LINKS } from '@/components/layout/nav-links';
@@ -15,17 +16,7 @@ export async function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const isAdmin = user ? isAdminRole(user.role) : false;
 
   return (
-    <header
-      className={cn(
-        'z-40 w-full shrink-0 px-4 pt-4 md:px-6 md:pt-5',
-        // The sticky variant needs a ground of its own. The pill is the only
-        // thing here with a background, so page content was scrolling straight
-        // through the band around it and colliding with the nav.
-        // The overlay variant stays transparent by design — it floats over the
-        // homepage hero.
-        overlay ? 'pointer-events-none absolute inset-x-0 top-0' : 'sticky top-0 bg-background',
-      )}
-    >
+    <HeaderBand overlay={overlay}>
       <div
         className={cn(
           // A grid below lg, so the logo sits in its own centre track and the
@@ -34,18 +25,17 @@ export async function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           'relative mx-auto grid h-12 grid-cols-[1fr_auto_1fr] items-center gap-2',
           'lg:flex lg:justify-between lg:gap-4',
           'max-w-(--container-page)',
-          overlay && '*:pointer-events-auto',
         )}
       >
         <div className="flex items-center gap-3">
           <MobileNav isSignedIn={Boolean(user)} isAdmin={isAdmin} userName={user?.name ?? null} />
           <Link href="/" aria-label="Motormats home" className="hidden lg:flex">
-            <MotormatsLogo size="md" priority className="h-11" />
+            <MotormatsLogo size="md" tone="auto" priority className="h-11" />
           </Link>
         </div>
 
         <Link href="/" aria-label="Motormats home" className="justify-self-center lg:hidden">
-          <MotormatsLogo size="sm" priority className="h-9" />
+          <MotormatsLogo size="sm" tone="auto" priority className="h-9" />
         </Link>
 
         <nav
@@ -57,12 +47,12 @@ export async function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="group relative block py-2 text-sm tracking-[0.04em] text-foreground/70 transition-colors duration-300 hover:text-foreground"
+                  className="group relative block py-2 text-sm tracking-[0.04em] text-foreground/70 transition-colors duration-300 group-data-[over-hero=true]/header:text-white/80 hover:text-foreground group-data-[over-hero=true]/header:hover:text-white"
                 >
                   {link.label}
                   <span
                     aria-hidden
-                    className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 rounded-full bg-gradient-to-r from-accent to-accent/50 transition-transform duration-300 ease-out group-hover:scale-x-100"
+                    className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 rounded-full bg-gradient-to-r from-accent to-accent/50 transition-motion duration-300 ease-out group-hover:scale-x-100"
                   />
                 </Link>
               </li>
@@ -81,6 +71,6 @@ export async function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           )}
         </div>
       </div>
-    </header>
+    </HeaderBand>
   );
 }

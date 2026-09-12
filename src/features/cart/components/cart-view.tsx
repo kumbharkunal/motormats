@@ -134,7 +134,7 @@ export function CartView() {
                   <button
                     type="button"
                     onClick={() => dispatch(itemRemoved(line.variantPublicId))}
-                    className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 hover:bg-white/5 hover:text-accent-text"
+                    className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-accent-text"
                     aria-label={`Remove ${line.productName}`}
                   >
                     <Trash2 aria-hidden size={16} />
@@ -172,7 +172,9 @@ export function CartView() {
           />
           <div className="flex items-baseline justify-between border-t border-border pt-3">
             <dt className="font-semibold">Total</dt>
-            <dd className="font-display text-h3">{formatPaise(resolved.totals.grandTotalPaise)}</dd>
+            <dd className="font-sans text-h3 font-semibold tabular-nums">
+              {formatPaise(resolved.totals.grandTotalPaise)}
+            </dd>
           </div>
           <p className="text-xs text-muted-foreground">
             Includes {formatPaise(resolved.totals.taxPaise)} GST

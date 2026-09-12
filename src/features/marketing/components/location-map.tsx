@@ -18,12 +18,12 @@ export function LocationMap() {
       <h2 id="location-heading" className="text-h3">
         Find us
       </h2>
-      <p className="text-muted-foreground mt-2 flex items-start gap-2 text-sm">
-        <MapPin aria-hidden size={16} className="text-accent-text mt-0.5 shrink-0" />
+      <p className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
+        <MapPin aria-hidden size={16} className="mt-0.5 shrink-0 text-accent-text" />
         {addressLine}
       </p>
 
-      <div className="card-surface mt-5 overflow-hidden rounded-3xl">
+      <div className="mt-5 overflow-hidden rounded-3xl card-surface">
         <iframe
           src={BUSINESS.mapEmbedUrl}
           title={`Map showing ${BUSINESS.name} in ${BUSINESS.address.city}`}
@@ -37,7 +37,7 @@ export function LocationMap() {
           href={mapsSearchHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="border-border text-foreground/80 hover:text-foreground flex min-h-14 items-center justify-center gap-2 border-t text-sm font-medium transition-colors duration-200 hover:bg-white/5"
+          className="flex min-h-14 items-center justify-center gap-2 border-t border-border text-sm font-medium text-foreground/80 transition-colors duration-200 hover:bg-surface-hover hover:text-foreground"
         >
           <ExternalLink aria-hidden size={16} />
           Open in Google Maps

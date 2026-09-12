@@ -12,17 +12,20 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
           alignItems: 'center',
           justifyContent: 'center',
           gap: '1rem',
-          background: '#0A0A0B',
-          color: '#F5F5F4',
+          // Hardcoded rather than tokenised: this replaces <html> when the root
+          // layout itself has failed, so globals.css may never have loaded.
+          // Keep these in step with --color-background / --color-foreground.
+          background: '#F6F7F9',
+          color: '#101828',
           fontFamily: 'system-ui, sans-serif',
           textAlign: 'center',
           padding: '2rem',
         }}
       >
         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Motormats is temporarily unavailable</h1>
-        <p style={{ color: '#A1A1AA', margin: 0 }}>Please refresh the page in a moment.</p>
+        <p style={{ color: '#475467', margin: 0 }}>Please refresh the page in a moment.</p>
         {error.digest ? (
-          <p style={{ color: '#71717A', fontSize: '0.75rem', margin: 0 }}>
+          <p style={{ color: '#667085', fontSize: '0.75rem', margin: 0 }}>
             Reference: {error.digest}
           </p>
         ) : null}

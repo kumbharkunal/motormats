@@ -66,12 +66,12 @@ export async function POST(request: NextRequest) {
 
   try {
     await handleEvent(parsed);
-    await db
-      .update(webhookEvents)
-      .set({ processedAt: new Date() })
-      .where(eqEvent(deliveryId));
+    await db.update(webhookEvents).set({ processedAt: new Date() }).where(eqEvent(deliveryId));
   } catch (error) {
-    logger.error({ err: error, deliveryId, event: parsed.event }, 'razorpay webhook handling failed');
+    logger.error(
+      { err: error, deliveryId, event: parsed.event },
+      'razorpay webhook handling failed',
+    );
   }
 
   return Response.json({ ok: true });

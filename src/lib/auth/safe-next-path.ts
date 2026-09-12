@@ -6,11 +6,7 @@
  * narrows it further — the admin sign-in uses `/admin/` so a login there can
  * never bounce out into the storefront.
  */
-export function safeNextPath(
-  next: string | undefined,
-  fallback: string,
-  prefix = '/',
-): string {
+export function safeNextPath(next: string | undefined, fallback: string, prefix = '/'): string {
   if (!next) return fallback;
   if (!/^\/(?!\/)/.test(next)) return fallback;
   if (next.includes('..')) return fallback;

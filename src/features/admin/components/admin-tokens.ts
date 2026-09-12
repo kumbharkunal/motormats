@@ -95,14 +95,3 @@ export const BRAND_PANEL = {
   inkMuted: 'rgba(245,245,244,0.72)',
   border: 'rgba(255,255,255,0.08)',
 } as const;
-
-/**
- * Ground for the logo plate — see `admin-logo.tsx`. The panel's own ink rather
- * than the storefront's near-black: on a light sidebar #0A0A0B reads as a hole
- * punched through the surface, while the slate sits in the same family as the
- * rest of the type.
- */
-export const LOGO_PLATE = {
-  ground: INK.primary,
-  border: 'rgba(255,255,255,0.10)',
-} as const;

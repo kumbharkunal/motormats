@@ -361,7 +361,9 @@ export function CheckoutView({
             />
             <div className="flex items-baseline justify-between border-t border-border pt-3">
               <dt className="font-semibold">Total</dt>
-              <dd className="font-display text-h3">{formatPaise(totals.grandTotalPaise)}</dd>
+              <dd className="font-sans text-h3 font-semibold tabular-nums">
+                {formatPaise(totals.grandTotalPaise)}
+              </dd>
             </div>
             <p className="text-xs text-muted-foreground">
               Includes {formatPaise(totals.taxPaise)} GST

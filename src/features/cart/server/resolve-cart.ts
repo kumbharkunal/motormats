@@ -1,7 +1,12 @@
 import 'server-only';
 
 import { getVariantsForPurchase } from '@/features/catalog/server/queries';
-import { computeCartTotals, type CartTotals, type Discount, type PricedLine } from '@/features/pricing/pricing';
+import {
+  computeCartTotals,
+  type CartTotals,
+  type Discount,
+  type PricedLine,
+} from '@/features/pricing/pricing';
 
 export type ClientCartLine = {
   variantPublicId: string;

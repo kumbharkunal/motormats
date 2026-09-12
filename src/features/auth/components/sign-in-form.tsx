@@ -241,6 +241,7 @@ export function SignInForm({ next }: { next: string }) {
                 <div
                   className={cn(
                     'flex h-12 flex-1 items-center rounded-xl border bg-surface px-4 transition-colors duration-200',
+                    busy && 'opacity-50',
                     phoneFocused ? 'border-accent bg-accent/5' : 'border-border',
                   )}
                 >
@@ -251,6 +252,10 @@ export function SignInForm({ next }: { next: string }) {
                     autoComplete="tel-national"
                     maxLength={10}
                     value={digits}
+                    // Covers the Google popup as much as the OTP send: the
+                    // step already switches away before the OTP network call
+                    // resolves, so this field is rarely even on screen then.
+                    disabled={busy}
                     onFocus={() => setPhoneFocused(true)}
                     onBlur={() => setPhoneFocused(false)}
                     onChange={(event) => setPhone(event.target.value)}
@@ -258,7 +263,7 @@ export function SignInForm({ next }: { next: string }) {
                       if (event.key === 'Enter') void requestOtp();
                     }}
                     placeholder="98765 43210"
-                    className="w-full bg-transparent text-sm tracking-wide outline-none"
+                    className="w-full bg-transparent text-sm tracking-wide outline-none disabled:cursor-not-allowed"
                   />
                   {phoneValid ? (
                     <Check aria-hidden size={16} className="shrink-0 text-accent-text" />

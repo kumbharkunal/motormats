@@ -97,11 +97,35 @@ export function AdminAuthLayout({
 
           {children}
 
-          <Box sx={{ mt: 4, ...QUIET_LINK }}>
-            <Link href={footer.href}>
+          {/* Centred rather than left-run-on: QUIET_LINK itself stays
+              unaligned because admin-sign-in-form.tsx reuses it right-aligned
+              for 'Forgot password?'. This is the one spot that centres it and
+              gives it a real hit target — a hover pill and a nudge on the
+              arrow, so it reads as a control rather than a stray caption. */}
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+            <Box
+              component={Link}
+              href={footer.href}
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.75,
+                minHeight: 44,
+                px: 2,
+                borderRadius: 999,
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'text.secondary',
+                textDecoration: 'none',
+                transition: 'color 200ms ease, background-color 200ms ease',
+                '&:hover': { color: 'text.primary', bgcolor: 'action.hover' },
+                '& svg': { transition: 'transform 200ms ease' },
+                '&:hover svg': { transform: 'translateX(-2px)' },
+              }}
+            >
               <ArrowLeft size={15} aria-hidden />
               {footer.label}
-            </Link>
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -170,7 +194,7 @@ function BrandPanel() {
           aria-label="Motormats — go to the storefront"
           style={{ display: 'inline-flex' }}
         >
-          <MotormatsLogo size="md" priority />
+          <MotormatsLogo size="md" />
         </Link>
       </Box>
 

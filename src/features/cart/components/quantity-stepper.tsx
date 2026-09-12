@@ -92,7 +92,7 @@ function StepButton({
         'flex size-11 shrink-0 items-center justify-center rounded-full transition-colors duration-200',
         disabled
           ? 'cursor-not-allowed text-subtle-foreground'
-          : 'text-muted-foreground hover:bg-white/8 hover:text-foreground active:scale-90',
+          : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground active:scale-90',
       )}
     >
       {children}

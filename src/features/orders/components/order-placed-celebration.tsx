@@ -77,7 +77,7 @@ export function OrderPlacedCelebration({ orderNumber }: { orderNumber: string })
   if (prefersReducedMotion) {
     return (
       <div className="flex flex-col items-center text-center">
-        <span className="border-accent/40 bg-accent/10 flex size-20 items-center justify-center rounded-full border">
+        <span className="flex size-20 items-center justify-center rounded-full border border-accent/40 bg-accent/10">
           <CheckMark animate={false} />
         </span>
         <Copy orderNumber={orderNumber} />
@@ -91,7 +91,7 @@ export function OrderPlacedCelebration({ orderNumber }: { orderNumber: string })
         {/* Expanding ring, opacity+transform only so it stays on the compositor. */}
         <motion.span
           aria-hidden
-          className="border-accent absolute inset-0 rounded-full border"
+          className="absolute inset-0 rounded-full border border-accent"
           initial={{ scale: 0.6, opacity: 0.9 }}
           animate={{ scale: 2.1, opacity: 0 }}
           transition={{ duration: 1.1, ease: 'easeOut', delay: 0.1 }}
@@ -103,8 +103,8 @@ export function OrderPlacedCelebration({ orderNumber }: { orderNumber: string })
             aria-hidden
             className={
               particle.accent
-                ? 'bg-accent absolute size-1.5 rounded-full'
-                : 'bg-foreground/70 absolute size-1 rounded-full'
+                ? 'absolute size-1.5 rounded-full bg-accent'
+                : 'absolute size-1 rounded-full bg-foreground/70'
             }
             initial={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
             animate={{ x: particle.x, y: particle.y, opacity: [0, 1, 0], scale: 1 }}
@@ -113,7 +113,7 @@ export function OrderPlacedCelebration({ orderNumber }: { orderNumber: string })
         ))}
 
         <motion.span
-          className="border-accent/40 bg-accent/10 relative flex size-20 items-center justify-center rounded-full border"
+          className="relative flex size-20 items-center justify-center rounded-full border border-accent/40 bg-accent/10"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 220, damping: 14 }}
@@ -135,7 +135,7 @@ export function OrderPlacedCelebration({ orderNumber }: { orderNumber: string })
 
 function CheckMark({ animate }: { animate: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className="text-accent-text size-9" aria-hidden>
+    <svg viewBox="0 0 24 24" fill="none" className="size-9 text-accent-text" aria-hidden>
       <motion.path
         d="M4.5 12.5 L10 18 L19.5 6.5"
         stroke="currentColor"
@@ -153,11 +153,11 @@ function CheckMark({ animate }: { animate: boolean }) {
 function Copy({ orderNumber }: { orderNumber: string }) {
   return (
     <>
-      <h1 className="text-h1 mt-6">Order placed</h1>
-      <p className="text-muted-foreground mt-3 text-balance">
+      <h1 className="mt-6 text-h1">Order placed</h1>
+      <p className="mt-3 text-balance text-muted-foreground">
         Payment received and your order is confirmed. A receipt is on its way.
       </p>
-      <p className="text-muted-foreground mt-4 text-xs tracking-[0.2em] uppercase">
+      <p className="mt-4 text-xs tracking-[0.2em] text-muted-foreground uppercase">
         Order {orderNumber}
       </p>
     </>

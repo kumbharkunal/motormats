@@ -33,9 +33,7 @@ export function TopProductsChart({
 
   return (
     <Box>
-      <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 2 }}>
-        Top products · 30 days
-      </Typography>
+      <Typography sx={{ fontWeight: 700, fontSize: 15, mb: 2 }}>Top products · 30 days</Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {products.map((product, index) => (

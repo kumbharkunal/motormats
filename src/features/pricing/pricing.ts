@@ -77,7 +77,10 @@ export function computeShipping(payableAfterDiscountPaise: number): number {
   return payableAfterDiscountPaise >= FREE_SHIPPING_THRESHOLD_PAISE ? 0 : FLAT_SHIPPING_PAISE;
 }
 
-export function computeCartTotals(lines: PricedLine[], discount: Discount = { kind: 'none' }): CartTotals {
+export function computeCartTotals(
+  lines: PricedLine[],
+  discount: Discount = { kind: 'none' },
+): CartTotals {
   const priced: LineTotals[] = lines.map((line) => ({
     ...line,
     lineSubtotalPaise: computeLineSubtotal(line),

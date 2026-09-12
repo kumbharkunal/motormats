@@ -54,11 +54,7 @@ export async function withIdempotency<T extends Record<string, unknown>>(
   }
 }
 
-async function replayOrConflict<T>(
-  scope: string,
-  key: string,
-  requestHash: string,
-): Promise<T> {
+async function replayOrConflict<T>(scope: string, key: string, requestHash: string): Promise<T> {
   const [existing] = await db
     .select({
       status: idempotencyKeys.status,
@@ -91,7 +87,8 @@ function isDuplicateKeyError(error: unknown): boolean {
 
   if (codeOf(error) === 'ER_DUP_ENTRY') return true;
 
-  const cause = typeof error === 'object' && error !== null ? (error as { cause?: unknown }).cause : undefined;
+  const cause =
+    typeof error === 'object' && error !== null ? (error as { cause?: unknown }).cause : undefined;
   return codeOf(cause) === 'ER_DUP_ENTRY';
 }
 

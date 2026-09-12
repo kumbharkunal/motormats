@@ -34,7 +34,9 @@ export function StatCard({
 
   return (
     <Card sx={{ p: 2.5, height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+      <Box
+        sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}
+      >
         <Box sx={{ minWidth: 0 }}>
           <Typography
             variant="overline"
@@ -52,7 +54,15 @@ export function StatCard({
         />
       </Box>
 
-      <Box sx={{ mt: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 1.5 }}>
+      <Box
+        sx={{
+          mt: 'auto',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          gap: 1.5,
+        }}
+      >
         <DeltaBadge deltaPct={deltaPct} hint={hint} />
 
         {hasSpark ? (

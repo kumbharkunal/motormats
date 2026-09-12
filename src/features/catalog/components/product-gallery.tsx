@@ -14,12 +14,18 @@ type GalleryImage = { assetId: string; alt: string };
  * gives native momentum swiping on touch, keyboard scrolling, and no JavaScript
  * beyond tracking which thumbnail is active.
  */
-export function ProductGallery({ images, productName }: { images: GalleryImage[]; productName: string }) {
+export function ProductGallery({
+  images,
+  productName,
+}: {
+  images: GalleryImage[];
+  productName: string;
+}) {
   const [active, setActive] = useState(0);
 
   if (images.length === 0) {
     return (
-      <div className="bg-surface text-subtle-foreground grid aspect-square place-items-center rounded-3xl text-sm">
+      <div className="grid aspect-square place-items-center rounded-3xl bg-surface text-sm text-subtle-foreground">
         No image available
       </div>
     );
@@ -29,7 +35,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
 
   return (
     <div className="space-y-3">
-      <div className="bg-surface relative aspect-square overflow-hidden rounded-3xl">
+      <div className="relative aspect-square overflow-hidden rounded-3xl bg-surface">
         <Image
           src={current.assetId}
           alt={current.alt || productName}
@@ -41,7 +47,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
       </div>
 
       {images.length > 1 ? (
-        <ul className="flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ul className="flex [scrollbar-width:none] gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {images.map((image, index) => (
             <li key={`${image.assetId}-${index}`}>
               <button
@@ -50,7 +56,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
                 aria-label={`View image ${index + 1} of ${images.length}`}
                 aria-pressed={index === active}
                 className={cn(
-                  'bg-surface relative size-20 shrink-0 overflow-hidden rounded-xl border transition-colors duration-200',
+                  'relative size-20 shrink-0 overflow-hidden rounded-xl border bg-surface transition-colors duration-200',
                   index === active ? 'border-accent' : 'border-border hover:border-border-strong',
                 )}
               >

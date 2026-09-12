@@ -73,8 +73,7 @@ export default function ShippingAndReturnsPage() {
 
         <h2>Getting help</h2>
         <p>
-          Contact us at{' '}
-          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> or through the{' '}
+          Contact us at <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> or through the{' '}
           <Link href="/contact">contact page</Link> with your order number.
         </p>
       </Prose>

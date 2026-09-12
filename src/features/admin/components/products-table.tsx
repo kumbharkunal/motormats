@@ -2,7 +2,11 @@
 
 import Typography from '@mui/material/Typography';
 
-import { ResponsiveDataTable, StatusChip, type Column } from '@/features/admin/components/data-table';
+import {
+  ResponsiveDataTable,
+  StatusChip,
+  type Column,
+} from '@/features/admin/components/data-table';
 import type { AdminProductRow } from '@/features/admin/server/admin-queries';
 import { formatPaise } from '@/lib/money';
 
@@ -10,14 +14,24 @@ type Row = AdminProductRow & { id: string };
 
 const columns: Column<Row>[] = [
   { field: 'name', header: 'Product', primary: true, flex: 2, render: (row) => row.name },
-  { field: 'status', header: 'Status', width: 130, render: (row) => <StatusChip status={row.status} /> },
+  {
+    field: 'status',
+    header: 'Status',
+    width: 130,
+    render: (row) => <StatusChip status={row.status} />,
+  },
   {
     field: 'basePricePaise',
     header: 'Base price',
     width: 140,
     render: (row) => formatPaise(row.basePricePaise),
   },
-  { field: 'variantCount', header: 'Variants', width: 110, render: (row) => String(row.variantCount) },
+  {
+    field: 'variantCount',
+    header: 'Variants',
+    width: 110,
+    render: (row) => String(row.variantCount),
+  },
   {
     field: 'totalStock',
     header: 'Stock',

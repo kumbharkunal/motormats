@@ -74,8 +74,8 @@ export default function TermsPage() {
 
         <h2>9. Governing law</h2>
         <p>
-          These terms are governed by the laws of India, and the courts at{' '}
-          {BUSINESS.address.city}, {BUSINESS.address.state} have exclusive jurisdiction.
+          These terms are governed by the laws of India, and the courts at {BUSINESS.address.city},{' '}
+          {BUSINESS.address.state} have exclusive jurisdiction.
         </p>
 
         <h2>10. Contact</h2>

@@ -33,11 +33,11 @@ export function NewsletterForm() {
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="Enter your email"
-        className="border-border focus:border-accent/50 min-w-0 flex-1 rounded-l-full border bg-white/5 px-5 py-3 text-sm text-white transition-colors duration-200 placeholder:text-white/30 focus:bg-white/10 focus:outline-none"
+        className="min-w-0 flex-1 rounded-l-full border border-border bg-surface-elevated px-5 py-3 text-sm text-foreground transition-colors duration-200 placeholder:text-subtle-foreground focus:border-accent focus:outline-none"
       />
       <button
         type="submit"
-        className="from-accent-gradient-from to-accent-gradient-to rounded-r-full bg-gradient-to-br px-7 py-3 text-[0.8125rem] font-semibold tracking-[0.15em] whitespace-nowrap text-white uppercase shadow-[0_4px_15px_rgba(225,6,0,0.2)] transition-shadow duration-300 hover:shadow-[0_8px_25px_rgba(225,6,0,0.4)]"
+        className="rounded-r-full bg-gradient-to-br from-accent-gradient-from to-accent-gradient-to px-7 py-3 text-[0.8125rem] font-semibold tracking-[0.15em] whitespace-nowrap text-white uppercase shadow-glow-sm transition-shadow duration-300 hover:shadow-glow"
       >
         Join
       </button>

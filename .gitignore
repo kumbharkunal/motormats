@@ -61,3 +61,8 @@ desktop.ini
 # still be ignored.
 *.md
 !/README.md
+
+# Cloudinary image masters. Uploaded to the CDN, never served from here —
+# `public/` is the only web root, so these would be 15MB of dead weight in the
+# repo. See docs/ai-image-prompts.md.
+/motormats/

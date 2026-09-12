@@ -6,28 +6,39 @@ import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * Transitions enumerate their properties rather than using `transition-all`:
- * these buttons appear inside animating deck panels, and transitioning every
- * property forces needless style recalculation each frame.
+ * Transitions enumerate their properties rather than using `transition-all`,
+ * which would force a style recalculation on every property each frame.
+ *
+ * Note `translate` and `scale`, not `transform`: Tailwind v4 compiles
+ * `-translate-y-0.5` and `scale-[0.97]` to those standalone properties, so a
+ * list naming `transform` animates nothing and the press snaps.
  */
 const buttonVariants = cva(
   [
     'relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap',
-    'font-semibold transition-[transform,box-shadow,border-color,background-color,opacity]',
+    'font-semibold transition-[translate,scale,box-shadow,border-color,background-color,opacity]',
     'duration-300 ease-(--ease-smooth)',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-text',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
     'focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-    'disabled:pointer-events-none disabled:opacity-50',
+    // Desaturated as well as faded: on the dark theme a half-opacity red read
+    // as muted, but over white it just reads pink — a colour, not a state.
+    'disabled:pointer-events-none disabled:opacity-50 disabled:grayscale',
   ],
   {
     variants: {
+      /*
+       * Grounds are solid surfaces, not white alphas. A translucent white tint
+       * lifts a near-black panel; over a light canvas it is simply invisible.
+       * The red glows are tight and offset rather than wide and ambient —
+       * on white a broad red halo reads as a printing error.
+       */
       variant: {
         primary:
-          'bg-gradient-to-br from-accent-gradient-from to-accent-gradient-to text-white shadow-[0_4px_15px_rgba(225,6,0,0.2)] hover:shadow-[0_8px_25px_rgba(225,6,0,0.4)] hover:-translate-y-0.5 active:translate-y-px active:scale-[0.97]',
+          'bg-gradient-to-br from-accent-gradient-from to-accent-gradient-to text-white shadow-[0_2px_8px_rgba(225,6,0,0.18)] hover:shadow-[0_6px_20px_rgba(225,6,0,0.28)] hover:-translate-y-0.5 active:translate-y-px active:scale-[0.97]',
         ghost:
-          'border border-border-strong bg-white/[0.02] text-foreground hover:border-accent/80 hover:bg-accent/5 hover:-translate-y-0.5 active:translate-y-px active:scale-[0.97]',
+          'border border-border-strong bg-surface text-foreground hover:border-accent/80 hover:bg-accent/5 hover:-translate-y-0.5 active:translate-y-px active:scale-[0.97]',
         subtle: 'bg-surface-elevated text-foreground hover:bg-surface-hover active:scale-[0.97]',
-        icon: 'bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground active:scale-95',
+        icon: 'bg-surface-elevated text-muted-foreground hover:bg-surface-hover hover:text-foreground active:scale-95',
       },
       size: {
         sm: 'h-9 px-4 text-xs',
@@ -87,9 +98,17 @@ export function Button({
     >
       {isLoading ? (
         <>
-          <Loader2 aria-hidden className="size-4 animate-spin" />
+          <Loader2 aria-hidden className="size-4 shrink-0 animate-spin" />
           <span className="sr-only">{loadingLabel}</span>
-          <span aria-hidden>{children}</span>
+          {/* Loading content needs its own flex row: the button's own
+              inline-flex + items-center + gap-2 now applies to the spinner
+              and this wrapper, not to whatever is inside it. An unstyled
+              span left an icon child (e.g. GoogleMark) sitting on its
+              default baseline against the text beside it instead of
+              centred with it. */}
+          <span aria-hidden className="inline-flex items-center gap-2">
+            {children}
+          </span>
         </>
       ) : (
         children

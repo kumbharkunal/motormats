@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 
 const FIELD =
-  'border-border bg-surface focus:border-accent/50 w-full rounded-2xl border px-4 py-3 text-sm transition-colors duration-200 placeholder:text-white/30 focus:bg-white/5 focus:outline-none';
+  'border-border bg-surface focus:border-accent/50 placeholder:text-subtle-foreground w-full rounded-2xl border px-4 py-3 text-sm transition-colors duration-200 focus:outline-none';
 
 /**
  * There is no enquiry store or mail transport yet, so this deliberately does
@@ -66,7 +66,7 @@ export function ContactForm() {
 
       <div>
         <label htmlFor="contact-vehicle" className="mb-2 block text-sm font-medium">
-          Vehicle <span className="text-muted-foreground font-normal">(make and model)</span>
+          Vehicle <span className="font-normal text-muted-foreground">(make and model)</span>
         </label>
         <input
           id="contact-vehicle"

@@ -52,7 +52,7 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
   return (
     <div className="space-y-6">
       <p className="flex items-baseline gap-3">
-        <span className="font-display text-h2">
+        <span className="font-sans text-h2 font-semibold tabular-nums">
           {formatPaise(selectedVariant?.pricePaise ?? product.basePricePaise)}
         </span>
         {product.compareAtPricePaise &&

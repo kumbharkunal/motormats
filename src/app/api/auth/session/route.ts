@@ -53,10 +53,7 @@ export async function POST(request: NextRequest) {
       metadata: { provider: identity.signInProvider },
     });
 
-    return ok(
-      { publicId: user.publicId, role: user.role, csrfToken },
-      requestId,
-    );
+    return ok({ publicId: user.publicId, role: user.role, csrfToken }, requestId);
   } catch (error) {
     return fail(error, requestId);
   }

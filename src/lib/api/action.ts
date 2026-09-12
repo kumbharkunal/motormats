@@ -35,7 +35,9 @@ export function createAction<TSchema extends z.ZodType, TResult>(
     const log = logger.child({ requestId });
 
     try {
-      const parsed = config.input ? config.input.safeParse(rawInput) : { success: true as const, data: undefined };
+      const parsed = config.input
+        ? config.input.safeParse(rawInput)
+        : { success: true as const, data: undefined };
       if (!parsed.success) {
         throw new AppError('VALIDATION_FAILED', { fieldErrors: flattenZodError(parsed.error) });
       }
@@ -64,7 +66,8 @@ export function createAction<TSchema extends z.ZodType, TResult>(
       return { ok: true, data };
     } catch (error) {
       if (isAppError(error)) {
-        if (error.status >= 500) log.error({ code: error.code, detail: error.detail }, 'action failed');
+        if (error.status >= 500)
+          log.error({ code: error.code, detail: error.detail }, 'action failed');
         else log.info({ code: error.code }, 'action rejected');
 
         return {

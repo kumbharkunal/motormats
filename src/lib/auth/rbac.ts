@@ -38,7 +38,12 @@ const ADMIN: readonly Permission[] = [
   'audit:read',
 ];
 
-const SUPER_ADMIN: readonly Permission[] = [...ADMIN, 'user:write', 'user:assign_role', 'settings:write'];
+const SUPER_ADMIN: readonly Permission[] = [
+  ...ADMIN,
+  'user:write',
+  'user:assign_role',
+  'settings:write',
+];
 
 export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
   customer: CUSTOMER,

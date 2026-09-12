@@ -2,7 +2,11 @@
 
 import Chip from '@mui/material/Chip';
 
-import { ResponsiveDataTable, StatusChip, type Column } from '@/features/admin/components/data-table';
+import {
+  ResponsiveDataTable,
+  StatusChip,
+  type Column,
+} from '@/features/admin/components/data-table';
 import type { AdminUserRow } from '@/features/admin/server/admin-queries';
 
 type Row = AdminUserRow & { id: string };
@@ -31,7 +35,12 @@ const columns: Column<Row>[] = [
       />
     ),
   },
-  { field: 'status', header: 'Status', width: 130, render: (row) => <StatusChip status={row.status} /> },
+  {
+    field: 'status',
+    header: 'Status',
+    width: 130,
+    render: (row) => <StatusChip status={row.status} />,
+  },
   { field: 'orderCount', header: 'Orders', width: 100, render: (row) => String(row.orderCount) },
 ];
 

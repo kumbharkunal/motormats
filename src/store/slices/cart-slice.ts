@@ -25,7 +25,9 @@ const cartSlice = createSlice({
   reducers: {
     cartHydrated(state, action: PayloadAction<CartLine[]>) {
       state.lines = action.payload
-        .filter((line) => typeof line.variantPublicId === 'string' && line.variantPublicId.length > 0)
+        .filter(
+          (line) => typeof line.variantPublicId === 'string' && line.variantPublicId.length > 0,
+        )
         .map((line) => ({ ...line, quantity: clampQuantity(line.quantity) }));
       state.hydrated = true;
     },

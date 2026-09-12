@@ -18,7 +18,11 @@ export function newRequestId(): string {
   return crypto.randomUUID();
 }
 
-export function ok<T>(data: T, requestId: string, init?: ResponseInit): NextResponse<ApiSuccess<T>> {
+export function ok<T>(
+  data: T,
+  requestId: string,
+  init?: ResponseInit,
+): NextResponse<ApiSuccess<T>> {
   return NextResponse.json({ ok: true, data, requestId }, init);
 }
 

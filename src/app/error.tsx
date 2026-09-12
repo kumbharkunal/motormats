@@ -20,22 +20,23 @@ export default function ErrorBoundary({
       id="main"
       className="container-page flex min-h-svh flex-col items-center justify-center text-center"
     >
-      <p className="text-accent-text mb-4 text-xs font-semibold tracking-[0.2em] uppercase">
+      <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-accent-text uppercase">
         Something went wrong
       </p>
-      <h1 className="text-h1 mb-4">We hit a bump</h1>
-      <p className="text-body text-muted-foreground mb-10 max-w-md">
-        This page couldn&apos;t be loaded. Try again — if it keeps happening, please contact support.
+      <h1 className="mb-4 text-h1">We hit a bump</h1>
+      <p className="mb-10 max-w-md text-body text-muted-foreground">
+        This page couldn&apos;t be loaded. Try again — if it keeps happening, please contact
+        support.
       </p>
       <button
         type="button"
         onClick={reset}
-        className="from-accent-gradient-from to-accent-gradient-to inline-flex h-12 items-center rounded-full bg-gradient-to-br px-8 text-sm font-semibold tracking-[0.15em] text-white uppercase"
+        className="inline-flex h-12 items-center rounded-full bg-gradient-to-br from-accent-gradient-from to-accent-gradient-to px-8 text-sm font-semibold tracking-[0.15em] text-white uppercase"
       >
         Try again
       </button>
       {error.digest ? (
-        <p className="text-subtle-foreground mt-6 text-xs">Reference: {error.digest}</p>
+        <p className="mt-6 text-xs text-subtle-foreground">Reference: {error.digest}</p>
       ) : null}
     </main>
   );

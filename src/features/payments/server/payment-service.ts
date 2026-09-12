@@ -10,11 +10,7 @@ import { AppError } from '@/lib/api/errors';
 import { recordAudit } from '@/lib/audit';
 import { newPublicId } from '@/lib/ids';
 import { logger } from '@/lib/logger';
-import {
-  createRazorpayOrder,
-  fetchRazorpayPayment,
-  verifyCheckoutSignature,
-} from '@/lib/razorpay';
+import { createRazorpayOrder, fetchRazorpayPayment, verifyCheckoutSignature } from '@/lib/razorpay';
 
 export async function startPayment(order: {
   id: number;
@@ -71,10 +67,7 @@ export async function confirmPayment(params: {
       signature: params.signature,
     })
   ) {
-    logger.warn(
-      { orderNumber: order.orderNumber },
-      'checkout signature verification failed',
-    );
+    logger.warn({ orderNumber: order.orderNumber }, 'checkout signature verification failed');
     await recordAudit({
       actorUserId: params.userId,
       action: 'payment.signature_invalid',
@@ -129,10 +122,7 @@ export async function markPaymentCaptured(params: {
       capturedAt: new Date(),
     })
     .where(
-      and(
-        eq(payments.provider, 'razorpay'),
-        eq(payments.providerOrderId, params.providerOrderId),
-      ),
+      and(eq(payments.provider, 'razorpay'), eq(payments.providerOrderId, params.providerOrderId)),
     );
 
   const moved = await transitionOrderStatus(params.orderId, ['pending_payment'], 'paid');
@@ -178,9 +168,7 @@ export async function findOrderByProviderOrderId(providerOrderId: string) {
       paymentStatus: payments.status,
     })
     .from(payments)
-    .where(
-      and(eq(payments.provider, 'razorpay'), eq(payments.providerOrderId, providerOrderId)),
-    )
+    .where(and(eq(payments.provider, 'razorpay'), eq(payments.providerOrderId, providerOrderId)))
     .limit(1);
 
   return row ?? null;

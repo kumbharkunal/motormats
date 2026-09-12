@@ -86,12 +86,12 @@ export default function OurStoryPage() {
         </h2>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2">
           {PRINCIPLES.map(({ icon: Icon, title, body }) => (
-            <li key={title} className="card-surface rounded-2xl p-6 md:rounded-3xl">
-              <span className="border-border mb-4 flex size-11 items-center justify-center rounded-xl border bg-white/5">
-                <Icon aria-hidden strokeWidth={1.5} className="text-accent-text size-5" />
+            <li key={title} className="rounded-2xl card-surface p-6 md:rounded-3xl">
+              <span className="mb-4 flex size-11 items-center justify-center rounded-xl border border-border bg-surface-elevated">
+                <Icon aria-hidden strokeWidth={1.5} className="size-5 text-accent-text" />
               </span>
               <h3 className="text-sm font-semibold md:text-base">{title}</h3>
-              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </li>
           ))}
         </ul>
@@ -106,10 +106,10 @@ export default function OurStoryPage() {
             <li key={range.name}>
               <Link
                 href={range.href}
-                className="card-surface hover:border-accent/30 block h-full rounded-2xl p-6 transition-colors duration-300 md:rounded-3xl"
+                className="block h-full rounded-2xl card-surface p-6 transition-colors duration-300 hover:border-accent/30 md:rounded-3xl"
               >
                 <h3 className="text-sm font-semibold md:text-base">{range.name}</h3>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{range.body}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{range.body}</p>
               </Link>
             </li>
           ))}

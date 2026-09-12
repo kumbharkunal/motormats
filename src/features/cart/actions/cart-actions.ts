@@ -2,7 +2,11 @@
 
 import { z } from 'zod';
 
-import { resolveCart, type ResolvedCart, type ResolvedCartLine } from '@/features/cart/server/resolve-cart';
+import {
+  resolveCart,
+  type ResolvedCart,
+  type ResolvedCartLine,
+} from '@/features/cart/server/resolve-cart';
 import { createAction } from '@/lib/api/action';
 
 export type ClientCartLine = Omit<ResolvedCartLine, 'variantId'>;

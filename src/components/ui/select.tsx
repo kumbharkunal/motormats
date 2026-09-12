@@ -250,7 +250,7 @@ export function Select({
           aria-hidden
           size={16}
           className={cn(
-            'shrink-0 text-muted-foreground transition-transform duration-200',
+            'shrink-0 text-muted-foreground transition-motion duration-200',
             open && 'rotate-180',
           )}
         />
@@ -276,7 +276,7 @@ export function Select({
                 ...(position.top !== undefined ? { top: position.top } : {}),
                 ...(position.bottom !== undefined ? { bottom: position.bottom } : {}),
               }}
-              className="fixed z-[150] overflow-y-auto overscroll-contain rounded-xl border border-border-strong bg-surface-elevated p-1.5 shadow-[0_18px_50px_rgba(0,0,0,0.65)] focus:outline-none"
+              className="fixed z-[150] overflow-y-auto overscroll-contain rounded-xl border border-border-strong bg-surface p-1.5 shadow-raised focus:outline-none"
             >
               {options.map((option, index) => {
                 const selected = option === value;

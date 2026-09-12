@@ -31,20 +31,20 @@ export default function ContactPage() {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-accent hover:shadow-glow flex h-14 w-full items-center justify-center gap-2 rounded-full text-sm font-semibold tracking-[0.15em] text-white uppercase shadow-[0_4px_15px_rgba(225,6,0,0.25)] transition-shadow duration-300"
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-accent text-sm font-semibold tracking-[0.15em] text-white uppercase shadow-glow-sm transition-shadow duration-300 hover:shadow-glow"
           >
             <MessageCircle aria-hidden size={18} />
             WhatsApp us
           </a>
 
-          <dl className="card-surface space-y-5 rounded-3xl p-6 text-sm">
+          <dl className="space-y-5 rounded-3xl card-surface p-6 text-sm">
             <Detail icon={Phone} label="Phone">
               {BUSINESS.phoneDisplay}
             </Detail>
             <Detail icon={Mail} label="Email">
               <a
                 href={`mailto:${BUSINESS.email}`}
-                className="hover:text-foreground transition-colors duration-200"
+                className="transition-colors duration-200 hover:text-foreground"
               >
                 {BUSINESS.email}
               </a>
@@ -77,10 +77,10 @@ function Detail({
 }) {
   return (
     <div className="flex gap-3">
-      <Icon aria-hidden size={18} className="text-accent-text mt-0.5 shrink-0" />
+      <Icon aria-hidden size={18} className="mt-0.5 shrink-0 text-accent-text" />
       <div>
-        <dt className="text-foreground/80 text-xs tracking-[0.12em] uppercase">{label}</dt>
-        <dd className="text-muted-foreground mt-1 leading-relaxed">{children}</dd>
+        <dt className="text-xs tracking-[0.12em] text-foreground/80 uppercase">{label}</dt>
+        <dd className="mt-1 leading-relaxed text-muted-foreground">{children}</dd>
       </div>
     </div>
   );

@@ -27,32 +27,34 @@ export default async function GalleryPage() {
       wide
     >
       {products.length === 0 ? (
-        <p className="text-muted-foreground border-border rounded-3xl border border-dashed px-6 py-16 text-center text-sm">
+        <p className="rounded-3xl border border-dashed border-border px-6 py-16 text-center text-sm text-muted-foreground">
           Photography is being updated. Please check back shortly.
         </p>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
+          {products.map((product, index) => (
             <li key={product.publicId}>
               <Link
                 href={`/products/${product.slug}`}
-                className="card-surface hover:border-accent/30 group block overflow-hidden rounded-2xl transition-colors duration-500 md:rounded-3xl"
+                className="group block overflow-hidden rounded-2xl card-surface transition-colors duration-500 hover:border-accent/30 md:rounded-3xl"
               >
-                <div className="bg-surface relative aspect-square overflow-hidden">
+                <div className="relative aspect-square overflow-hidden bg-surface">
                   {product.imageAssetId ? (
                     <Image
                       src={product.imageAssetId}
                       alt={product.imageAlt ?? `${product.name} car mat`}
                       fill
                       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      // The first row is above the fold on every breakpoint.
+                      priority={index < 3}
+                      className="object-cover transition-motion duration-700 group-hover:scale-105"
                     />
                   ) : null}
                 </div>
                 <div className="flex items-baseline justify-between gap-3 p-4">
                   <h2 className="text-sm font-semibold">{product.name}</h2>
                   {product.categoryName ? (
-                    <p className="text-muted-foreground text-[0.6875rem] tracking-[0.1em] uppercase">
+                    <p className="text-[0.6875rem] tracking-[0.1em] text-muted-foreground uppercase">
                       {product.categoryName}
                     </p>
                   ) : null}
