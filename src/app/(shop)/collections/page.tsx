@@ -6,6 +6,7 @@ import {
   type ListingSearchParams,
 } from '@/features/catalog/components/product-listing';
 import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton';
+import { BrandIcon } from '@/features/vehicles/components/brand-icon';
 import { VEHICLE_BRANDS } from '@/features/vehicles/data/brands';
 
 export const metadata: Metadata = {
@@ -41,7 +42,16 @@ export default async function CollectionsPage({
   return (
     <div className="container-page py-12 md:py-16">
       <header className="max-w-2xl">
-        <h1 className="text-h1">{heading}</h1>
+        <div className="flex items-center gap-3">
+          {activeBrand ? (
+            <BrandIcon
+              bodyStyle={activeBrand.bodyStyle}
+              brandColor={activeBrand.brandColor}
+              className="h-10 w-[4.5rem] md:h-12 md:w-20"
+            />
+          ) : null}
+          <h1 className="text-h1">{heading}</h1>
+        </div>
         <p className="mt-3 text-balance text-muted-foreground">
           {subtitle}
         </p>

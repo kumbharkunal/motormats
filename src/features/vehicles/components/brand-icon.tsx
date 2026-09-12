@@ -1,18 +1,21 @@
 /**
- * Car silhouette icons — minimal line-art outlines rendered as inline SVG.
+ * Car silhouette icons — colourful filled outlines rendered as inline SVG.
  *
  * Five body styles match the `bodyStyle` field on brand data. Each path is a
- * single stroke-only outline at a consistent 120×48 viewBox, so the car reads
- * as a clean profile at the small sizes the rail needs.
+ * single outline at a consistent 120×48 viewBox. The body is filled with a
+ * subtle tint of `brandColor` and the stroke uses the full colour, giving
+ * each brand a distinct identity on the rail.
  *
- * `currentColor` for the stroke, so the icon follows the text colour of its
- * parent (muted by default, foreground on hover/active).
+ * When no `brandColor` is passed the icon falls back to `currentColor` for
+ * both fill and stroke, preserving backwards compatibility.
  */
 
 import { cn } from '@/lib/utils';
 
 type BrandIconProps = {
   bodyStyle: 'hatchback' | 'sedan' | 'suv' | 'luxury-sedan' | 'compact-suv';
+  /** Brand-specific colour. When set, the body gets a translucent fill and the stroke uses this colour. */
+  brandColor?: string;
   className?: string;
 };
 
@@ -34,13 +37,13 @@ const SILHOUETTES: Record<BrandIconProps['bodyStyle'], string> = {
     'M8 38 L8 30 Q8 26 12 24 L24 18 Q28 14 34 12 L50 10 Q56 8 62 8 L74 8 Q80 8 84 10 L96 14 Q100 18 102 22 L108 26 Q112 28 112 32 L112 38 Z M22 38 Q22 32 28 32 Q34 32 34 38 M84 38 Q84 32 90 32 Q96 32 96 38 M42 12 L42 24 M80 10 L80 24',
 };
 
-export function BrandIcon({ bodyStyle, className }: BrandIconProps) {
+export function BrandIcon({ bodyStyle, brandColor, className }: BrandIconProps) {
   return (
     <svg
       aria-hidden
       viewBox="0 0 120 48"
-      fill="none"
-      stroke="currentColor"
+      fill={brandColor ? `${brandColor}15` : 'none'}
+      stroke={brandColor ?? 'currentColor'}
       strokeWidth={1.8}
       strokeLinecap="round"
       strokeLinejoin="round"

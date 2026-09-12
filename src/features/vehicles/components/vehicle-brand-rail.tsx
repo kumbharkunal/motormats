@@ -162,10 +162,8 @@ function BrandTile({
       >
         <BrandIcon
           bodyStyle={brand.bodyStyle}
-          className={cn(
-            'transition-colors duration-200',
-            isOpen ? 'text-foreground' : 'text-subtle-foreground group-hover/tile:text-foreground',
-          )}
+          brandColor={brand.brandColor}
+          className="transition-opacity duration-200"
         />
 
         <span className="flex items-center gap-1">

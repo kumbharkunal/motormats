@@ -9,6 +9,8 @@ export type VehicleBrand = {
   name: string;
   /** Body style hint used by `BrandIcon` to pick the right silhouette. */
   bodyStyle: 'hatchback' | 'sedan' | 'suv' | 'luxury-sedan' | 'compact-suv';
+  /** Brand-specific color for the car silhouette icon. */
+  brandColor: string;
   models: VehicleModel[];
 };
 
@@ -25,6 +27,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'maruti-suzuki',
     name: 'Maruti Suzuki',
     bodyStyle: 'hatchback',
+    brandColor: '#1a3c8a',
     models: [
       { slug: 'swift', name: 'Swift', yearRange: '2024–present' },
       { slug: 'baleno', name: 'Baleno', yearRange: '2022–present' },
@@ -40,6 +43,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'hyundai',
     name: 'Hyundai',
     bodyStyle: 'sedan',
+    brandColor: '#0e3e8a',
     models: [
       { slug: 'creta', name: 'Creta', yearRange: '2024–present' },
       { slug: 'venue', name: 'Venue', yearRange: '2019–present' },
@@ -53,6 +57,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'tata',
     name: 'Tata',
     bodyStyle: 'compact-suv',
+    brandColor: '#1c45a6',
     models: [
       { slug: 'nexon', name: 'Nexon', yearRange: '2023–present' },
       { slug: 'punch', name: 'Punch', yearRange: '2021–present' },
@@ -67,6 +72,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'mahindra',
     name: 'Mahindra',
     bodyStyle: 'suv',
+    brandColor: '#b91c1c',
     models: [
       { slug: 'thar', name: 'Thar', yearRange: '2020–present' },
       { slug: 'xuv700', name: 'XUV700', yearRange: '2021–present' },
@@ -80,6 +86,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'kia',
     name: 'Kia',
     bodyStyle: 'compact-suv',
+    brandColor: '#05141f',
     models: [
       { slug: 'seltos', name: 'Seltos', yearRange: '2023–present' },
       { slug: 'sonet', name: 'Sonet', yearRange: '2020–present' },
@@ -92,6 +99,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'toyota',
     name: 'Toyota',
     bodyStyle: 'sedan',
+    brandColor: '#cc0000',
     models: [
       { slug: 'innova-crysta', name: 'Innova Crysta', yearRange: '2016–present' },
       { slug: 'innova-hycross', name: 'Innova Hycross', yearRange: '2023–present' },
@@ -105,6 +113,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'honda',
     name: 'Honda',
     bodyStyle: 'sedan',
+    brandColor: '#cc0000',
     models: [
       { slug: 'city', name: 'City', yearRange: '2020–present' },
       { slug: 'amaze', name: 'Amaze', yearRange: '2024–present' },
@@ -117,6 +126,7 @@ export const VEHICLE_BRANDS: VehicleBrand[] = [
     slug: 'mg',
     name: 'MG',
     bodyStyle: 'suv',
+    brandColor: '#2d2d2d',
     models: [
       { slug: 'hector', name: 'Hector', yearRange: '2023–present' },
       { slug: 'astor', name: 'Astor', yearRange: '2021–present' },
