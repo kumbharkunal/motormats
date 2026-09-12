@@ -16,15 +16,13 @@ import { cn } from '@/lib/utils';
  * listing that brand's models; clicking a model navigates to `/collections`
  * with brand/model query params.
  *
- * Pattern borrowed from carbone.pl but adapted for the Motormats design
- * language (Tailwind v4 tokens, card-surface utility, Motion for transitions).
+ * **Desktop (lg+):** hover to open, mouse-leave to close, dropdown floats
+ * absolutely under the tile. The `<ul>` is `overflow-visible` so the panel
+ * is not clipped.
  *
- * **Desktop:** hover to open dropdown, mouse-leave to close (with a grace
- * period so moving into the panel does not flicker it shut).
- *
- * **Mobile:** tap to toggle. One open at a time.
- *
- * **Keyboard:** focus opens, Escape closes, Tab navigates models.
+ * **Mobile (<lg):** tap to toggle. The model list renders **below** the
+ * scroll rail as a full-width panel so it is never clipped by the rail's
+ * `overflow-x-auto`.
  */
 export function VehicleBrandRail() {
   const [openBrand, setOpenBrand] = useState<string | null>(null);
@@ -65,14 +63,26 @@ export function VehicleBrandRail() {
     return () => document.removeEventListener('pointerdown', handler);
   }, []);
 
+  const activeBrand = openBrand
+    ? VEHICLE_BRANDS.find((b) => b.slug === openBrand) ?? null
+    : null;
+
   return (
     <section aria-label="Shop by car brand" className="relative border-b border-border bg-surface">
       {/* Accent line at the top edge */}
       <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-accent/15" />
 
       <div ref={railRef} className="container-page">
+        {/* ── Brand tiles ── */}
         <ul
-          className="flex items-stretch justify-between"
+          className={cn(
+            'flex items-stretch gap-1',
+            // Mobile: horizontal scroll, hidden scrollbar
+            'overflow-x-auto scroll-smooth snap-x snap-mandatory',
+            '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+            // Desktop: evenly spaced, overflow visible so dropdown floats out
+            'lg:justify-between lg:gap-0 lg:overflow-x-visible',
+          )}
           role="menubar"
           aria-label="Car brands"
         >
@@ -93,10 +103,26 @@ export function VehicleBrandRail() {
             />
           ))}
         </ul>
+
+        {/* ── Mobile dropdown panel ──
+            Rendered outside the scroll container so it's never clipped.
+            Hidden on lg+ where the dropdown floats inside the <li>. */}
+        <div className="lg:hidden">
+          <AnimatePresence>
+            {activeBrand ? (
+              <MobileModelPanel
+                key={activeBrand.slug}
+                brand={activeBrand}
+              />
+            ) : null}
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );
 }
+
+/* ─────────────────────────────────────────────────────────────────── */
 
 function BrandTile({
   brand,
@@ -115,7 +141,7 @@ function BrandTile({
 }) {
   return (
     <li
-      className="relative flex-1"
+      className="relative shrink-0 snap-start lg:flex-1 lg:shrink"
       role="none"
       onMouseEnter={onOpen}
       onMouseLeave={onClose}
@@ -128,7 +154,7 @@ function BrandTile({
         onClick={onToggle}
         onFocus={onOpen}
         className={cn(
-          'group/tile flex w-full flex-col items-center gap-1.5 px-2 py-5 transition-colors duration-200 md:py-6',
+          'group/tile flex w-full flex-col items-center gap-1.5 px-4 py-4 transition-colors duration-200 md:px-2 md:py-6',
           isOpen
             ? 'text-foreground'
             : 'text-muted-foreground hover:text-foreground',
@@ -167,20 +193,27 @@ function BrandTile({
         />
       </button>
 
-      <AnimatePresence>
-        {isOpen ? (
-          <ModelDropdown
-            brand={brand}
-            onCancelClose={onCancelClose}
-            onClose={onClose}
-          />
-        ) : null}
-      </AnimatePresence>
+      {/* Desktop-only floating dropdown — hidden on mobile where the panel
+          renders outside the scroll container instead. */}
+      <div className="hidden lg:block">
+        <AnimatePresence>
+          {isOpen ? (
+            <DesktopModelDropdown
+              brand={brand}
+              onCancelClose={onCancelClose}
+              onClose={onClose}
+            />
+          ) : null}
+        </AnimatePresence>
+      </div>
     </li>
   );
 }
 
-function ModelDropdown({
+/* ─────────────────────────────────────────────────────────────────── */
+
+/** Desktop: absolute-positioned dropdown below the tile. */
+function DesktopModelDropdown({
   brand,
   onCancelClose,
   onClose,
@@ -205,6 +238,32 @@ function ModelDropdown({
         'bg-surface border border-border shadow-raised',
       )}
     >
+      <ModelList brand={brand} />
+    </motion.div>
+  );
+}
+
+/** Mobile: full-width panel that slides in below the scroll rail. */
+function MobileModelPanel({ brand }: { brand: VehicleBrand }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="overflow-hidden border-t border-border"
+      role="menu"
+      aria-label={`${brand.name} models`}
+    >
+      <ModelList brand={brand} />
+    </motion.div>
+  );
+}
+
+/** Shared model list used by both desktop dropdown and mobile panel. */
+function ModelList({ brand }: { brand: VehicleBrand }) {
+  return (
+    <>
       <div className="py-1.5">
         {brand.models.map((model) => (
           <Link
@@ -234,6 +293,6 @@ function ModelDropdown({
           />
         </Link>
       </div>
-    </motion.div>
+    </>
   );
 }
