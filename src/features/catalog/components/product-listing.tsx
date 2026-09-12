@@ -15,6 +15,8 @@ export type ListingSearchParams = {
   page?: string;
   inStock?: string;
   q?: string;
+  brand?: string;
+  model?: string;
 };
 
 /** Normalises untrusted query strings into a filter state we can rely on. */
@@ -30,6 +32,8 @@ export function parseListingParams(params: ListingSearchParams): FilterState & {
     page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1,
     inStockOnly: params.inStock === '1',
     query: params.q?.trim() || undefined,
+    brand: params.brand?.trim() || undefined,
+    model: params.model?.trim() || undefined,
   };
 }
 
@@ -70,6 +74,8 @@ export async function ProductListing({
     if (state.sort !== 'featured') params.set('sort', state.sort);
     if (state.inStockOnly) params.set('inStock', '1');
     if (state.query) params.set('q', state.query);
+    if (state.brand) params.set('brand', state.brand);
+    if (state.model) params.set('model', state.model);
     if (page > 1) params.set('page', String(page));
     const query = params.toString();
     return query ? `${basePath}?${query}` : basePath;

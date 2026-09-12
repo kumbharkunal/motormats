@@ -9,6 +9,7 @@ import { CollectionsRail } from '@/features/home/components/collections-rail';
 import { CraftsmanshipPanel } from '@/features/home/components/craftsmanship-panel';
 import { HeroPanel } from '@/features/home/components/hero-panel';
 import { ProductZone } from '@/features/home/components/product-zone';
+import { VehicleBrandRail } from '@/features/vehicles/components/vehicle-brand-rail';
 import { clientEnv } from '@/lib/env.client';
 import { logger } from '@/lib/logger';
 
@@ -58,6 +59,7 @@ export default async function HomePage() {
 
       <main id="main" className="flex-1">
         <HeroPanel />
+        <VehicleBrandRail />
         <CollectionsRail />
         <ProductZone
           id="zone-fit"

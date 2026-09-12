@@ -1,6 +1,8 @@
+import { X } from 'lucide-react';
 import Link from 'next/link';
 
 import type { ProductSort } from '@/features/catalog/server/queries';
+import { VEHICLE_BRANDS } from '@/features/vehicles/data/brands';
 import { cn } from '@/lib/utils';
 
 const SORTS: { value: ProductSort; label: string }[] = [
@@ -16,6 +18,8 @@ export type FilterState = {
   sort: ProductSort;
   inStockOnly: boolean;
   query?: string | undefined;
+  brand?: string | undefined;
+  model?: string | undefined;
 };
 
 /** Every track scrolls rather than wraps, so each row stays exactly one chip tall. */
@@ -50,6 +54,8 @@ export function ProductFilters({
     if (next.sort && next.sort !== 'featured') params.set('sort', next.sort);
     if (next.inStockOnly) params.set('inStock', '1');
     if (next.query) params.set('q', next.query);
+    if (next.brand) params.set('brand', next.brand);
+    if (next.model) params.set('model', next.model);
     // Any filter change returns to page one; keeping the old page can land on
     // an empty result set.
     const query = params.toString();
@@ -61,13 +67,52 @@ export function ProductFilters({
     if (state.sort !== 'featured') params.set('sort', state.sort);
     if (state.inStockOnly) params.set('inStock', '1');
     if (state.query) params.set('q', state.query);
+    if (state.brand) params.set('brand', state.brand);
+    if (state.model) params.set('model', state.model);
     const query = params.toString();
     const path = slug ? `/collections/${slug}` : '/collections';
     return query ? `${path}?${query}` : path;
   };
 
+  // Resolve display names from the static brand data.
+  const activeBrand = state.brand
+    ? VEHICLE_BRANDS.find((b) => b.slug === state.brand)
+    : undefined;
+  const activeModel = activeBrand && state.model
+    ? activeBrand.models.find((m) => m.slug === state.model)
+    : undefined;
+
+  const clearVehicleHref = () => {
+    const params = new URLSearchParams();
+    if (state.sort !== 'featured') params.set('sort', state.sort);
+    if (state.inStockOnly) params.set('inStock', '1');
+    if (state.query) params.set('q', state.query);
+    const query = params.toString();
+    return query ? `${basePath}?${query}` : basePath;
+  };
+
+  const clearModelHref = () => {
+    const params = new URLSearchParams();
+    if (state.sort !== 'featured') params.set('sort', state.sort);
+    if (state.inStockOnly) params.set('inStock', '1');
+    if (state.query) params.set('q', state.query);
+    if (state.brand) params.set('brand', state.brand);
+    const query = params.toString();
+    return query ? `${basePath}?${query}` : basePath;
+  };
+
   return (
     <div className="flex flex-col gap-3 border-b border-border pb-5">
+      {/* Vehicle filter chips — shown when a brand/model is selected */}
+      {activeBrand ? (
+        <div className="flex items-center gap-2 py-1">
+          <span className="shrink-0 text-xs tracking-wide text-muted-foreground uppercase">Vehicle</span>
+          <RemovableChip href={clearVehicleHref()} label={activeBrand.name} />
+          {activeModel ? (
+            <RemovableChip href={clearModelHref()} label={activeModel.name} />
+          ) : null}
+        </div>
+      ) : null}
       <nav aria-label="Categories">
         {/* -mx-1/px-1 so a focus ring on the first chip is not clipped by the
             scroll container. */}
@@ -145,6 +190,19 @@ function Chip({
       )}
     >
       {children}
+    </Link>
+  );
+}
+
+/** A filter chip with an ✕ that links to the URL without that filter. */
+function RemovableChip({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-accent bg-accent/8 px-4 text-xs font-medium text-accent transition-colors duration-200 hover:bg-accent hover:text-white"
+    >
+      {label}
+      <X aria-hidden size={14} strokeWidth={2} className="shrink-0" />
     </Link>
   );
 }
