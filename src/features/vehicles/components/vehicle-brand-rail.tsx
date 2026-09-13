@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
-import { BrandIcon } from '@/features/vehicles/components/brand-icon';
 import { VEHICLE_BRANDS, type VehicleBrand } from '@/features/vehicles/data/brands';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +28,12 @@ export function VehicleBrandRail() {
   const [openBrand, setOpenBrand] = useState<string | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const railRef = useRef<HTMLDivElement>(null);
+
+  // On mobile, default-open the first brand (Maruti Suzuki)
+  useEffect(() => {
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches;
+    if (isMobile) setOpenBrand(VEHICLE_BRANDS[0].slug);
+  }, []);
 
   const cancelClose = useCallback(() => {
     if (closeTimerRef.current) {
@@ -160,10 +166,16 @@ function BrandTile({
             : 'text-muted-foreground hover:text-foreground',
         )}
       >
-        <BrandIcon
-          bodyStyle={brand.bodyStyle}
-          brandColor={brand.brandColor}
-          className="transition-opacity duration-200"
+        <Image
+          src={brand.image}
+          alt={brand.name}
+          width={160}
+          height={100}
+          unoptimized
+          className={cn(
+            'h-12 w-20 object-contain transition-transform duration-200',
+            isOpen ? 'scale-105' : 'group-hover/tile:scale-105',
+          )}
         />
 
         <span className="flex items-center gap-1">

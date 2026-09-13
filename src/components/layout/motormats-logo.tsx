@@ -126,7 +126,7 @@ function InkLockup({
         <path d="M28 43V91L76 137V87L28 43Z" />
       </svg>
 
-      <span className={cn('font-sans leading-none font-bold tracking-[-0.02em]', type)}>
+      <span className={cn('font-[family-name:var(--font-logo)] leading-none font-extrabold tracking-[-0.01em]', type)}>
         MOTOR<span className="text-accent">MATS</span>
       </span>
     </span>

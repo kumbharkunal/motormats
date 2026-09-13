@@ -4,7 +4,7 @@ import { Toaster } from '@/components/feedback/toaster';
 import { SmoothScroll } from '@/components/layout/smooth-scroll';
 import { StoreProvider } from '@/store/store-provider';
 import { clientEnv } from '@/lib/env.client';
-import { fontDisplay, fontSans } from '@/lib/fonts';
+import { fontDisplay, fontLogo, fontSans } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 
 import '@/styles/globals.css';
@@ -40,7 +40,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn(fontSans.variable, fontDisplay.variable)}>
+    <html lang="en" className={cn(fontSans.variable, fontDisplay.variable, fontLogo.variable)}>
       <body className="bg-background font-sans text-foreground antialiased">
         <a
           href="#main"

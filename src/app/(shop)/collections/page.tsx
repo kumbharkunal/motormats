@@ -6,8 +6,8 @@ import {
   type ListingSearchParams,
 } from '@/features/catalog/components/product-listing';
 import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton';
-import { BrandIcon } from '@/features/vehicles/components/brand-icon';
 import { VEHICLE_BRANDS } from '@/features/vehicles/data/brands';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'All Collections',
@@ -44,10 +44,13 @@ export default async function CollectionsPage({
       <header className="max-w-2xl">
         <div className="flex items-center gap-3">
           {activeBrand ? (
-            <BrandIcon
-              bodyStyle={activeBrand.bodyStyle}
-              brandColor={activeBrand.brandColor}
-              className="h-10 w-[4.5rem] md:h-12 md:w-20"
+            <Image
+              src={activeBrand.image}
+              alt={activeBrand.name}
+              width={200}
+              height={120}
+              unoptimized
+              className="h-14 w-24 object-contain md:h-16 md:w-28"
             />
           ) : null}
           <h1 className="text-h1">{heading}</h1>
