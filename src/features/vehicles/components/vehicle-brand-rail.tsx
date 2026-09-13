@@ -59,9 +59,11 @@ export function VehicleBrandRail() {
     return () => document.removeEventListener('keydown', handler);
   }, []);
 
-  // Close on click outside the rail
+  // Close on click outside the rail (desktop only — on mobile, tap-to-toggle
+  // handles open/close; closing on outside tap would defeat the auto-open).
   useEffect(() => {
     const handler = (e: MouseEvent) => {
+      if (window.matchMedia('(max-width: 1023px)').matches) return;
       if (railRef.current && !railRef.current.contains(e.target as Node)) {
         setOpenBrand(null);
       }
