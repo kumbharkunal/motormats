@@ -2,11 +2,12 @@ import { Award, Star, Truck, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { SHOP_ROUTES } from '@/features/catalog/routes';
 import { HeroBackdrop } from '@/features/home/components/hero-backdrop';
 
 const TRUST_BADGES = [
   { icon: Truck, label: 'Free shipping' },
-  { icon: ShieldCheck, label: '1 year warranty' },
+  { icon: ShieldCheck, label: 'Anti-skid backing' },
   { icon: Star, label: '4.9 rated' },
   { icon: Award, label: 'Precision cut' },
 ] as const;
@@ -35,11 +36,11 @@ export function HeroPanel() {
 
         <h1
           id="hero-heading"
-          className="mt-6 max-w-4xl text-center text-display text-white md:text-left short:mt-4 short:text-h1"
+          className="mt-6 max-w-4xl text-center text-display font-semibold tracking-tight text-white md:text-left short:mt-4 short:text-h1"
         >
           Engineered to drive.
           <br />
-          <span className="text-white/70 italic">Tailored for your floor.</span>
+          <span className="text-white/75">Tailored for your floor.</span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-center text-[0.9375rem] leading-relaxed text-balance text-white/70 md:mx-0 md:text-left short:mt-3">
@@ -48,7 +49,7 @@ export function HeroPanel() {
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:justify-start short:mt-5">
           <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href="/collections">Shop now</Link>
+            <Link href={SHOP_ROUTES.findYourFit}>Find your perfect fit</Link>
           </Button>
           <Button
             asChild
@@ -56,7 +57,7 @@ export function HeroPanel() {
             size="lg"
             className="w-full border-white/35 bg-white/10 text-white hover:border-white hover:bg-white/20 sm:w-auto"
           >
-            <Link href="/our-story">Our story</Link>
+            <Link href={SHOP_ROUTES.collections}>Shop collections</Link>
           </Button>
         </div>
 

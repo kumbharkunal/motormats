@@ -8,7 +8,7 @@ import { formatPaise } from '@/lib/money';
 export const metadata: Metadata = {
   title: 'Shipping & Returns',
   description:
-    'Delivery charges and timelines, the return window, and how the Motormats warranty works.',
+    'Delivery charges and timelines and the Motormats return window.',
   alternates: { canonical: '/shipping-and-returns' },
 };
 
@@ -49,21 +49,15 @@ export default function ShippingAndReturnsPage() {
         <ul>
           <li>Refunds are issued to the original payment method once the set is back with us.</li>
           <li>
-            Sets that have been fitted and used cannot be resold, so they fall under the warranty
-            rather than the return policy.
+            Sets that have been fitted and used cannot be resold, so they are not eligible for a
+            change-of-mind return. Contact us if something arrives faulty or the wrong pattern was
+            sent.
           </li>
           <li>
             If we sent the wrong pattern or the set is faulty on arrival, the return is free and we
             arrange the pickup.
           </li>
         </ul>
-
-        <h2>Warranty</h2>
-        <p>
-          Every set carries a {BUSINESS.warrantyYears} year warranty against manufacturing defects —
-          delamination, backing failure, or stitching that comes apart in normal use. Wear from
-          ordinary use, damage from solvents, and cuts or burns are not defects.
-        </p>
 
         <h2>Cancellations</h2>
         <p>

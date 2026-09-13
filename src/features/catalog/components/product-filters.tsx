@@ -20,6 +20,8 @@ export type FilterState = {
   query?: string | undefined;
   brand?: string | undefined;
   model?: string | undefined;
+  year?: string | undefined;
+  fitConfirmed?: boolean;
 };
 
 /** Every track scrolls rather than wraps, so each row stays exactly one chip tall. */
@@ -56,6 +58,8 @@ export function ProductFilters({
     if (next.query) params.set('q', next.query);
     if (next.brand) params.set('brand', next.brand);
     if (next.model) params.set('model', next.model);
+    if (next.year) params.set('year', next.year);
+    if (next.fitConfirmed) params.set('fit', '1');
     // Any filter change returns to page one; keeping the old page can land on
     // an empty result set.
     const query = params.toString();
@@ -69,6 +73,8 @@ export function ProductFilters({
     if (state.query) params.set('q', state.query);
     if (state.brand) params.set('brand', state.brand);
     if (state.model) params.set('model', state.model);
+    if (state.year) params.set('year', state.year);
+    if (state.fitConfirmed) params.set('fit', '1');
     const query = params.toString();
     const path = slug ? `/collections/${slug}` : '/collections';
     return query ? `${path}?${query}` : path;
@@ -110,6 +116,10 @@ export function ProductFilters({
           <RemovableChip href={clearVehicleHref()} label={activeBrand.name} />
           {activeModel ? (
             <RemovableChip href={clearModelHref()} label={activeModel.name} />
+          ) : null}
+          {state.year ? <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent-text">{state.year}</span> : null}
+          {state.fitConfirmed ? (
+            <span className="rounded-full bg-foreground px-3 py-1 text-xs font-semibold text-white">Exact fit</span>
           ) : null}
         </div>
       ) : null}

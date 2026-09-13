@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 
+import { AppLoadSplash } from '@/components/feedback/app-load-splash';
 import { Toaster } from '@/components/feedback/toaster';
 import { SmoothScroll } from '@/components/layout/smooth-scroll';
 import { StoreProvider } from '@/store/store-provider';
 import { clientEnv } from '@/lib/env.client';
-import { fontDisplay, fontLogo, fontSans } from '@/lib/fonts';
+import { fontLogo, fontSans } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 
 import '@/styles/globals.css';
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     template: '%s | Motormats',
   },
   description:
-    'Precision-cut, custom-fit car mats engineered for a perfect fit. All-weather protection, anti-skid backing and a 1 year warranty.',
+    'Precision-cut, custom-fit car mats engineered for a perfect fit. All-weather protection and anti-skid backing.',
   applicationName: 'Motormats',
   openGraph: {
     type: 'website',
@@ -40,8 +41,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn(fontSans.variable, fontDisplay.variable, fontLogo.variable)}>
+    <html lang="en" className={cn(fontSans.variable, fontLogo.variable)}>
       <body className="bg-background font-sans text-foreground antialiased">
+        <AppLoadSplash />
         <a
           href="#main"
           className="sr-only rounded bg-accent px-4 py-2 font-medium text-white focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200]"

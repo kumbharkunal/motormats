@@ -67,14 +67,8 @@
 
   /* ── Typography ──────────────────────────────────────────────────────── */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-cormorant), Georgia, ui-serif, serif;
 
-  /* Fluid scale.
-     Bigger and looser than the sans scale it replaces: a 400-weight Garamond
-     has far less presence per pixel than a 600-weight geometric sans, so it
-     earns its place through size and air instead. Tracking goes slightly
-     negative — a serif at display size already carries its own rhythm, and
-     positive tracking on lowercase serif reads as a mistake. */
+  /* Fluid sans scale — Instagram-aligned, all Inter. */
   --text-display: clamp(2.75rem, 6vw + 1rem, 5.5rem);
   --text-display--line-height: 1.02;
   --text-display--letter-spacing: -0.02em;
@@ -183,11 +177,9 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-display);
-    /* 400, and sentence case. The previous uppercase-600 treatment belonged to
-       a geometric sans; run through a Garamond it reads as a stretched
-       monument. Lowercase is where this face actually has its drawing. */
-    font-weight: 400;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: -0.02em;
     margin: 0;
     text-wrap: balance;
   }
@@ -455,6 +447,27 @@ header[data-over-hero='true'] .nav-pill {
    `transform-box` defaults to `view-box` — so both bars travel the same
    distance despite their different bounding boxes. The root <svg> clips at the
    viewBox, so a streak leaves the frame cleanly. */
+@keyframes cart-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes loader-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
 @keyframes glyph-slipstream {
   0% {
     transform: translate(-30px, -29px);
@@ -470,4 +483,28 @@ header[data-over-hero='true'] .nav-pill {
     transform: translate(30px, 29px);
     opacity: 0;
   }
+}
+
+/* Dual-tone homepage bands — Motor Red only on CTAs, eyebrows, and accents. */
+@utility band-light {
+  background-color: #ffffff;
+  color: var(--color-foreground);
+}
+
+@utility band-dark {
+  background-color: var(--color-foreground);
+  color: #ffffff;
+}
+
+/** Below-fold homepage sections — skip layout/paint until near viewport. */
+@utility section-defer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+@utility native-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }

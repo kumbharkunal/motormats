@@ -20,39 +20,28 @@ const FEATURES = [
   },
   {
     icon: ShieldCheck,
-    title: '1 Year Warranty',
-    description: 'Built to outlast. Backed by our uncompromising 1 year guarantee.',
+    title: 'Factory-finish trim',
+    description: 'Bound edges and stitched borders that sit flush — like it left with the car.',
   },
 ] as const;
 
 export function CraftsmanshipPanel() {
   return (
-    <section aria-labelledby="craftsmanship-heading" className="relative bg-surface">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-1/2"
-        // 4%, not the dark theme's 10%. A red wash gains rather than loses
-        // weight over a light ground, and at the old alpha the panel read as
-        // tinted pink rather than as a bloom behind the heading.
-        style={{
-          backgroundImage:
-            'radial-gradient(ellipse 60% 100% at 50% 0%, rgba(225,6,0,0.04), transparent 70%)',
-        }}
-      />
-
+    <section aria-labelledby="craftsmanship-heading" className="band-dark relative">
       <div className="relative container-page py-section">
         <SectionHeading
           id="craftsmanship-heading"
           eyebrow="How it is made"
           title="Precision, all the way down"
           body="Engineered materials held to aerospace tolerances — complete protection without compromising how the interior looks."
+          tone="light"
         />
 
         <ul className="mt-12 grid grid-cols-2 gap-3 md:mt-16 md:gap-8 lg:grid-cols-4">
           {FEATURES.map(({ icon: Icon, title, description }) => (
             <li
               key={title}
-              className="group relative flex h-full flex-col items-center overflow-hidden rounded-2xl card-surface p-5 text-center transition-colors duration-500 hover:border-accent/30 md:rounded-3xl md:p-8 lg:p-10 short:p-5"
+              className="group relative flex h-full flex-col items-center overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-center transition-colors duration-500 hover:border-accent/40 md:rounded-3xl md:p-8 lg:p-10 short:p-5"
             >
               {/* Draws in from the left on hover — transform only, so it stays
                   on the compositor. */}
@@ -67,8 +56,8 @@ export function CraftsmanshipPanel() {
                   className="size-5 text-accent md:size-7 short:size-5"
                 />
               </span>
-              <h3 className="text-sm font-semibold md:text-h3 short:text-sm">{title}</h3>
-              <p className="mt-1 text-[0.6875rem] leading-snug text-muted-foreground md:mt-3 md:text-sm md:leading-relaxed short:mt-1 short:text-[0.6875rem]">
+              <h3 className="text-sm font-semibold text-white md:text-h3 short:text-sm">{title}</h3>
+              <p className="mt-1 text-[0.6875rem] leading-snug text-white/60 md:mt-3 md:text-sm md:leading-relaxed short:mt-1 short:text-[0.6875rem]">
                 {description}
               </p>
             </li>

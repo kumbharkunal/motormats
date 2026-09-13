@@ -6,6 +6,7 @@ import { ChevronDown, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { collectionsPath } from '@/features/catalog/routes';
 import { VEHICLE_BRANDS, type VehicleBrand } from '@/features/vehicles/data/brands';
 import { cn } from '@/lib/utils';
 
@@ -281,7 +282,7 @@ function ModelList({ brand }: { brand: VehicleBrand }) {
         {brand.models.map((model) => (
           <Link
             key={model.slug}
-            href={`/collections?brand=${brand.slug}&model=${model.slug}`}
+            href={collectionsPath({ brand: brand.slug, model: model.slug })}
             role="menuitem"
             className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm text-foreground transition-colors duration-150 hover:bg-surface-hover hover:text-accent"
           >
@@ -295,7 +296,7 @@ function ModelList({ brand }: { brand: VehicleBrand }) {
 
       <div className="border-t border-border">
         <Link
-          href={`/collections?brand=${brand.slug}`}
+          href={collectionsPath({ brand: brand.slug })}
           className="group/all flex items-center justify-between gap-3 px-4 py-3 text-[0.8125rem] font-semibold text-accent transition-colors duration-150 hover:bg-accent/5"
         >
           View all {brand.name} mats

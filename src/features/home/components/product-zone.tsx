@@ -41,7 +41,7 @@ export function ProductZone({
   const headingId = `${id}-heading`;
 
   return (
-    <section aria-labelledby={headingId} className={reverse ? 'bg-background' : 'bg-surface'}>
+    <section aria-labelledby={headingId} className={reverse ? 'band-dark' : 'band-light'}>
       <div className="relative container-page py-section">
         {/* `items-start`, never `items-stretch`: a stretched grid item combined
             with the image's `aspect-3/4` resolves its *width* from the row

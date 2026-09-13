@@ -71,7 +71,7 @@ export default function NotFound() {
       <div className="relative flex flex-col items-center text-center">
         <span
           aria-hidden
-          className="pointer-events-none absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-[58%] font-display [font-size:clamp(11rem,38vw,24rem)] leading-none font-normal tracking-tight text-foreground/6 select-none short:[font-size:clamp(7rem,26vh,12rem)]"
+          className="pointer-events-none absolute top-1/2 left-1/2 -z-10 -translate-x-1/2 -translate-y-[58%] [font-size:clamp(11rem,38vw,24rem)] leading-none font-bold tracking-tight text-foreground/6 select-none short:[font-size:clamp(7rem,26vh,12rem)]"
         >
           404
         </span>
