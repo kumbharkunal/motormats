@@ -32,7 +32,8 @@ export function VehicleBrandRail() {
   // On mobile, default-open the first brand (Maruti Suzuki)
   useEffect(() => {
     const isMobile = window.matchMedia('(max-width: 1023px)').matches;
-    if (isMobile) setOpenBrand(VEHICLE_BRANDS[0].slug);
+    const first = VEHICLE_BRANDS[0];
+    if (isMobile && first) setOpenBrand(first.slug);
   }, []);
 
   const cancelClose = useCallback(() => {
