@@ -2,18 +2,17 @@
 
 import { Plus } from 'lucide-react';
 
+import { nudgeCartAdded } from '@/lib/cart-nudge';
 import { tapFeedback } from '@/lib/haptics';
 import { useAppDispatch } from '@/store';
 import { itemAdded } from '@/store/slices/cart-slice';
-import { cartDrawerToggled } from '@/store/slices/ui-slice';
 
 /**
  * Quick-add from a homepage card.
  *
  * The card has no variant picker, so it adds the cheapest in-stock variant.
- * Confirmation is the header's cart count ticking up, plus a haptic tap on a
- * touch device — deliberately no toast, which was too loud for an action people
- * repeat across a grid. A product with nothing in stock renders a disabled
+ * Confirmation is a branded toast, cart badge pulse, and haptic tap on touch devices.
+ * A product with nothing in stock renders a disabled
  * control rather than a button that fails on click.
  */
 export function QuickAddButton({
@@ -50,7 +49,7 @@ function AddButton({
   function handleClick() {
     tapFeedback();
     dispatch(itemAdded({ variantPublicId, quantity: 1 }));
-    dispatch(cartDrawerToggled(true));
+    nudgeCartAdded(dispatch, productName);
   }
 
   return (

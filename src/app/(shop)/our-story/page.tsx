@@ -25,8 +25,8 @@ const PRINCIPLES = [
   },
   {
     icon: ShieldCheck,
-    title: 'Backed for a year',
-    body: 'Every set carries a one year warranty against manufacturing defects. If a mat fails in normal use, it gets replaced.',
+    title: 'Checked before dispatch',
+    body: 'Each set is cut to your vehicle’s pattern and inspected before it ships. If something is not right on arrival, we make it right.',
   },
   {
     icon: Sparkles,

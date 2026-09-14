@@ -5,6 +5,7 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { ProductGallery } from '@/features/catalog/components/product-gallery';
 import { VariantSelector } from '@/features/catalog/components/variant-selector';
 import { getProductBySlug, listActiveProductSlugs } from '@/features/catalog/server/queries';
+import { BUSINESS } from '@/features/marketing/business';
 import { clientEnv } from '@/lib/env.client';
 import { cloudinaryImageUrl } from '@/lib/image-loader';
 import { formatPaise } from '@/lib/money';
@@ -157,8 +158,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               </dd>
             </div>
             <div>
-              <dt className="text-xs tracking-wide text-muted-foreground uppercase">Warranty</dt>
-              <dd className="mt-1 font-semibold">1 year</dd>
+              <dt className="text-xs tracking-wide text-muted-foreground uppercase">Dispatch</dt>
+              <dd className="mt-1 font-semibold">{BUSINESS.dispatchDays}</dd>
             </div>
           </dl>
         </div>

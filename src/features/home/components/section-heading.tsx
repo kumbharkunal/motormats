@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
  *
  * Three ranks doing three jobs: a small red eyebrow in the UI face to place the
  * section and carry the brand colour into a page that is otherwise mostly
- * white; the serif heading; and optional supporting copy. Shared rather than
+ * white; the sans heading; and optional supporting copy. Shared rather than
  * repeated so the sections cannot drift apart in spacing or scale — which is
  * most of what makes a long page feel unconsidered.
  */
@@ -44,7 +44,10 @@ export function SectionHeading({
 
       <h2
         id={id}
-        className={cn('mt-5 text-h2', tone === 'light' ? 'text-white' : 'text-foreground')}
+        className={cn(
+          'mt-5 text-h2 font-semibold tracking-tight',
+          tone === 'light' ? 'text-white' : 'text-foreground',
+        )}
       >
         {title}
       </h2>

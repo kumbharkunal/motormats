@@ -76,7 +76,7 @@ export default function OpengraphImage() {
       </div>
 
       <div style={{ display: 'flex', marginTop: '20px', fontSize: '28px', color: MUTED }}>
-        Free shipping · 1 year warranty · Anti-skid backing
+        Free shipping · Custom fit · Anti-skid backing
       </div>
     </div>,
     size,

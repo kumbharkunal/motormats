@@ -52,9 +52,9 @@ export default function TermsPage() {
           confirmation from the payment provider, not on the browser reporting success.
         </p>
 
-        <h2>6. Delivery, returns and warranty</h2>
+        <h2>6. Delivery and returns</h2>
         <p>
-          Delivery timelines, the return window and warranty cover are set out on the{' '}
+          Delivery timelines and the return window are set out on the{' '}
           <Link href="/shipping-and-returns">Shipping &amp; Returns</Link> page, which forms part of
           these terms.
         </p>

@@ -3,7 +3,7 @@ const SHOW_ANNOUNCEMENTS = false;
 const MESSAGES = [
   '15% off your first order with code DRIVE15',
   'Free shipping on orders over ₹2,999',
-  '1 year warranty included',
+  'Precision-cut for your exact model',
 ] as const;
 
 export function AnnouncementMarquee() {

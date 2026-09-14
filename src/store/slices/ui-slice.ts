@@ -6,9 +6,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
  */
 export type UiState = {
   cartDrawerOpen: boolean;
+  /** Bumped on each add-to-cart for header microinteraction. */
+  cartNudgeAt: number;
 };
 
-const initialState: UiState = { cartDrawerOpen: false };
+const initialState: UiState = { cartDrawerOpen: false, cartNudgeAt: 0 };
 
 const uiSlice = createSlice({
   name: 'ui',
@@ -17,8 +19,11 @@ const uiSlice = createSlice({
     cartDrawerToggled(state, action: PayloadAction<boolean | undefined>) {
       state.cartDrawerOpen = action.payload ?? !state.cartDrawerOpen;
     },
+    cartNudgeTriggered(state) {
+      state.cartNudgeAt = Date.now();
+    },
   },
 });
 
-export const { cartDrawerToggled } = uiSlice.actions;
+export const { cartDrawerToggled, cartNudgeTriggered } = uiSlice.actions;
 export const uiReducer = uiSlice.reducer;

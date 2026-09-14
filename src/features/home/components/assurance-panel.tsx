@@ -2,6 +2,7 @@ import { PackageCheck, RefreshCw, ShieldCheck, Truck } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { SHOP_ROUTES } from '@/features/catalog/routes';
 import { BUSINESS } from '@/features/marketing/business';
 import { SectionHeading } from '@/features/home/components/section-heading';
 import { formatPaise } from '@/lib/money';
@@ -40,8 +41,8 @@ const ASSURANCES = [
   },
   {
     icon: ShieldCheck,
-    title: 'Warranty',
-    body: `${BUSINESS.warrantyYears} year against manufacturing defects, no questions.`,
+    title: 'Fit checked',
+    body: 'Every set is cut to your exact make, model and year before it leaves our workshop.',
   },
 ] as const;
 
@@ -87,7 +88,7 @@ export function AssurancePanel() {
 
         <div className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:mt-14">
           <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href="/collections">Find your fit</Link>
+            <Link href={SHOP_ROUTES.collections}>Find your fit</Link>
           </Button>
           <Button
             asChild
@@ -95,7 +96,7 @@ export function AssurancePanel() {
             size="lg"
             className="w-full border-white/25 bg-white/5 text-white hover:border-white hover:bg-white/15 sm:w-auto"
           >
-            <Link href="/shipping-and-returns">Shipping &amp; returns</Link>
+            <Link href={SHOP_ROUTES.shippingReturns}>Shipping &amp; returns</Link>
           </Button>
         </div>
       </div>

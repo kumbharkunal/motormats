@@ -31,12 +31,15 @@ export default async function CollectionsPage({
     ? activeBrand.models.find((m) => m.slug === params.model)
     : undefined;
 
+  const year = params.year?.trim();
+  const fitConfirmed = params.fit === '1';
+
   const heading = activeBrand
-    ? `Mats for ${activeBrand.name}${activeModel ? ` ${activeModel.name}` : ''}`
+    ? `Mats for ${activeBrand.name}${activeModel ? ` ${activeModel.name}` : ''}${year ? ` (${year})` : ''}`
     : 'All Collections';
 
   const subtitle = activeBrand
-    ? `Custom-fit car mats precision-cut for your ${activeBrand.name}${activeModel ? ` ${activeModel.name}` : ''}. Choose your range and finish.`
+    ? `Custom-fit car mats precision-cut for your ${activeBrand.name}${activeModel ? ` ${activeModel.name}` : ''}${year ? `, ${year}` : ''}. Choose your range and finish.`
     : 'Four ranges, each laser-cut to your vehicle. Filter by fit, finish and availability.';
 
   return (
@@ -58,6 +61,11 @@ export default async function CollectionsPage({
         <p className="mt-3 text-balance text-muted-foreground">
           {subtitle}
         </p>
+        {fitConfirmed && activeBrand ? (
+          <p className="mt-4 inline-flex rounded-full bg-foreground px-4 py-1.5 text-xs font-semibold tracking-wide text-white uppercase">
+            Exact fit confirmed — shop your material
+          </p>
+        ) : null}
       </header>
 
       <Suspense fallback={<ListingSkeleton />}>

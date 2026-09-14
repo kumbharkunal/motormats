@@ -2,7 +2,7 @@ import { PackageSearch } from 'lucide-react';
 import Link from 'next/link';
 
 import { Pagination } from '@/features/catalog/components/pagination';
-import { ProductCard } from '@/features/catalog/components/product-card';
+import { VirtualProductGrid } from '@/features/catalog/components/virtual-product-grid';
 import { ProductFilters, type FilterState } from '@/features/catalog/components/product-filters';
 import { listCategories, listProducts, type ProductSort } from '@/features/catalog/server/queries';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,8 @@ export type ListingSearchParams = {
   q?: string;
   brand?: string;
   model?: string;
+  year?: string;
+  fit?: string;
 };
 
 /** Normalises untrusted query strings into a filter state we can rely on. */
@@ -34,6 +36,8 @@ export function parseListingParams(params: ListingSearchParams): FilterState & {
     query: params.q?.trim() || undefined,
     brand: params.brand?.trim() || undefined,
     model: params.model?.trim() || undefined,
+    year: params.year?.trim() || undefined,
+    fitConfirmed: params.fit === '1',
   };
 }
 
@@ -76,6 +80,8 @@ export async function ProductListing({
     if (state.query) params.set('q', state.query);
     if (state.brand) params.set('brand', state.brand);
     if (state.model) params.set('model', state.model);
+    if (state.year) params.set('year', state.year);
+    if (state.fitConfirmed) params.set('fit', '1');
     if (page > 1) params.set('page', String(page));
     const query = params.toString();
     return query ? `${basePath}?${query}` : basePath;
@@ -94,13 +100,7 @@ export async function ProductListing({
         <EmptyState hasFilters={state.inStockOnly || Boolean(state.query)} />
       ) : (
         <>
-          <ul className="mt-8 grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4 md:gap-6">
-            {result.items.map((product, index) => (
-              <li key={product.publicId}>
-                <ProductCard product={product} priority={index < 4} />
-              </li>
-            ))}
-          </ul>
+          <VirtualProductGrid products={result.items} />
 
           <Pagination page={result.page} totalPages={result.totalPages} buildHref={buildHref} />
         </>

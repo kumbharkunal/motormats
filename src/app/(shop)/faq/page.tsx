@@ -8,7 +8,7 @@ import { formatPaise } from '@/lib/money';
 export const metadata: Metadata = {
   title: 'FAQ',
   description:
-    'Fitment, delivery, payment, warranty and returns — the questions we are asked most about Motormats car mats.',
+    'Fitment, delivery, payment and returns — the questions we are asked most about Motormats car mats.',
   alternates: { canonical: '/faq' },
 };
 
@@ -35,11 +35,11 @@ const FAQS = [
   },
   {
     q: 'Can I return a set?',
-    a: `Unused sets in original packaging can be returned within ${BUSINESS.returnWindowDays} days of delivery. Because mats are cut to a specific vehicle, sets that have been fitted and used cannot be resold and are covered by the warranty instead.`,
+    a: `Unused sets in original packaging can be returned within ${BUSINESS.returnWindowDays} days of delivery. Because mats are cut to a specific vehicle, sets that have been fitted and used cannot be resold.`,
   },
   {
-    q: 'What does the warranty cover?',
-    a: `${BUSINESS.warrantyYears} year against manufacturing defects — delamination, backing failure, stitching coming apart. Normal wear from use is not a defect.`,
+    q: 'What if my set arrives faulty or wrong?',
+    a: 'Contact us with your order number and photos. If we sent the wrong pattern or the set is defective on arrival, we will replace it or arrange a return at our cost.',
   },
   {
     q: 'How do I clean them?',
@@ -52,7 +52,7 @@ export default function FaqPage() {
     <PageShell
       breadcrumb="FAQ"
       title="Frequently asked questions"
-      intro="Fitment, delivery, payment and warranty. If your question is not here, ask us directly."
+      intro="Fitment, delivery, payment and returns. If your question is not here, ask us directly."
     >
       <dl className="divide-y divide-border">
         {FAQS.map((item) => (

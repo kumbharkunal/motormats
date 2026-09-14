@@ -6,12 +6,12 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { QuantityStepper } from '@/features/cart/components/quantity-stepper';
 import type { ProductDetail } from '@/features/catalog/server/queries';
+import { nudgeCartAdded } from '@/lib/cart-nudge';
 import { tapFeedback } from '@/lib/haptics';
 import { formatPaise } from '@/lib/money';
 import { cn } from '@/lib/utils';
 import { useAppDispatch } from '@/store';
 import { itemAdded, MAX_QUANTITY_PER_LINE } from '@/store/slices/cart-slice';
-import { cartDrawerToggled } from '@/store/slices/ui-slice';
 
 type Variant = ProductDetail['variants'][number];
 
@@ -46,7 +46,7 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
 
     tapFeedback();
     dispatch(itemAdded({ variantPublicId: selectedVariant.publicId, quantity }));
-    dispatch(cartDrawerToggled(true));
+    nudgeCartAdded(dispatch, product.name, quantity);
   }
 
   return (

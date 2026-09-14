@@ -53,7 +53,6 @@ export const BUSINESS = {
 
   /** These four are asserted elsewhere on the storefront already. */
   freeShippingOverPaise: 299_900,
-  warrantyYears: 1,
   /** UNCONFIRMED — return window and dispatch time are not yet confirmed policy. */
   returnWindowDays: 7,
   dispatchDays: '2 – 3 business days',

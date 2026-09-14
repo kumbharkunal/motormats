@@ -3,13 +3,19 @@ import type { Metadata } from 'next';
 import { AnnouncementMarquee } from '@/components/layout/announcement-marquee';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SiteHeader } from '@/components/layout/site-header';
+import { collectionPath, SHOP_ROUTES } from '@/features/catalog/routes';
 import { listFeaturedProducts, type FeaturedProduct } from '@/features/catalog/server/queries';
 import { AssurancePanel } from '@/features/home/components/assurance-panel';
+import { InstagramReelsSection } from '@/features/home/components/instagram-reels-section';
+import { MatsComparisonPanel } from '@/features/home/components/mats-comparison-panel';
 import { CollectionsRail } from '@/features/home/components/collections-rail';
 import { CraftsmanshipPanel } from '@/features/home/components/craftsmanship-panel';
+import { EditorialDiscoverSection } from '@/features/home/components/editorial-discover-section';
+import { FindYourFitPanel } from '@/features/home/components/find-your-fit-panel';
+import { FinishStudioSection } from '@/features/home/components/finish-studio-section';
 import { HeroPanel } from '@/features/home/components/hero-panel';
+import { ScanToShipSection } from '@/features/home/components/scan-to-ship-section';
 import { ProductZone } from '@/features/home/components/product-zone';
-import { VehicleBrandRail } from '@/features/vehicles/components/vehicle-brand-rail';
 import { clientEnv } from '@/lib/env.client';
 import { logger } from '@/lib/logger';
 
@@ -19,7 +25,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'Premium Custom-Fit Car Mats',
   description:
-    'Precision-cut car mats engineered for an exact fit. All-weather protection, anti-skid backing, free shipping and a 1 year warranty.',
+    'Precision-cut car mats engineered for an exact fit. All-weather protection, anti-skid backing and free shipping on qualifying orders.',
   alternates: { canonical: '/' },
 };
 
@@ -59,8 +65,11 @@ export default async function HomePage() {
 
       <main id="main" className="flex-1">
         <HeroPanel />
-        <VehicleBrandRail />
+        <FindYourFitPanel />
+        <EditorialDiscoverSection />
         <CollectionsRail />
+        <FinishStudioSection />
+        <div className="section-defer">
         <ProductZone
           id="zone-fit"
           eyebrow="Cut to your floorpan"
@@ -68,10 +77,11 @@ export default async function HomePage() {
           body="Every pattern starts from a 3D scan of the actual car. No size brackets, no trimming, no gap at the pedals."
           image="motormats/zones/made-to-fit"
           imageAlt="A custom-cut car mat sitting flush against a car's floorpan"
-          ctaHref="/collections"
+          ctaHref={SHOP_ROUTES.collections}
           ctaLabel="Shop all mats"
           products={zoneA}
         />
+        <ScanToShipSection />
         <CraftsmanshipPanel />
         {zoneB.length > 0 ? (
           <ProductZone
@@ -81,13 +91,16 @@ export default async function HomePage() {
             body="Channelled trays that hold what the road brings in. Lift out, rinse down, refit — no drying time."
             image="motormats/zones/all-weather"
             imageAlt="A channelled all-weather car mat holding rainwater in its tray"
-            ctaHref="/collections/all-weather"
+            ctaHref={collectionPath('all-weather')}
             ctaLabel="Shop all-weather"
             products={zoneB}
             reverse
           />
         ) : null}
         <AssurancePanel />
+        <MatsComparisonPanel />
+        <InstagramReelsSection />
+        </div>
       </main>
 
       <SiteFooter />

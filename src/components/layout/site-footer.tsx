@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { MotormatsLogo } from '@/components/layout/motormats-logo';
 import { NewsletterForm } from '@/components/layout/newsletter-form';
+import { SHOP_ROUTES } from '@/features/catalog/routes';
 
 const FOOTER_SECTIONS = [
   {
@@ -24,10 +25,10 @@ const FOOTER_SECTIONS = [
 ] as const;
 
 const SOCIAL_LINKS = [
-  { icon: Camera, label: 'Instagram' },
-  { icon: AtSign, label: 'Twitter' },
-  { icon: Globe, label: 'Facebook' },
-  { icon: Film, label: 'YouTube' },
+  { icon: Camera, label: 'Instagram', href: SHOP_ROUTES.instagram },
+  { icon: AtSign, label: 'Twitter', href: SHOP_ROUTES.contact },
+  { icon: Globe, label: 'Facebook', href: SHOP_ROUTES.contact },
+  { icon: Film, label: 'YouTube', href: SHOP_ROUTES.contact },
 ] as const;
 
 /**
@@ -61,11 +62,12 @@ export function SiteFooter() {
             </p>
 
             <ul className="mt-7 flex gap-3">
-              {SOCIAL_LINKS.map(({ icon: Icon, label }) => (
+              {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
                 <li key={label}>
                   <Link
-                    href="/contact"
+                    href={href}
                     aria-label={label}
+                    {...(href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     className="flex size-11 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors duration-300 hover:border-accent hover:bg-accent hover:text-white"
                   >
                     <Icon aria-hidden size={17} />
