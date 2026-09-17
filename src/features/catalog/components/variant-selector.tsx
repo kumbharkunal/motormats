@@ -158,9 +158,15 @@ function buildOptionGroups(variants: Variant[]): OptionGroup[] {
 
   return [...groups].map(([name, values]) => ({
     name,
-    label: name.charAt(0).toUpperCase() + name.slice(1),
+    label: optionGroupLabel(name),
     values: [...values],
   }));
+}
+
+function optionGroupLabel(name: string): string {
+  if (name === 'colour' || name === 'color') return 'Design finish';
+  if (name === 'material') return 'Design';
+  return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 function findVariant(variants: Variant[], selection: Record<string, string>): Variant | undefined {

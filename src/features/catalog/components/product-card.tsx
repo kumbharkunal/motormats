@@ -63,14 +63,20 @@ export function ProductCard({
     >
       <div className="relative aspect-4/3 overflow-hidden bg-surface lg:aspect-square">
         {product.imageAssetId ? (
-          <Image
-            src={product.imageAssetId}
-            alt={product.imageAlt ?? `${product.name} car mat`}
-            fill
-            priority={priority}
-            sizes="(max-width: 639px) 70vw, (max-width: 1023px) 46vw, 22vw"
-            className="object-cover transition-motion duration-700 group-hover:scale-105"
-          />
+          <Link
+            href={`/products/${product.slug}`}
+            className="absolute inset-0 z-[1] block"
+            aria-label={`View ${product.name}`}
+          >
+            <Image
+              src={product.imageAssetId}
+              alt={product.imageAlt ?? `${product.name} car mat`}
+              fill
+              priority={priority}
+              sizes="(max-width: 639px) 70vw, (max-width: 1023px) 46vw, 22vw"
+              className="object-cover transition-motion duration-700 group-hover:scale-105"
+            />
+          </Link>
         ) : (
           <div className="grid h-full place-items-center text-xs text-subtle-foreground">
             No image
@@ -80,15 +86,12 @@ export function ProductCard({
         <Badge soldOut={soldOut} hasDiscount={hasDiscount} product={product} />
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div className="relative z-[2] flex flex-1 flex-col p-4">
         <h3 className="text-base font-semibold md:text-lg">
           <Link
             href={`/products/${product.slug}`}
             className="transition-colors duration-200 hover:text-accent-text"
           >
-            {/* Stretches the anchor over the card, so the whole surface
-                navigates while quick-add stays a real button above it. */}
-            <span className="absolute inset-0 z-0" aria-hidden />
             {product.name}
           </Link>
         </h3>

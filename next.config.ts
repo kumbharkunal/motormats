@@ -18,13 +18,25 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
-  // All image transformation is delegated to Cloudinary's CDN so the app server
-  // never spends CPU/RAM on sharp. See src/lib/image-loader.ts.
+  // All image transformation is delegated to a CDN (ImageKit for the files in
+  // `public/`, Cloudinary for catalogue asset ids) so the app server never
+  // spends CPU/RAM on sharp. See src/lib/image-loader.ts.
   images: {
     loader: 'custom',
     loaderFile: './src/lib/image-loader.ts',
     formats: ['image/avif', 'image/webp'],
+    // Next 16 rejects any `quality` not declared here and silently falls back
+    // to 75. The photography is graded, so the plates are worth 88 and the
+    // gallery thumbnails are fine at 60.
+    qualities: [60, 75, 88, 90],
   },
+
+  // The Playwright suite drives `http://127.0.0.1:3000`. Next's dev server
+  // treats that as a cross-origin dev request and refuses to serve the HMR
+  // bootstrap, which stops the page hydrating at all — every scroll and header
+  // assertion then fails against a static document. Dev-only; production
+  // serving is unaffected.
+  allowedDevOrigins: ['127.0.0.1'],
 
   experimental: {
     optimizePackageImports: ['lucide-react', 'motion', 'swiper'],

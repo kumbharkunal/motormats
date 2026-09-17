@@ -4,7 +4,8 @@ import { extendTailwindMerge } from 'tailwind-merge';
 /**
  * tailwind-merge, taught about our custom type scale.
  *
- * `@theme` adds font sizes named `display`, `h1`…`h3`, `body` and `eyebrow`.
+ * `@theme` adds font sizes named `display`, `h1`…`h3`, `body`, `eyebrow` and
+ * `label`.
  * tailwind-merge cannot see the stylesheet, so out of the box it reads
  * `text-h2` as a *colour* — putting it in the same conflict group as
  * `text-white`, and silently dropping whichever came first. Every heading built
@@ -17,7 +18,7 @@ import { extendTailwindMerge } from 'tailwind-merge';
 const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
-      'font-size': [{ text: ['display', 'h1', 'h2', 'h3', 'body', 'eyebrow'] }],
+      'font-size': [{ text: ['display', 'h1', 'h2', 'h3', 'body', 'eyebrow', 'label'] }],
     },
   },
 });

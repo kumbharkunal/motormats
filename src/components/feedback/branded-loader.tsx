@@ -86,7 +86,7 @@ export function BrandedLoader({
     return (
       <div
         className={cn(
-          'fixed inset-0 z-[280] flex items-center justify-center bg-foreground',
+          'fixed inset-0 z-[280] flex items-center justify-center bg-foreground/35 backdrop-blur-md',
           'supports-[height:100dvh]:min-h-[100dvh] min-h-svh',
           'motion-reduce:static motion-reduce:min-h-[50vh]',
         )}

@@ -1,4 +1,5 @@
 import { collectionPath, type CollectionSlug } from '@/features/catalog/routes';
+import { PHOTOS } from '@/features/home/photo-assets';
 
 /** Homepage editorial spotlights — CarBone-style “Discover” stories. */
 export type EditorialStory = {
@@ -20,8 +21,8 @@ export const HOME_EDITORIAL_STORIES: EditorialStory[] = [
     body: 'Channelled trays that swallow muddy shoes and monsoon run-off — lift, rinse, refit before the next drive.',
     href: collectionPath('all-weather'),
     cta: 'Discover',
-    image: 'motormats/zones/all-weather',
-    imageAlt: 'Channelled all-weather mats holding water in the tray',
+    image: PHOTOS.stories.monsoon.src,
+    imageAlt: PHOTOS.stories.monsoon.alt,
   },
   {
     id: 'carbon-cabin',
@@ -30,8 +31,8 @@ export const HOME_EDITORIAL_STORIES: EditorialStory[] = [
     body: 'Low-gloss carbon pattern that reads like factory trim — not a universal sheet trimmed with scissors.',
     href: collectionPath('carbon'),
     cta: 'Discover',
-    image: 'motormats/collections/carbon',
-    imageAlt: 'Carbon weave car mats fitted in a modern sedan',
+    image: PHOTOS.stories.carbon.src,
+    imageAlt: PHOTOS.stories.carbon.alt,
   },
   {
     id: '7d-luxury',
@@ -40,8 +41,8 @@ export const HOME_EDITORIAL_STORIES: EditorialStory[] = [
     body: 'Raised walls follow your scanned floorpan so coffee stops at the mat — not under the carpet.',
     href: collectionPath('7d-luxury'),
     cta: 'Discover',
-    image: 'motormats/collections/7d-luxury',
-    imageAlt: '7D luxury mats with raised edges in a car footwell',
+    image: PHOTOS.stories.luxury7d.src,
+    imageAlt: PHOTOS.stories.luxury7d.alt,
   },
 ];
 

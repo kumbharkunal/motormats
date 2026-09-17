@@ -176,14 +176,14 @@ export function InstagramReelsRail({ reels }: { reels: HomeReel[] }) {
 
   return (
     <ul
-      className="native-scroll -mx-5 mt-12 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pb-2 [-ms-overflow-style:none] md:mt-16 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden"
+      className="native-scroll -mx-5 mt-12 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pb-2 [-ms-overflow-style:none] md:mt-16 lg:mx-0 lg:gap-5 lg:px-0 [&::-webkit-scrollbar]:hidden"
       data-native-scroll
       aria-label="Instagram reels"
     >
       {reels.map((reel) => (
         <li
           key={reel.id}
-          className="w-[72%] max-w-[17rem] shrink-0 snap-center sm:w-[42%] md:max-w-[18rem] lg:w-auto lg:max-w-none"
+          className="w-[72%] max-w-[17rem] shrink-0 snap-center sm:w-[42%] md:max-w-[18rem] lg:w-[28%] lg:max-w-[20rem]"
         >
           <ReelCard reel={reel} unmutedId={unmutedId} onUnmute={setUnmutedId} />
         </li>

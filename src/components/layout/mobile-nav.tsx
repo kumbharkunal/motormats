@@ -48,7 +48,9 @@ export function MobileNav({
         <button
           type="button"
           aria-label="Open menu"
-          className="flex size-12 items-center justify-center rounded-full nav-pill text-foreground transition-colors duration-200 group-data-[over-hero=true]/header:text-white active:scale-95 lg:hidden"
+          // No capsule: the header is an ink band, so the trigger sits on it
+          // directly, like the cart icon beside it.
+          className="flex size-11 items-center justify-center text-white/75 transition-colors duration-200 hover:text-white active:scale-95 lg:hidden"
         >
           <Menu aria-hidden size={20} strokeWidth={1.5} />
         </button>
@@ -58,7 +60,7 @@ export function MobileNav({
         {/* Ink rather than black, and far lighter than the dark theme's 70%:
             the drawer now reads as a white panel lifted off the page, so the
             scrim only has to push the page back, not black it out. */}
-        <Dialog.Overlay className="fixed inset-0 z-[100] bg-foreground/40 backdrop-blur-sm data-[state=closed]:animate-[overlay-out_200ms_ease-in] data-[state=open]:animate-[overlay-in_250ms_ease-out]" />
+        <Dialog.Overlay className="fixed inset-0 z-[100] bg-foreground/20 backdrop-blur-[2px] data-[state=closed]:animate-[overlay-out_200ms_ease-in] data-[state=open]:animate-[overlay-in_250ms_ease-out]" />
 
         <Dialog.Content className="fixed inset-y-0 left-0 z-[101] flex w-[86vw] max-w-sm flex-col border-r border-border bg-surface data-[state=closed]:animate-[drawer-out_220ms_ease-in] data-[state=open]:animate-[drawer-in_280ms_cubic-bezier(0.25,1,0.5,1)]">
           <VisuallyHidden>

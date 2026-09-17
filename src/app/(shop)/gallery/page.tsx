@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { HomeGalleryShowcase } from '@/features/home/components/home-gallery-showcase';
 import { listFeaturedProducts } from '@/features/catalog/server/queries';
 import { PageShell } from '@/features/marketing/components/page-shell';
 
@@ -13,7 +14,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/gallery' },
 };
 
-/** Photography changes with the catalogue, not with a deploy. */
 export const revalidate = 3600;
 
 export default async function GalleryPage() {
@@ -23,29 +23,30 @@ export default async function GalleryPage() {
     <PageShell
       breadcrumb="Gallery"
       title="Gallery"
-      intro="Every range, shot in studio. Fitment is cut per vehicle, so the finish you see here is what arrives — the shape is matched to your model."
+      intro="Every range, shot in studio. Fitment is cut per vehicle, so the finish you see here is what arrives. The shape is matched to your model."
       wide
     >
+      <HomeGalleryShowcase products={products} embedded />
+
       {products.length === 0 ? (
         <p className="rounded-3xl border border-dashed border-border px-6 py-16 text-center text-sm text-muted-foreground">
           Photography is being updated. Please check back shortly.
         </p>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product, index) => (
             <li key={product.publicId}>
               <Link
                 href={`/products/${product.slug}`}
                 className="group block overflow-hidden rounded-2xl card-surface transition-colors duration-500 hover:border-accent/30 md:rounded-3xl"
               >
-                <div className="relative aspect-square overflow-hidden bg-surface">
+                <div className="relative aspect-[4/5] overflow-hidden bg-surface sm:aspect-square">
                   {product.imageAssetId ? (
                     <Image
                       src={product.imageAssetId}
                       alt={product.imageAlt ?? `${product.name} car mat`}
                       fill
                       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                      // The first row is above the fold on every breakpoint.
                       priority={index < 3}
                       className="object-cover transition-motion duration-700 group-hover:scale-105"
                     />

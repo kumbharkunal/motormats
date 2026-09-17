@@ -39,7 +39,7 @@ const theme = createTheme({
   },
   shape: { borderRadius: 14 },
   typography: {
-    fontFamily: 'var(--font-inter), system-ui, sans-serif',
+    fontFamily: 'var(--font-jakarta), Helvetica Neue, Helvetica, Arial, system-ui, sans-serif',
     h1: { fontFamily: 'var(--font-sans), sans-serif', fontWeight: 700 },
     h2: { fontFamily: 'var(--font-sans), sans-serif', fontWeight: 700 },
     h3: { fontFamily: 'var(--font-sans), sans-serif', fontWeight: 700 },

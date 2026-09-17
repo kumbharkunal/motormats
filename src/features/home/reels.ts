@@ -1,4 +1,5 @@
 import { SHOP_ROUTES } from '@/features/catalog/routes';
+import { DECK } from '@/features/home/deck-assets';
 
 /** Homepage Instagram-style reels — swap `href` / `embedSrc` when real posts go live. */
 export type HomeReel = {
@@ -17,28 +18,28 @@ export const HOME_INSTAGRAM_REELS: HomeReel[] = [
     id: 'pedal-fit',
     caption: 'Zero gap at the pedals — scanned for this exact trim.',
     videoSrc: '/video/hero-mobile.mp4',
-    poster: '/hero/hero-mobile.webp',
+    poster: DECK.reels.pedalFit,
     href: SHOP_ROUTES.instagram,
   },
   {
     id: 'monsoon-tray',
     caption: 'Channelled tray after a monsoon drive — lift, rinse, refit.',
     videoSrc: '/video/hero-desktop.mp4',
-    poster: '/hero/hero-desktop.webp',
+    poster: DECK.reels.monsoonTray,
     href: SHOP_ROUTES.instagram,
   },
   {
     id: 'sedan-install',
     caption: 'Sedan install in under two minutes.',
     videoSrc: '/video/hero-mobile.mp4',
-    poster: '/fit/fit-sedan.webp',
+    poster: DECK.reels.sedanInstall,
     href: SHOP_ROUTES.instagram,
   },
   {
     id: 'suv-lip',
     caption: '7D lip holding mud before it hits carpet.',
     videoSrc: '/video/hero-desktop.mp4',
-    poster: '/fit/fit-suv.webp',
+    poster: DECK.reels.suvLip,
     href: SHOP_ROUTES.instagram,
   },
 ];

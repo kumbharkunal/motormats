@@ -14,17 +14,27 @@ test.describe('homepage', () => {
   test('server HTML carries every section, so crawlers see the whole page', async ({ request }) => {
     const html = await (await request.get('/')).text();
 
-    // Only sections that render unconditionally. The second product zone is
-    // dropped when the catalogue holds four or fewer active products, so
-    // asserting on its copy would tie this test to the seed size.
+    // One phrase per band, in running order — the eight editorial bands that
+    // are the page's spine, then the magazine sections between them. Only the
+    // two product zones are left out: they are fed by the catalogue and the
+    // second is dropped when it holds four or fewer active products, so
+    // asserting on their copy would tie this test to the seed size.
     for (const phrase of [
-      'Engineered to drive',
+      'Your car.',
+      'A better floor.',
+      'Generic mats compared with Motormats',
+      'to finish your interior.',
       'Four surfaces, one exact fit',
-      'Made to fit',
-      'Precision, all the way down',
+      'Motormats vs generic floor mats',
+      'to finished mat.',
+      'Every car mat in the country looks the same.',
+      'Shot on location',
+      'Real conditions.',
+      'Stories from the floorpan',
+      'See installs in motion',
+      'What drivers say',
       'Made to order, backed after it arrives',
-      'Executive Carpet',
-      'Shipping &amp; returns',
+      'Your car deserves better.',
     ]) {
       expect(html, `missing from server HTML: ${phrase}`).toContain(phrase);
     }
@@ -70,7 +80,7 @@ test.describe('homepage', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/', { waitUntil: 'load' });
 
-    const hero = page.locator('section', { has: page.locator('#hero-heading') }).first();
+    const hero = page.locator('section', { has: page.locator('#hero-heading') });
     const box = await hero.boundingBox();
 
     expect(box, 'hero section should be laid out').not.toBeNull();
@@ -110,7 +120,7 @@ test.describe('homepage', () => {
     await expect(page.locator('html')).toHaveClass(/lenis/);
   });
 
-  test('the header retracts on the way down and comes back on the way up', async ({ page }) => {
+  test('the header never leaves the screen, and paints once past the cover', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/', { waitUntil: 'load' });
     await page.waitForTimeout(500);
@@ -118,7 +128,7 @@ test.describe('homepage', () => {
     const header = page.locator('header').first();
     const top = async () => (await header.boundingBox())?.y ?? 0;
 
-    // Over the hero it stays put, however far the hero itself has scrolled.
+    // Over the cover it is transparent, however far the cover has scrolled.
     expect(await top()).toBe(0);
     await expect(header).toHaveAttribute('data-over-hero', 'true');
 
@@ -131,12 +141,17 @@ test.describe('homepage', () => {
       await page.waitForTimeout(900);
     };
 
+    // It used to retract on scroll down. It must not any more, in either
+    // direction, and it still has to pick up its painted ground past the cover.
     await wheel(400, 10);
     await expect(header).toHaveAttribute('data-over-hero', 'false');
-    expect(await top(), 'header should retract past the hero').toBeLessThan(-40);
+    expect(await top(), 'header should stay pinned to the top on scroll down').toBe(0);
+
+    await wheel(400, 10);
+    expect(await top(), 'header should stay pinned deeper down the page').toBe(0);
 
     await wheel(-400, 3);
-    expect(await top(), 'scrolling up should bring it back').toBe(0);
+    expect(await top(), 'header should stay pinned on scroll up').toBe(0);
   });
 
   test('the header never retracts on a route without a hero', async ({ page }) => {

@@ -1,102 +1,137 @@
-import { PackageCheck, RefreshCw, ShieldCheck, Truck } from 'lucide-react';
-import Link from 'next/link';
+'use client';
 
+import { Clock, PackageCheck, RefreshCw, Truck } from 'lucide-react';
+import Link from 'next/link';
+import { useRef } from 'react';
+
+import { EditorialFrame, FrameCaption } from '@/components/media/editorial-frame';
 import { Button } from '@/components/ui/button';
 import { SHOP_ROUTES } from '@/features/catalog/routes';
 import { BUSINESS } from '@/features/marketing/business';
-import { SectionHeading } from '@/features/home/components/section-heading';
+import { PHOTOS } from '@/features/home/photo-assets';
+import { useEditorialReveal, useParallaxPlates } from '@/hooks/use-scroll-motion';
 import { formatPaise } from '@/lib/money';
 
-/**
- * The buying-assurance band.
- *
- * The reference runs a customer-review wall here. We cannot: there is no
- * reviews table, and the `ratingSum`/`ratingCount` columns are seeded demo
- * values, so any testimonial or aggregate shown would be invented. This states
- * only what the business already commits to elsewhere on the site, every figure
- * read from `BUSINESS` so it cannot drift from the FAQ and policy pages.
- *
- * Deliberately the one dark band in the page. It closes the scroll against the
- * footer, answers the hero at the other end, and breaks up a run of white
- * sections that otherwise reads as one undifferentiated sheet — the same
- * dark-island device the admin sign-in uses inside its light theme.
- *
- * When real reviews exist, this is the panel they replace.
- */
 const ASSURANCES = [
   {
-    icon: Truck,
-    title: 'Free shipping',
-    body: `On every order over ${formatPaise(BUSINESS.freeShippingOverPaise)}, anywhere in India.`,
+    icon: Clock,
+    title: 'Cut after you order',
+    body: 'Nothing sits on a shelf. Your set enters production once checkout confirms your exact trim.',
   },
   {
     icon: PackageCheck,
-    title: 'Dispatched fast',
-    body: `Cut, finished and on its way within ${BUSINESS.dispatchDays}.`,
+    title: 'Workshop QC',
+    body: `Finished, checked and dispatched within ${BUSINESS.dispatchDays} from our Bikaner workshop.`,
+  },
+  {
+    icon: Truck,
+    title: 'Free shipping',
+    body: `On orders over ${formatPaise(BUSINESS.freeShippingOverPaise)} anywhere in India, with tracking when it leaves.`,
   },
   {
     icon: RefreshCw,
-    title: 'Easy returns',
-    body: `${BUSINESS.returnWindowDays} days to return an unused set if the fit is not right.`,
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Fit checked',
-    body: 'Every set is cut to your exact make, model and year before it leaves our workshop.',
+    title: 'Fit guarantee window',
+    body: `${BUSINESS.returnWindowDays} days to return an unused set if the fit is not right for your car.`,
   },
 ] as const;
 
+const ORDER_STEPS = [
+  { title: 'You order', detail: 'Make, model, year and design locked at checkout.' },
+  { title: 'We cut', detail: 'Pattern pulled from your generation and cut on CNC.' },
+  { title: 'We ship', detail: 'Packed as a full set with install notes in the box.' },
+] as const;
+
+/**
+ * Made to order.
+ *
+ * The three steps used to be three text cards in a row. They now run beside two
+ * plates of the sets actually leaving the workshop, because "cut after you
+ * order" is a claim in text and a fact in a photograph of a loaded trolley.
+ */
 export function AssurancePanel() {
+  const scope = useRef<HTMLElement>(null);
+
+  useEditorialReveal(scope);
+  useParallaxPlates(scope);
+
   return (
-    <section aria-labelledby="assurance-heading" className="relative overflow-hidden bg-foreground">
-      {/* A single red bloom off the top-left corner, at the low alpha a
-          saturated red needs on a dark ground to read as light rather than
-          paint. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            'radial-gradient(120% 90% at 8% 0%, rgba(225,6,0,0.20) 0%, rgba(225,6,0,0) 55%)',
-        }}
-      />
-      <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-accent/60" />
+    <section ref={scope} aria-labelledby="assurance-heading" className="band-light border-y border-border">
+      <div className="container-page py-section">
+        <div className="max-w-2xl">
+          <p data-reveal className="text-eyebrow font-semibold tracking-[0.22em] text-accent uppercase">
+            Made to order
+          </p>
+          <h2
+            id="assurance-heading"
+            data-reveal
+            className="mt-4 display-type text-h2 text-foreground"
+          >
+            Made to order, backed after it arrives
+          </h2>
+          <p data-reveal className="mt-5 text-[0.9375rem] leading-relaxed text-muted-foreground md:text-base">
+            One production run per car. Support that starts when tracking goes live, not when
+            something goes wrong.
+          </p>
+        </div>
 
-      <div className="relative container-page py-section">
-        <SectionHeading
-          id="assurance-heading"
-          eyebrow="Ordering"
-          title="Made to order, backed after it arrives"
-          body="Cut for your exact model once you order — and covered from the moment it ships."
-          tone="light"
-        />
+        <div className="mt-12 grid gap-8 lg:grid-cols-12 lg:gap-12 lg:mt-16">
+          <div data-parallax="1" className="lg:col-span-4">
+            <EditorialFrame
+              {...PHOTOS.order.trolley}
+              sizes="(max-width: 1023px) 100vw, 32vw"
+              className=""
+            />
+            <FrameCaption index="01">Finished sets leaving the workshop floor.</FrameCaption>
+          </div>
 
-        <ul className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:mt-16 lg:grid-cols-4">
+          <ol className="flex flex-col justify-center gap-4 lg:col-span-4">
+            {ORDER_STEPS.map((step, index) => (
+              <li
+                key={step.title}
+                data-reveal
+                className="border border-border bg-surface p-6"
+              >
+                <span className="text-eyebrow font-semibold tracking-[0.18em] text-accent uppercase">
+                  Step {index + 1}
+                </span>
+                <h3 className="display-type mt-3 text-h3 text-foreground">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.detail}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div data-parallax="2.5" className="lg:col-span-4">
+            <EditorialFrame
+              {...PHOTOS.order.stack}
+              sizes="(max-width: 1023px) 100vw, 32vw"
+              className=""
+            />
+            <FrameCaption index="02">Packed as a set, with install notes in the box.</FrameCaption>
+          </div>
+        </div>
+
+        <ul className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
           {ASSURANCES.map(({ icon: Icon, title, body }) => (
             <li
               key={title}
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition-colors duration-500 hover:border-accent/40 md:p-6"
+              data-reveal
+              className="border border-border bg-surface p-5 transition-colors duration-500 hover:border-accent/30 md:p-6"
             >
-              <span className="mb-4 flex size-11 items-center justify-center rounded-xl border border-accent/30 bg-accent/15 md:mb-5">
-                <Icon aria-hidden strokeWidth={1.5} className="size-5 text-accent-on-dark" />
+              <span className="mb-4 flex size-11 items-center justify-center border border-accent/20 bg-accent/5 md:mb-5">
+                <Icon aria-hidden strokeWidth={1.5} className="size-5 text-accent" />
               </span>
-              <h3 className="text-sm font-semibold text-white md:text-base">{title}</h3>
-              <p className="mt-2 text-[0.8125rem] leading-relaxed text-white/60">{body}</p>
+              <h3 className="display-type text-sm text-foreground">{title}</h3>
+              <p className="mt-2 text-[0.8125rem] leading-relaxed text-muted-foreground">{body}</p>
             </li>
           ))}
         </ul>
 
-        <div className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:mt-14">
-          <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href={SHOP_ROUTES.collections}>Find your fit</Link>
+        <div data-reveal className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:mt-14">
+          <Button asChild variant="flat" size="caps" shape="square" className="w-full sm:w-auto">
+            <Link href={SHOP_ROUTES.findYourFit}>Start your order</Link>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="lg"
-            className="w-full border-white/25 bg-white/5 text-white hover:border-white hover:bg-white/15 sm:w-auto"
-          >
-            <Link href={SHOP_ROUTES.shippingReturns}>Shipping &amp; returns</Link>
+          <Button asChild variant="hairline" size="caps" shape="square" className="w-full sm:w-auto">
+            <Link href={SHOP_ROUTES.shippingReturns}>Shipping and returns</Link>
           </Button>
         </div>
       </div>

@@ -1,33 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
-
-/** Ignore jitter and the rubber-band at the extremes of a Lenis-driven scroll. */
-const DIRECTION_THRESHOLD = 8;
 
 /**
  * The sticky band the header pills sit in.
  *
- * Two behaviours, both keyed off scroll:
+ * **Always on screen.** The band used to retract on scroll down and return on
+ * scroll up. It no longer moves at all: on a picture-led page the nav is the
+ * only fixed reference the reader has, and a bar that slides in and out over
+ * full-bleed photography reads as a glitch rather than as chrome.
  *
- * **Ground.** The homepage pulls its hero up under the header so the footage
- * reaches the top of the viewport, and the band has to stay unpainted for all of
- * it — a ground that faded in after a few pixels just laid a white strip across
- * the video. But the pills are the only things here with a background of their
- * own, so past the hero, content runs through the gaps between them and collides
- * with the nav. The switch is the hero's own bottom edge, published as
- * `[data-header-boundary]` rather than guessed from an offset.
+ * **Ground.** The homepage pulls its cover up under the header so the picture
+ * reaches the top of the viewport, and the band has to stay unpainted for all
+ * of it — a ground that faded in after a few pixels just laid a strip across
+ * the photograph. But the pills are the only things here with a background of
+ * their own, so past the cover, content runs through the gaps between them and
+ * collides with the nav. The switch is the cover's own bottom edge, published
+ * as `[data-header-boundary]` rather than guessed from an offset.
  *
- * **Retraction.** Once past the hero the band slides away on scroll down and
- * comes back on scroll up, which is the only version of "hide the nav" that
- * leaves the site navigable — a header that hid for good would strand anyone
- * halfway down the page. It never retracts while over the hero, where it is
- * transparent anyway and moving it would just look like a glitch.
- *
- * Every other route passes `overlay={false}`: painted from the start, and it
- * still retracts, so the behaviour is consistent across the site.
+ * Every other route passes `overlay={false}`: painted from the start.
  */
 export function HeaderBand({
   overlay = false,
@@ -37,37 +30,26 @@ export function HeaderBand({
   children: ReactNode;
 }) {
   const [overHero, setOverHero] = useState(overlay);
-  const [hidden, setHidden] = useState(false);
-  const lastY = useRef(0);
 
   useEffect(() => {
+    if (!overlay) return;
+
     const sync = () => {
-      const y = window.scrollY;
-
-      let isOverHero = false;
-      if (overlay) {
-        const boundary = document.querySelector<HTMLElement>('[data-header-boundary]');
-        if (boundary) {
-          const root = getComputedStyle(document.documentElement);
-          const headerHeight =
-            parseFloat(root.getPropertyValue('--header-height')) * parseFloat(root.fontSize);
-          isOverHero = boundary.getBoundingClientRect().top > headerHeight;
-        }
+      const boundary = document.querySelector<HTMLElement>('[data-header-boundary]');
+      if (!boundary) {
+        setOverHero(false);
+        return;
       }
-      setOverHero(isOverHero);
 
-      const delta = y - lastY.current;
-      if (Math.abs(delta) > DIRECTION_THRESHOLD) {
-        // Never retract over the hero, and never while near the top — otherwise
-        // the band flickers away during the first few pixels of a page load.
-        setHidden(!isOverHero && delta > 0 && y > 240);
-        lastY.current = y;
-      }
+      const root = getComputedStyle(document.documentElement);
+      const headerHeight =
+        parseFloat(root.getPropertyValue('--header-height')) * parseFloat(root.fontSize);
+      setOverHero(boundary.getBoundingClientRect().top > headerHeight);
     };
 
-    // Deferred a frame rather than run inline: the hero is still being laid out
-    // when the effect fires, so measuring here reads a boundary that has not
-    // settled yet.
+    // Deferred a frame rather than run inline: the cover is still being laid
+    // out when the effect fires, so measuring here reads a boundary that has
+    // not settled yet.
     const first = requestAnimationFrame(sync);
 
     // Lenis scrolls the real document rather than transforming a wrapper, so
@@ -87,15 +69,19 @@ export function HeaderBand({
       data-over-hero={overHero ? 'true' : 'false'}
       className={cn(
         'group/header sticky top-0 z-40 w-full shrink-0',
-        'px-4 py-4 md:px-6 md:py-5',
-        // `translate`, not `transform`. Tailwind v4 compiles `-translate-y-full`
-        // to the standalone `translate` property rather than a `transform`
-        // function, so transitioning `transform` animates nothing and the bar
-        // snaps out of view. Both are still compositor properties.
-        'transition-[translate,background-color] duration-500 ease-expo',
+        // The page gutter, so the logo sits on the same left edge as the
+        // headline under it. This used to be its own `max(1.25rem, 4vw)`, which
+        // put the mark 64px in while the hero type started at 28px.
+        'px-(--gutter-page) py-4 md:py-5',
+        // No `backdrop-filter` here. The band floats over full-bleed
+        // photography, and a real backdrop blur forces the GPU to re-sample a
+        // changing backdrop every frame — the jank documented in globals.css.
+        'transition-[background-color,border-color] duration-500 ease-expo',
         'motion-reduce:transition-none',
-        overHero ? 'bg-transparent' : 'bg-background/95',
-        hidden && '-translate-y-full',
+        // Ink once it leaves the cover, not paper: the nav's own type is light
+        // and the bands below it alternate, so a ground that matched the paper
+        // band left the header invisible over every dark one.
+        overHero ? 'border-b border-transparent bg-transparent' : 'border-b border-white/10 bg-ink',
       )}
     >
       {children}

@@ -1,84 +1,97 @@
-import { Award, Star, Truck, ShieldCheck } from 'lucide-react';
+'use client';
+
 import Link from 'next/link';
+import { useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { SHOP_ROUTES } from '@/features/catalog/routes';
-import { HeroBackdrop } from '@/features/home/components/hero-backdrop';
+import { HeroCarousel } from '@/features/home/components/hero-carousel';
+import { useCoverScrub } from '@/hooks/use-scroll-motion';
 
-const TRUST_BADGES = [
-  { icon: Truck, label: 'Free shipping' },
-  { icon: ShieldCheck, label: 'Anti-skid backing' },
-  { icon: Star, label: '4.9 rated' },
-  { icon: Award, label: 'Precision cut' },
-] as const;
+/** The spec row under the buttons. Three claims, no punctuation, no verbs. */
+const SPECS = ['3D scanned', 'Precision cut', 'Made to order'];
 
 /**
- * The hero is a deliberate dark island in a light storefront: the type sits on
- * footage, so it is white and carries its own contrast rather than borrowing
- * the page's ink. The alternative — washing the video pale enough for dark text
- * — meant covering the picture with the very thing it was there to show.
+ * The cover.
+ *
+ * Type on ink at the left, photography bleeding off the right edge. The split
+ * is 42/58 rather than half and half so the headline gets a measure wide enough
+ * to set "YOUR FLOOR." on one line at every desktop width — the break between
+ * the two sentences is the whole composition, and a headline that reflows to
+ * three lines loses it.
+ *
+ * Below `lg` the panel collapses: the photograph becomes the full background
+ * and the type sits on a scrim over it.
  */
 export function HeroPanel() {
+  const section = useRef<HTMLElement>(null);
+  const media = useRef<HTMLDivElement>(null);
+
+  useCoverScrub(section, media);
+
   return (
-    // Pulled up by the header's own height so the footage runs to the top of
-    // the viewport and the sticky header floats over it.
     <section
+      ref={section}
       aria-labelledby="hero-heading"
-      className="relative -mt-(--header-height) flex min-h-svh flex-col justify-end overflow-hidden"
+      className="band-dark relative -mt-(--header-height) flex min-h-[100svh] items-center overflow-hidden"
     >
-      <HeroBackdrop />
-
-      <div className="relative z-10 container-page w-full pt-20 pb-16 md:pb-24 short:pb-8">
-        <p className="flex items-center justify-center gap-3 text-eyebrow font-semibold text-white/80 uppercase md:justify-start">
-          <span aria-hidden className="h-px w-8 bg-accent" />
-          Custom-fit car mats
-        </p>
-
-        <h1
-          id="hero-heading"
-          className="mt-6 max-w-4xl text-center text-display font-semibold tracking-tight text-white md:text-left short:mt-4 short:text-h1"
-        >
-          Engineered to drive.
-          <br />
-          <span className="text-white/75">Tailored for your floor.</span>
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-xl text-center text-[0.9375rem] leading-relaxed text-balance text-white/70 md:mx-0 md:text-left short:mt-3">
-          Custom-fit protection and style, precision-cut for your exact vehicle.
-        </p>
-
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:justify-start short:mt-5">
-          <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href={SHOP_ROUTES.findYourFit}>Find your perfect fit</Link>
-          </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="lg"
-            className="w-full border-white/35 bg-white/10 text-white hover:border-white hover:bg-white/20 sm:w-auto"
-          >
-            <Link href={SHOP_ROUTES.collections}>Shop collections</Link>
-          </Button>
-        </div>
-
-        <ul className="mt-10 hidden gap-10 md:flex lg:gap-14 short:hidden">
-          {TRUST_BADGES.map(({ icon: Icon, label }) => (
-            <li key={label} className="flex items-center gap-3">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/10">
-                <Icon aria-hidden size={16} strokeWidth={1.5} className="text-white" />
-              </span>
-              <span className="text-xs tracking-[0.15em] text-white/70 uppercase">{label}</span>
-            </li>
-          ))}
-        </ul>
+      {/*
+        The picture starts at 28%, not at the 42% where the type column ends.
+        The scrim fades out across 40–70%, so the photograph has to already be
+        under that range — start it at the column edge and the fade runs out
+        over flat ink instead, which shows as a hard vertical seam.
+      */}
+      <div ref={media} className="absolute inset-0 z-0 lg:left-[28%]">
+        <HeroCarousel />
       </div>
 
       {/*
-       * The bottom edge of the hero, published for the header band. It flips
-       * from its transparent dark-glass state to the light page band when this
-       * crosses the header line — a real element rather than a guessed scroll
-       * offset, so the two cannot drift apart.
-       */}
+        Two scrims, because the type sits in a different place at each
+        breakpoint. Stacked on mobile the copy is over the picture and needs a
+        flat wash; split on desktop it is beside the picture and needs only a
+        horizontal fade to carry the left edge of the photograph into the ink.
+      */}
+      <div aria-hidden className="absolute inset-0 z-1 bg-ink/70 lg:hidden" />
+      <div
+        aria-hidden
+        className="absolute inset-0 z-1 hidden bg-gradient-to-r from-ink via-ink/85 via-40% to-transparent to-70% lg:block"
+      />
+
+      <div className="container-page relative z-10 w-full pt-(--header-height) pb-14 md:pb-20">
+        {/* Headline, buttons, spec row. The eyebrow ("A better interior begins
+            below") and the strapline under it were three separate pieces of
+            copy saying the same thing before the reader reached a control. */}
+        <div className="max-w-2xl motion-safe:animate-[fade-up_900ms_var(--ease-expo)_both] lg:max-w-[46%]">
+          <h1 id="hero-heading" className="display-type text-display text-white">
+            Your car.
+            <br />
+            Your floor.
+          </h1>
+
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <Button asChild variant="flat" size="caps" shape="square">
+              <Link href={SHOP_ROUTES.findYourFit}>
+                Find your fit <span aria-hidden>&rarr;</span>
+              </Link>
+            </Button>
+            <Button asChild variant="hairline" size="caps" shape="square" className="text-white">
+              <Link href={SHOP_ROUTES.collections}>Explore materials</Link>
+            </Button>
+          </div>
+
+          <ul className="mt-12 flex flex-wrap items-center gap-x-4 gap-y-3 md:mt-16">
+            {SPECS.map((spec, i) => (
+              <li key={spec} className="flex items-center gap-4">
+                {/* Above `sm` only. The row wraps on a phone, and a rule that
+                    belongs between two items ended up opening the second line. */}
+                {i > 0 ? <span aria-hidden className="hidden h-3 w-px bg-white/25 sm:block" /> : null}
+                <span className="caps text-eyebrow text-white/60">{spec}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
       <div aria-hidden data-header-boundary className="absolute inset-x-0 bottom-0 h-px" />
     </section>
   );

@@ -11,24 +11,24 @@ import { HOME_INSTAGRAM_REELS } from '@/features/home/reels';
  */
 export function InstagramReelsSection() {
   return (
-    <section aria-labelledby="reels-heading" className="band-dark border-t border-white/10">
+    <section aria-labelledby="reels-heading" className="band-light border-y border-border">
       <div className="container-page py-section">
         <SectionHeading
           id="reels-heading"
+          align="start"
           eyebrow="On Instagram"
           title="See installs in motion"
           body="Short clips from real fits — they play muted as you scroll; tap the speaker to unmute. Follow us for new drops and install reels."
-          tone="light"
         />
 
         <InstagramReelsRail reels={HOME_INSTAGRAM_REELS} />
 
-        <p className="mt-10 text-center">
+        <p className="mt-10">
           <Link
             href={SHOP_ROUTES.instagram}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-semibold text-accent-on-dark underline underline-offset-4"
+            className="text-sm font-semibold text-accent underline underline-offset-4"
           >
             Follow @motormats.in for more reels
           </Link>

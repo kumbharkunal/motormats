@@ -1,39 +1,57 @@
-import Link from 'next/link';
+'use client';
 
-import { SHOP_ROUTES } from '@/features/catalog/routes';
-import { FitFlowSteps } from '@/features/fit/components/fit-flow-steps';
+import { useRef } from 'react';
+
+import { SectionIntro } from '@/components/editorial/section-intro';
 import { FindYourFitWizard } from '@/features/fit/components/find-your-fit-wizard';
+import { useEditorialReveal, useHeadlineReveal } from '@/hooks/use-scroll-motion';
 
-/** Primary fit funnel — replaces brand-rail-as-navigation on the homepage. */
+/**
+ * The fit funnel, in full, on the homepage.
+ *
+ * The whole six-step flow runs here rather than on a route of its own. A
+ * separate `/find-your-fit` page meant the homepage carried a *different*
+ * selector to the one it sent you to — two controls for one job, and a
+ * navigation away from the page that was doing the selling. The route now
+ * redirects to this section, so every "find your fit" call to action in the
+ * header, hero, tables and closing band lands on the module itself.
+ *
+ * Step one is the drawn brand grid, so the choice is still made by recognition
+ * rather than recall — that was the point of the rail this replaced, and the
+ * wizard's first step is the same set of tiles.
+ */
 export function FindYourFitPanel() {
+  const scope = useRef<HTMLElement>(null);
+  useEditorialReveal(scope);
+  useHeadlineReveal(scope);
+
   return (
-    <section aria-labelledby="fit-heading" className="band-light border-b border-border">
+    <section
+      ref={scope}
+      id="find-your-fit"
+      aria-labelledby="fit-heading"
+      // The header is fixed, so an anchored jump has to clear its real height.
+      className="band-light scroll-mt-[calc(var(--header-height)+1.5rem)] border-b border-border"
+    >
       <div className="container-page py-section">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-eyebrow font-semibold tracking-[0.22em] text-accent uppercase">
-            Find your perfect fit
-          </p>
-          <h2 id="fit-heading" className="mt-4 text-h2 font-semibold tracking-tight text-balance">
-            Mats cut for your exact car
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-            Six quick steps — same flow we use on Instagram — from your make and model to checkout.
-          </p>
-          <div className="mt-8">
-            <FitFlowSteps />
-          </div>
+        <div data-reveal>
+          <SectionIntro
+            eyebrow="Find your fit"
+            titleId="fit-heading"
+            title={
+              <>
+                Same car.
+                <br />
+                A better floor.
+              </>
+            }
+            body="Custom-fit woven mats for 120+ car models. Because a great fit changes everything."
+          />
         </div>
 
-        <div className="mx-auto mt-10 max-w-4xl">
+        <div data-reveal className="mt-12 md:mt-16">
           <FindYourFitWizard variant="home" />
         </div>
-
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          Already know your range?{' '}
-          <Link href={SHOP_ROUTES.collections} className="font-semibold text-foreground underline underline-offset-4">
-            Skip to all collections
-          </Link>
-        </p>
       </div>
     </section>
   );

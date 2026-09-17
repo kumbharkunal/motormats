@@ -6,8 +6,33 @@ type LoaderArgs = {
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
-export default function cloudinaryLoader({ src, width, quality }: LoaderArgs): string {
-  if (src.startsWith('/') || src.startsWith('data:') || src.startsWith('blob:')) return src;
+/**
+ * ImageKit serves everything that lives in `public/` (the deck photography).
+ * Set `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT` to an endpoint whose origin points at
+ * this site, e.g. `https://ik.imagekit.io/motormats`. Unset, the files are
+ * served straight from `public/` so a local checkout still renders.
+ */
+const IMAGEKIT_ENDPOINT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT?.replace(/\/+$/, '');
+
+/**
+ * Whether a local file in `public/` can be resized per breakpoint.
+ *
+ * Without ImageKit there is no resizer in front of `public/`, so the loader can
+ * only hand back the one master file it has. `next/image` detects a loader that
+ * ignores `width`, warns, and builds a `srcset` of identical URLs. Call sites
+ * pass this to `unoptimized` instead, which is the honest description of what
+ * is happening and drops the dead srcset.
+ */
+export const canResizeLocalImages = Boolean(IMAGEKIT_ENDPOINT);
+
+export default function imageLoader({ src, width, quality }: LoaderArgs): string {
+  if (src.startsWith('data:') || src.startsWith('blob:')) return src;
+
+  // Local public asset: ImageKit when configured, otherwise the raw file.
+  if (src.startsWith('/')) {
+    if (!IMAGEKIT_ENDPOINT) return src;
+    return `${IMAGEKIT_ENDPOINT}${src}?tr=${imagekitTransforms(width, quality)}`;
+  }
 
   if (/^https?:\/\//.test(src)) {
     // Already a Cloudinary delivery URL: inject transforms after /upload/.
@@ -25,43 +50,37 @@ export default function cloudinaryLoader({ src, width, quality }: LoaderArgs): s
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${transforms(width, quality)}/${publicId}`;
 }
 
+/**
+ * `c-at_max` and no height: ImageKit fits the image inside the requested width
+ * and never crops, so a frame built at the file's own ratio shows all of it.
+ * No `dpr` parameter — Next calls this loader once per srcset width already.
+ */
+function imagekitTransforms(width: number, quality?: number): string {
+  return [`w-${width}`, `q-${quality ?? 82}`, 'f-auto', 'c-at_max'].join(',');
+}
+
 function transforms(width: number, quality?: number): string {
   return ['f_auto', `q_${quality ?? 'auto'}`, `w_${width}`, 'c_limit', 'dpr_auto'].join(',');
 }
 
-/**
- * A fixed, absolute delivery URL for an asset id — for `metadata.openGraph` and
- * JSON-LD, where the consumer is a crawler rather than a browser.
- *
- * Those two places cannot use the loader above. It is wired into `next/image`
- * and only ever runs for a rendered element, so a bare public id written
- * straight into metadata stayed a bare public id: Next resolved it against
- * `metadataBase` and published `https://…/motormats/products/sport`, a path
- * that has never existed on our origin because the asset lives on Cloudinary.
- *
- * Returns null when no absolute URL can be built, so a caller omits the field
- * rather than publishing a link that 404s. `dpr_auto` is dropped deliberately:
- * there is no client hint on a crawler's request.
- */
+/** Absolute URL for `metadata.openGraph` and JSON-LD, where the loader cannot run. */
 export function cloudinaryImageUrl(assetId: string, width = 1200): string | null {
   if (!assetId) return null;
   if (/^https?:\/\//.test(assetId)) return assetId;
-  if (!CLOUD_NAME) return null;
 
+  if (assetId.startsWith('/')) {
+    if (!IMAGEKIT_ENDPOINT) return null;
+    return `${IMAGEKIT_ENDPOINT}${assetId}?tr=w-${width},q-82,f-auto,c-at_max`;
+  }
+
+  if (!CLOUD_NAME) return null;
   const publicId = assetId.replace(/^\/+/, '');
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,w_${width},c_limit/${publicId}`;
 }
 
 /**
- * Cloudinary video delivery URL.
- *
- * The hero footage used to be two MP4s committed to `public/` (4.9 MB), served
- * by the Node process itself on the LCP path of the homepage — no CDN, no edge
- * cache, and one fixed encode for every device. `f_auto` lets Cloudinary hand
- * WebM to Chrome and MP4 to Safari from a single upload.
- *
- * Falls back to the local path when the cloud name is unset, so a checkout
- * without Cloudinary credentials still renders.
+ * Cloudinary video delivery URL. Falls back to the local path when the cloud
+ * name is unset, so a checkout without credentials still renders.
  */
 export function cloudinaryVideoUrl(name: string, fallback: string): string {
   const folder = process.env.NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER;
@@ -69,16 +88,7 @@ export function cloudinaryVideoUrl(name: string, fallback: string): string {
   return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/f_auto,q_auto/${folder}/${name}`;
 }
 
-/**
- * Whether hero footage is actually hosted, as opposed to falling back to a file
- * in `public/`.
- *
- * The hero runs a still on the light theme: the old footage is graded dark, and
- * a light scrim over dark frames inverts the headline's contrast instead of
- * protecting it. The `<video>` path is kept, but it only renders once the client
- * uploads light-graded footage and sets the folder — so this is the switch, and
- * no rebuild is needed to flip it.
- */
+/** Whether hero footage is hosted, as opposed to a file in `public/`. */
 export function hasCloudinaryVideo(): boolean {
   return Boolean(CLOUD_NAME && process.env.NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER);
 }

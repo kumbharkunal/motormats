@@ -35,7 +35,12 @@ export function collectionsPath(search?: {
 
 /** Primary marketing routes used on the homepage and nav. */
 export const SHOP_ROUTES = {
-  findYourFit: '/find-your-fit',
+  /**
+   * The fit flow is a homepage section, not a page. `/find-your-fit` still
+   * exists as a redirect to this fragment — see `next.config.ts` — so old
+   * links and bookmarks keep working.
+   */
+  findYourFit: '/#find-your-fit',
   collections: '/collections',
   ourStory: '/our-story',
   gallery: '/gallery',

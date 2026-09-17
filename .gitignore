@@ -66,3 +66,8 @@ desktop.ini
 # `public/` is the only web root, so these would be 15MB of dead weight in the
 # repo. See docs/ai-image-prompts.md.
 /motormats/
+
+# Photography masters: the client's deck and the HD shoot drops, plus anything
+# unpacked from them. 1.4GB of camera originals that `scripts/` converts into
+# `public/`. The converted WebP files are the only ones the repo carries.
+/images-deck/

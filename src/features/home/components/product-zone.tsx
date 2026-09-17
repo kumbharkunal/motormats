@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 
+import { EditorialFrame } from '@/components/media/editorial-frame';
 import { ProductCard } from '@/features/catalog/components/product-card';
 import type { FeaturedProduct } from '@/features/catalog/server/queries';
 import { cn } from '@/lib/utils';
@@ -48,23 +48,15 @@ export function ProductZone({
             height, and the row is as tall as the 2x2 card grid — which pushed
             the photograph 104px wider than its column and off the page. */}
         <div className="grid items-start gap-6 lg:grid-cols-2 lg:gap-10">
-          <div
-            className={cn(
-              // Portrait once the band splits, matching the reference's 3:4
-              // product-zone photograph. Landscape while stacked, where a tall
-              // crop would push the products off the screen entirely.
-              'relative aspect-4/3 overflow-hidden rounded-2xl bg-surface-elevated sm:aspect-video lg:aspect-3/4',
-              reverse && 'lg:order-2',
-            )}
+          {/* 2:3 at every width: the shoot is portrait at that ratio, so any
+              other frame would have to trim it. */}
+          <EditorialFrame
+            src={image}
+            alt={imageAlt}
+            ratio="2/3"
+            sizes="(max-width: 1023px) 100vw, 45vw"
+            className={cn(reverse && 'lg:order-2')}
           >
-            <Image
-              src={image}
-              alt={imageAlt}
-              fill
-              sizes="(max-width: 1023px) 100vw, 45vw"
-              className="object-cover"
-            />
-
             {/* Caption over the top of the frame, on a scrim that fades out
                 downward — the reference's own arrangement, and the reason the
                 photography is briefed with clear space at the top. */}
@@ -73,12 +65,12 @@ export function ProductZone({
                 <span aria-hidden className="h-px w-6 bg-accent" />
                 {eyebrow}
               </p>
-              <h2 id={headingId} className="mt-4 text-h2 text-white">
+              <h2 id={headingId} className="display-type mt-4 text-h2 text-white">
                 {title}
               </h2>
               <p className="mt-4 max-w-md text-[0.8125rem] leading-relaxed text-white/70">{body}</p>
             </div>
-          </div>
+          </EditorialFrame>
 
           <div className={cn('flex flex-col', reverse && 'lg:order-1')}>
             {products.length > 0 ? (
@@ -97,7 +89,7 @@ export function ProductZone({
 
             <Link
               href={ctaHref}
-              className="group mt-6 inline-flex min-h-11 items-center justify-between gap-6 self-start rounded-full bg-accent px-6 text-[0.8125rem] font-semibold tracking-[0.12em] text-white uppercase transition-colors duration-300 hover:bg-foreground"
+              className="caps group mt-6 inline-flex min-h-13 items-center justify-between gap-6 self-start bg-accent px-7 text-label text-white transition-colors duration-300 hover:bg-accent-hover"
             >
               {ctaLabel}
               <ArrowRight

@@ -30,7 +30,9 @@ export function CartButton() {
     <Link
       href="/cart"
       className={cn(
-        'relative flex size-12 items-center justify-center rounded-full nav-pill text-foreground/80 transition-colors duration-300 group-data-[over-hero=true]/header:text-white/85 hover:text-foreground group-data-[over-hero=true]/header:hover:text-white active:scale-95',
+        // No capsule ground. The header is an ink band now, so the icon sits
+        // directly on it like the nav labels do.
+        'relative flex size-11 items-center justify-center text-white/65 transition-colors duration-300 hover:text-white active:scale-95',
         pulse && 'animate-[cart-pop_0.55s_ease-out]',
       )}
       aria-label={showBadge ? `Cart, ${count} items` : 'Cart'}
@@ -40,7 +42,7 @@ export function CartButton() {
         <span
           aria-hidden
           className={cn(
-            'absolute -top-0.5 -right-0.5 flex min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[0.625rem] font-bold text-white ring-2 ring-background transition-transform duration-300',
+            'absolute top-0 right-0 flex min-w-4 items-center justify-center bg-accent px-1 text-[0.625rem] font-bold text-white tabular-nums transition-transform duration-300',
             pulse && 'scale-125',
           )}
         >
