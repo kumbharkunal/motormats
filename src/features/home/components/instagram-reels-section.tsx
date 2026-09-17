@@ -11,7 +11,7 @@ import { HOME_INSTAGRAM_REELS } from '@/features/home/reels';
  */
 export function InstagramReelsSection() {
   return (
-    <section aria-labelledby="reels-heading" className="band-light border-y border-border">
+    <section aria-labelledby="reels-heading" className="screen-section band-light border-y border-border">
       <div className="container-page py-section">
         <SectionHeading
           id="reels-heading"

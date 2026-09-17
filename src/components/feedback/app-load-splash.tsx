@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { BrandedLoader } from '@/components/feedback/branded-loader';
 
 const SESSION_KEY = 'motormats-splash-seen';
-const SPLASH_MS = 2200;
+const SPLASH_MS = 1800;
 
 /** Full-screen branded overlay on first visit each session. */
 export function AppLoadSplash() {

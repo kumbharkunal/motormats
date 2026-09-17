@@ -58,7 +58,7 @@ export function ProcessSection() {
   useHeadlineReveal(scope);
 
   return (
-    <section ref={scope} aria-labelledby="process-heading" className="band-light border-b border-border">
+    <section ref={scope} aria-labelledby="process-heading" className="screen-section band-light border-b border-border">
       <div className="container-page py-section">
         <div data-reveal>
           <SectionIntro
@@ -77,7 +77,6 @@ export function ProcessSection() {
         </div>
 
         <ol
-          data-native-scroll
           className="mt-14 -mx-5 flex native-scroll gap-4 px-5 md:mt-16 lg:mx-0 lg:grid lg:grid-cols-[repeat(5,minmax(0,1fr))] lg:gap-0 lg:px-0"
         >
           {STEPS.map((step, i) => (

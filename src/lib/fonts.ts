@@ -1,4 +1,5 @@
-import { Archivo, Plus_Jakarta_Sans } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 
 /** Body, UI and captions. Deck typography uses Helvetica Neue; this is the closest free match. */
 export const fontSans = Plus_Jakarta_Sans({
@@ -10,17 +11,17 @@ export const fontSans = Plus_Jakarta_Sans({
 });
 
 /**
- * Display face. Every headline on the site is set in this, uppercase, at 800+.
- *
- * Archivo rather than Jakarta because the headline voice is a heavy, slightly
- * narrow grotesk — Jakarta's black weight is too round and too wide to stack
- * two lines of caps at 0.9 leading without the counters closing up. Loaded as a
- * variable axis so the weight can be tuned per size without a second request.
+ * Display face. TeX Gyre Heros — a free Helvetica/Nimbus Sans derivative.
+ * Available weights: 400 (regular) and 700 (bold).
  */
-export const fontDisplay = Archivo({
-  subsets: ['latin'],
+export const fontDisplay = localFont({
+  src: [
+    { path: '../fonts/texgyreheros-regular.otf', weight: '400', style: 'normal' },
+    { path: '../fonts/texgyreheros-italic.otf', weight: '400', style: 'italic' },
+    { path: '../fonts/texgyreheros-bold.otf', weight: '700', style: 'normal' },
+    { path: '../fonts/texgyreheros-bolditalic.otf', weight: '700', style: 'italic' },
+  ],
   display: 'swap',
-  variable: '--font-archivo',
-  weight: ['600', '700', '800', '900'],
+  variable: '--font-heros',
   fallback: ['Helvetica Neue', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
 });

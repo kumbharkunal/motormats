@@ -52,7 +52,7 @@ export function CollectionsRail() {
         </div>
       </div>
 
-      <div className="native-scroll mt-10 overflow-x-auto pb-4 motion-safe:md:overflow-hidden motion-safe:md:pb-0" data-native-scroll>
+      <div className="native-scroll mt-10 overflow-x-auto pb-4 motion-safe:md:overflow-hidden motion-safe:md:pb-0">
         <ul
           ref={track}
           aria-label="Product ranges"

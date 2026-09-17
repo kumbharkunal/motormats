@@ -80,7 +80,7 @@ export function PhotoEssaySection() {
     <section
       ref={scope}
       aria-labelledby="essay-heading"
-      className="band-light border-b border-border"
+      className="screen-section band-light border-b border-border"
     >
       <ul className="grid grid-cols-2 gap-px bg-border lg:grid-cols-4">
         {cells.map((cell) =>
@@ -108,6 +108,7 @@ export function PhotoEssaySection() {
                 alt={cell.plate.alt}
                 ratio="2/3"
                 sizes="(max-width: 1023px) 50vw, 25vw"
+                className="max-h-[34svh]"
               />
               <div className="flex flex-1 items-start gap-3 p-4 md:p-5">
                 <span aria-hidden className="caps shrink-0 text-eyebrow text-accent-text">

@@ -44,10 +44,19 @@ export type ProductCardItem = {
 export function ProductCard({
   product,
   priority = false,
+  dense = false,
   className,
 }: {
   product: ProductCardItem;
   priority?: boolean;
+  /**
+   * A flatter, tighter card for grids that share a screen-height band with a
+   * feature photograph. Beyond the plate ratio (2:1 instead of square, so two
+   * rows lose real height rather than just losing the extra squareness), the
+   * padding and type scale come down too — a card built at the collections
+   * grid's own comfortable size still ran two rows past the band's floor.
+   */
+  dense?: boolean;
   className?: string;
 }) {
   const soldOut = product.inStock === false;
@@ -61,7 +70,12 @@ export function ProductCard({
         className,
       )}
     >
-      <div className="relative aspect-4/3 overflow-hidden bg-surface lg:aspect-square">
+      <div
+        className={cn(
+          'relative overflow-hidden bg-surface',
+          dense ? 'aspect-2/1' : 'aspect-4/3 lg:aspect-square',
+        )}
+      >
         {product.imageAssetId ? (
           <Link
             href={`/products/${product.slug}`}
@@ -86,8 +100,8 @@ export function ProductCard({
         <Badge soldOut={soldOut} hasDiscount={hasDiscount} product={product} />
       </div>
 
-      <div className="relative z-[2] flex flex-1 flex-col p-4">
-        <h3 className="text-base font-semibold md:text-lg">
+      <div className={cn('relative z-[2] flex flex-1 flex-col', dense ? 'p-3' : 'p-4')}>
+        <h3 className={dense ? 'text-sm font-semibold' : 'text-base font-semibold md:text-lg'}>
           <Link
             href={`/products/${product.slug}`}
             className="transition-colors duration-200 hover:text-accent-text"
@@ -96,10 +110,15 @@ export function ProductCard({
           </Link>
         </h3>
 
-        <Rating average={product.ratingAverage} count={product.ratingCount} />
+        <Rating average={product.ratingAverage} count={product.ratingCount} dense={dense} />
 
-        <div className="mt-auto flex items-end justify-between gap-3 pt-3">
-          <p className="flex items-baseline gap-2 text-lg font-semibold text-foreground md:text-xl">
+        <div className={cn('mt-auto flex items-end justify-between gap-3', dense ? 'pt-2' : 'pt-3')}>
+          <p
+            className={cn(
+              'flex items-baseline gap-2 font-semibold text-foreground',
+              dense ? 'text-base' : 'text-lg md:text-xl',
+            )}
+          >
             {formatPaise(product.fromPricePaise)}
             {hasDiscount ? (
               <span className="text-xs font-normal text-muted-foreground line-through">
@@ -155,12 +174,25 @@ function Badge({
   return null;
 }
 
-function Rating({ average, count }: { average: number | null; count: number }) {
+function Rating({
+  average,
+  count,
+  dense,
+}: {
+  average: number | null;
+  count: number;
+  dense: boolean;
+}) {
   if (average === null || count === 0) return null;
   const filled = Math.floor(average);
 
   return (
-    <p className="mt-1.5 flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground">
+    <p
+      className={cn(
+        'flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground',
+        dense ? 'mt-1' : 'mt-1.5',
+      )}
+    >
       <span className="flex" aria-hidden>
         {Array.from({ length: 5 }, (_, index) => (
           <Star

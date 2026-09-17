@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { frameRatioClass, type FrameRatio } from '@/components/media/editorial-frame';
 import { SHOP_ROUTES } from '@/features/catalog/routes';
@@ -52,6 +52,7 @@ export function HomeGalleryShowcase({
   const slides: Slide[] = shootSlides.length > 0 ? shootSlides : catalogSlides;
 
   const [index, setIndex] = useState(0);
+  const touchStart = useRef<number | null>(null);
 
   useEffect(() => {
     if (reduce || slides.length < 2) return;
@@ -60,6 +61,28 @@ export function HomeGalleryShowcase({
     }, 4800);
     return () => window.clearInterval(timer);
   }, [reduce, slides.length]);
+
+  const prev = useCallback(() => {
+    setIndex((i) => (i - 1 + slides.length) % slides.length);
+  }, [slides.length]);
+
+  const next = useCallback(() => {
+    setIndex((i) => (i + 1) % slides.length);
+  }, [slides.length]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStart.current = e.touches[0]?.clientX ?? null;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStart.current === null) return;
+    const diff = (e.changedTouches[0]?.clientX ?? 0) - touchStart.current;
+    if (Math.abs(diff) > 50) {
+      if (diff < 0) next();
+      else prev();
+    }
+    touchStart.current = null;
+  }, [next, prev]);
 
   if (slides.length === 0) {
     if (embedded) return <p className="text-sm text-muted-foreground">Studio photos are being updated.</p>;
@@ -77,30 +100,26 @@ export function HomeGalleryShowcase({
 
   const active = slides[index] ?? slides[0]!;
 
-  /*
-   * The selector sits beside the main frame rather than under it, and that is
-   * an alignment decision before it is a styling one.
-   *
-   * A 2:3 plate three quarters of the column wide is 4.5 units tall; three
-   * selectors one quarter wide are 1.5 units each. The strip and the plate come
-   * out the same height, so the block is square at the bottom and there is
-   * nothing left to fill. Stacked under the plate instead, the same content ran
-   * about 1.6× taller than the plate alone — tall enough that no sane amount of
-   * body copy could hold the other column up beside it.
-   */
+  /* ── Carousel (shared between embedded and full mode) ─────────────── */
   const carousel = (
-    <div className="grid grid-cols-4 gap-px bg-border">
+    <div
+      className="relative overflow-hidden rounded-xl md:rounded-2xl"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Main image */}
       <div
         className={cn(
-          'relative col-span-3 overflow-hidden bg-surface-elevated',
+          'relative overflow-hidden bg-surface-elevated',
           frameRatioClass(active.ratio),
+          'aspect-[3/4] sm:aspect-[4/5] lg:aspect-[2/3]',
         )}
       >
         <AnimatePresence mode="sync">
           <motion.div
             key={active.src}
-            initial={reduce ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={reduce ? false : { opacity: 0, scale: 1.04 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0"
@@ -110,7 +129,7 @@ export function HomeGalleryShowcase({
                 src={active.src}
                 alt={active.alt}
                 fill
-                sizes="(max-width: 1023px) 74vw, 34vw"
+                sizes="(max-width: 1023px) 90vw, 45vw"
                 quality={88}
                 unoptimized={!canResizeLocalImages}
                 className="object-cover"
@@ -124,65 +143,49 @@ export function HomeGalleryShowcase({
         </AnimatePresence>
       </div>
 
-      {/* Thumbnails rather than dots: on a picture-led page the selector should
-          show the picture it selects. They stretch to the plate's height, so
-          the two columns stay flush whatever the rounding. */}
-      <ul
-        aria-label="Gallery photographs"
-        className="col-span-1 grid gap-px bg-border"
-        style={{ gridTemplateRows: `repeat(${slides.length}, minmax(0, 1fr))` }}
-      >
-        {slides.map((slide, i) => (
-          <li key={slide.src} className="relative overflow-hidden bg-surface-elevated">
+      {/* Dot indicators */}
+      {slides.length > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {slides.map((slide, i) => (
             <button
+              key={slide.src}
               type="button"
               aria-label={`Show ${slide.label}`}
               aria-current={i === index ? 'true' : undefined}
               onClick={() => setIndex(i)}
-              className="group absolute inset-0 block text-left"
-            >
-              <Image
-                src={slide.src}
-                alt=""
-                fill
-                sizes="(max-width: 1023px) 25vw, 12vw"
-                quality={60}
-                unoptimized={!canResizeLocalImages}
-                className="object-cover opacity-60 transition-opacity duration-500 group-hover:opacity-90 group-aria-[current=true]:opacity-100"
-              />
-              <span
-                aria-hidden
-                className="absolute inset-y-0 left-0 w-0.5 origin-top bg-accent transition-motion duration-500 scale-y-0 group-aria-[current=true]:scale-y-100"
-              />
-            </button>
-          </li>
-        ))}
-      </ul>
+              className={cn(
+                'h-1.5 rounded-full transition-all duration-300',
+                i === index
+                  ? 'w-6 bg-accent'
+                  : 'w-1.5 bg-foreground/20 hover:bg-foreground/40',
+              )}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 
   if (embedded) return <div aria-label="Featured product photographs">{carousel}</div>;
 
   return (
-    <section aria-labelledby="gallery-heading" className="band-light border-b border-border">
+    <section aria-labelledby="gallery-heading" className="screen-section band-light border-b border-border">
       <div className="container-page py-section">
-        {/* Six and six, butted on a hairline. The text column is a full-height
-            flex column, so its three blocks spread to the plate's height rather
-            than clustering in the middle of it. */}
-        <div className="grid gap-px bg-border lg:grid-cols-12">
-          <div className="flex flex-col justify-between gap-12 bg-surface pb-10 lg:col-span-6 lg:pr-14 lg:pb-0">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-14">
+          {/* Text column */}
+          <div className="flex flex-col justify-between gap-8 lg:sticky lg:top-24">
             <div>
               <p className="caps text-eyebrow text-subtle-foreground">Portfolio</p>
-              <h2 id="gallery-heading" className="display-type mt-5 text-h2 text-foreground">
+              <h2 id="gallery-heading" className="display-type mt-4 text-h2 text-foreground lg:mt-5">
                 Real sets, shot in studio
               </h2>
-              <p className="mt-6 max-w-md text-[0.9375rem] leading-relaxed text-muted-foreground md:text-base">
+              <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed text-muted-foreground md:text-base lg:mt-6">
                 What you see is the finish that ships. The shape is cut after you order, for your
                 exact floorpan, so nothing here is a mock-up.
               </p>
             </div>
 
-            <div>
+            <div className="hidden lg:block">
               <dl className="border-t border-border">
                 {[
                   ['On the shoot', 'Every range, one lighting setup'],
@@ -214,7 +217,24 @@ export function HomeGalleryShowcase({
             </div>
           </div>
 
-          <div className="bg-surface lg:col-span-6">{carousel}</div>
+          {/* Carousel column */}
+          <div>{carousel}</div>
+
+          {/* Mobile-only CTA */}
+          <div className="text-center lg:hidden">
+            <Link
+              href={SHOP_ROUTES.gallery}
+              className="caps group/all inline-flex min-h-11 items-center gap-3 text-label text-foreground transition-colors duration-300 hover:text-accent-text"
+            >
+              View the full gallery
+              <span
+                aria-hidden
+                className="transition-motion duration-300 group-hover/all:translate-x-1"
+              >
+                &rarr;
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

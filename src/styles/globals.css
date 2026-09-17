@@ -71,20 +71,25 @@
 
   /* ── Typography ──────────────────────────────────────────────────────── */
   --font-sans: var(--font-jakarta), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
-  --font-display: var(--font-archivo), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  --font-display: var(--font-heros), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
 
   /* Display scale. Every size here is set uppercase in `--font-display` at 800+
      (see the `display-type` utility), which is why the line heights are below 1
      and the tracking is negative: caps have no descenders, so setting them at
      body-copy leading leaves a visible gap between two stacked lines, and the
      heavy weight closes the word spaces up on its own. */
-  --text-display: clamp(2.5rem, 5.6vw + 0.5rem, 5rem);
+  /* Height-aware, like the section rhythm. These were pure `vw`, so a 1280x720
+     laptop got the same headline as a 1280x1024 desktop with 300px less room to
+     put it in — the single reason most bands still overran on a short screen.
+     `min()` lets whichever axis is tighter set the size; the clamp floor keeps
+     it readable when both are small. */
+  --text-display: clamp(2.5rem, min(5.6vw + 0.5rem, 9vh), 5rem);
   --text-display--line-height: 0.9;
   --text-display--letter-spacing: -0.025em;
-  --text-h1: clamp(2rem, 4vw + 0.5rem, 3.75rem);
+  --text-h1: clamp(2rem, min(4vw + 0.5rem, 6.8vh), 3.75rem);
   --text-h1--line-height: 0.92;
   --text-h1--letter-spacing: -0.022em;
-  --text-h2: clamp(1.75rem, 3.2vw + 0.4rem, 3rem);
+  --text-h2: clamp(1.75rem, min(3.2vw + 0.4rem, 5.2vh), 3rem);
   --text-h2--line-height: 0.94;
   --text-h2--letter-spacing: -0.02em;
   --text-h3: clamp(1.125rem, 1.2vw + 0.5rem, 1.5rem);
@@ -129,8 +134,14 @@
      picture-led: with photographs carrying the page, the old gap left a band
      of empty ground between every plate. Full-bleed image sections take no
      vertical padding at all and rely on this only for their type. */
-  --spacing-section: clamp(2.75rem, 5vw, 6.5rem);
-  --spacing-band: clamp(2.25rem, 3.5vw, 4.5rem);
+  /* Height-aware, not just width-aware. These were pure `vw`, which is why a
+     short-but-wide viewport — a 1280x720 laptop, a landscape phone — blew every
+     band past the screen: the padding grew with the width while the thing it
+     had to fit inside was the height. `min(vw, vh)` lets the wider axis propose
+     and the shorter axis veto, so a band compresses on a short screen and keeps
+     its full rhythm on a tall one. */
+  --spacing-section: clamp(1.75rem, min(5vw, 5.5vh), 6.5rem);
+  --spacing-band: clamp(1.5rem, min(3.5vw, 4vh), 4.5rem);
 
   /*
    * 1920px, up from 1340. The page is picture-led and most of its plates are
@@ -160,17 +171,26 @@
      them offsets by these rather than by a hardcoded number, which is how
      the cart summary ended up sliding under the checkout steps. */
   :root {
-    /* Padding above AND below the 3rem pill row, so the band is symmetric:
-       16 + 48 + 16. It used to be padded only on top, which left the pills
-       sitting flush on the band's bottom edge with content running right up
-       under them. */
-    --header-height: 5rem;
+    /* Padding above AND below the 2.75rem action row, so the band is symmetric:
+       8 + 44 + 8. It used to be padded only on top, which left the row sitting
+       flush on the band's bottom edge with content running right up under it.
+
+       The row is 44px because that is the touch-target floor and the primary
+       button fills it exactly — the band cannot get shorter without either
+       clipping that button or breaking the minimum.
+
+       These must equal the band's real rendered height — the hero pulls itself
+       up by exactly this, and four sticky offsets measure from it, so a token
+       that drifts from `header-band.tsx` opens a strip of paper above the
+       cover. The bottom hairline is an inset shadow for the same reason: a
+       border would add a pixel row this token does not count. */
+    --header-height: 3.75rem;
     --checkout-steps-height: 3.25rem;
   }
 
   @media (min-width: 768px) {
     :root {
-      --header-height: 5.5rem;
+      --header-height: 4rem;
     }
   }
 
@@ -529,12 +549,73 @@ header[data-over-hero='true'] .nav-pill {
   }
 }
 
-@keyframes loader-sweep {
+/* ── Premium loader: "Ignition Sequence" ──────────────────────────────── */
+
+/* Draw the brand-mark's two parallelogram strokes on screen.
+   dashoffset travels from the path's full length (set inline) to 0. */
+@keyframes mark-draw {
   0% {
-    transform: translateX(-120%);
+    stroke-dashoffset: var(--path-len);
+    opacity: 0.6;
   }
   100% {
-    transform: translateX(220%);
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* After the stroke is drawn, cross-fade to the solid fill. */
+@keyframes mark-fill {
+  0% {
+    fill-opacity: 0;
+  }
+  100% {
+    fill-opacity: 1;
+  }
+}
+
+/* Wordmark slides up from 10px below and fades in. */
+@keyframes word-reveal {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* The glowing racing-red progress line. Sweeps left→right once. */
+@keyframes progress-race {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+/* A subtle glow pulse that radiates from the progress line. */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* The loader exit: scale up slightly + fade out. */
+@keyframes loader-exit {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.03);
+    opacity: 0;
   }
 }
 
@@ -583,6 +664,41 @@ header[data-over-hero='true'] .nav-pill {
   --color-surface-hover: #221f1d;
   /* #E10600 drops to 3.57:1 on ink; the lighter cut reaches 5.19:1. */
   --color-accent-text: var(--color-accent-on-dark);
+}
+
+/*
+ * One band, one screen.
+ *
+ * The homepage ran from a 213px strip to a 3014px stack because only the cover
+ * had a height floor — every other band was whatever its content came to. This
+ * gives them all the same floor so the page reads as a deck on a fast scroll.
+ *
+ * `min-height`, never `height`. A band whose content genuinely needs more room
+ * than the screen has — a landscape phone at 360px, a long heading at 200% text
+ * zoom — grows instead of clipping. That is the difference between a page that
+ * fits and a page that hides things.
+ *
+ * `svh` rather than `dvh` or `vh` on purpose: `dvh` changes as the mobile URL
+ * bar hides, and every change re-lays out every band on the page, which
+ * invalidates the start and end of every ScrollTrigger measured against them.
+ * `svh` is the stable small-viewport height and does not move.
+ */
+@utility screen-section {
+  display: flex;
+  /*
+   * Not `100svh`. The header is `position: sticky`, so once a reader scrolls
+   * past the cover it detaches from flow and overlays whatever section is
+   * underneath it — it does not push that section's content down the way a
+   * normal in-flow element would. A section sized to the full viewport height
+   * is therefore always `--header-height` taller than what is actually visible
+   * at once: the header eats real pixels off its top edge but the section's own
+   * box never shrank to give them back. Confirmed by measuring the two
+   * together — at a 900px viewport the header's `bottom` sat 64px into a
+   * "one-screen" band, overlapping it rather than sitting above it.
+   */
+  min-height: calc(100svh - var(--header-height));
+  flex-direction: column;
+  justify-content: center;
 }
 
 /*
@@ -643,9 +759,25 @@ header[data-over-hero='true'] .nav-pill {
     cursor: not-allowed;
   }
 }
+/*
+ * A scroller the page scrolls *past*, not into.
+ *
+ * `overscroll-behavior` used to be `contain` on both axes, which trapped the
+ * wheel: hovering any rail stopped the page dead, because the rail refused to
+ * chain the vertical scroll outward and Lenis had already been told to keep its
+ * hands off anything in here. Containing the X axis alone is what a sideways
+ * rail actually wants — the swipe stays in the rail, the wheel still carries
+ * the reader down the page. A scroller that is genuinely vertical asks for
+ * `overscroll-y-contain` itself.
+ */
 @utility native-scroll {
-  overflow: auto;
-  overscroll-behavior: contain;
+  /* Sideways only, and said explicitly. `overflow: auto` leaves the Y axis
+     nominally scrollable even with nothing to scroll, and Lenis's nested-scroll
+     check believes it — so the wheel was handed to a rail that could not move
+     and the page stopped. `hidden` on Y removes the ambiguity. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }

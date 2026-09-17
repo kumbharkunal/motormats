@@ -39,7 +39,11 @@ export function VirtualModelList({
   return (
     <div
       ref={parentRef}
-      className="native-scroll mt-7 max-h-[min(22rem,50vh)] border border-border"
+      // Read down, not across, so this one does not take `native-scroll` —
+      // that utility is sideways-only and pins `overflow-y: hidden`. This is
+      // also the one scroller that genuinely wants Lenis to keep out, which is
+      // what `data-native-scroll` asks for.
+      className="mt-7 max-h-[min(22rem,50vh)] overflow-y-auto overscroll-y-contain border border-border"
       data-native-scroll
     >
       <ul

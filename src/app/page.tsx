@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import { AnnouncementMarquee } from '@/components/layout/announcement-marquee';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SiteHeader } from '@/components/layout/site-header';
-import { collectionPath, SHOP_ROUTES } from '@/features/catalog/routes';
+import { SHOP_ROUTES } from '@/features/catalog/routes';
+// import { collectionPath } from '@/features/catalog/routes'; — only used by the commented-out All Weather zone below
 import { listFeaturedProducts, type FeaturedProduct } from '@/features/catalog/server/queries';
 import { AssurancePanel } from '@/features/home/components/assurance-panel';
 import { ClosingCta } from '@/features/home/components/closing-cta';
@@ -22,7 +23,7 @@ import { ProcessSection } from '@/features/home/components/process-section';
 import { ProductZone } from '@/features/home/components/product-zone';
 import { RealConditionsSection } from '@/features/home/components/real-conditions-section';
 import { SurfacesSection } from '@/features/home/components/surfaces-section';
-import { TestimonialSection } from '@/features/home/components/testimonial-section';
+// import { TestimonialSection } from '@/features/home/components/testimonial-section';
 import { PHOTOS } from '@/features/home/photo-assets';
 import { clientEnv } from '@/lib/env.client';
 import { logger } from '@/lib/logger';
@@ -99,7 +100,7 @@ async function featuredWithinBudget(): Promise<FeaturedProduct[]> {
 export default async function HomePage() {
   const featured = await featuredWithinBudget();
   const zoneA = featured.slice(0, 4);
-  const zoneB = featured.slice(4, 8);
+  // const zoneB = featured.slice(4, 8); — only used by the commented-out All Weather zone below
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -135,7 +136,8 @@ export default async function HomePage() {
           ctaLabel="Shop all mats"
           products={zoneA}
         />
-        {zoneB.length > 0 ? (
+        {/* Commented out for now — the All Weather zone. Re-enable by restoring this block. */}
+        {/* {zoneB.length > 0 ? (
           <ProductZone
             id="zone-weather"
             eyebrow="Built for the monsoon"
@@ -147,10 +149,10 @@ export default async function HomePage() {
             ctaLabel="Shop all-weather"
             products={zoneB}
           />
-        ) : null}
+        ) : null} */}
 
         <InstagramReelsSection />
-        <TestimonialSection />
+        {/* <TestimonialSection /> — hidden for now */}
         <AssurancePanel />
         <ClosingCta />
       </main>

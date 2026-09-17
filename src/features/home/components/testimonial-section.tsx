@@ -32,7 +32,7 @@ export function TestimonialSection() {
     setIndex((i) => (i + delta + QUOTES.length) % QUOTES.length);
 
   return (
-    <section aria-labelledby="testimonial-heading" className="band-light border-b border-border">
+    <section aria-labelledby="testimonial-heading" className="screen-section band-light border-b border-border">
       <div className="container-page py-band">
         <p id="testimonial-heading" className="caps text-eyebrow text-subtle-foreground">
           What drivers say
@@ -42,7 +42,7 @@ export function TestimonialSection() {
           <figure className="lg:col-span-7">
             <blockquote
               aria-live="polite"
-              className="text-[clamp(1.25rem,2.2vw+0.5rem,1.875rem)] leading-[1.25] font-medium tracking-[-0.01em] text-foreground"
+              className="text-[clamp(1.5rem,3.4vw+0.5rem,3.25rem)] leading-[1.15] font-medium tracking-[-0.02em] text-balance text-foreground"
             >
               &ldquo;{current.quote}&rdquo;
             </blockquote>

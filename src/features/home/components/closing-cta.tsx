@@ -26,7 +26,7 @@ export function ClosingCta() {
   useHeadlineReveal(scope);
 
   return (
-    <section ref={scope} aria-labelledby="closing-heading" className="band-dark relative overflow-hidden">
+    <section ref={scope} aria-labelledby="closing-heading" className="screen-section band-dark relative overflow-hidden">
       <div aria-hidden className="absolute inset-y-0 right-0 z-0 w-full lg:w-[58%]">
         <Image
           src={PHOTOS.cover.src}

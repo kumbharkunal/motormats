@@ -21,8 +21,10 @@ import { cn } from '@/lib/utils';
  *
  * It is a scroll-snap scroller, not a transform carousel: swipe, trackpad,
  * arrows, tab and the scrollbar all drive the same one property, so there is no
- * second source of truth about which card is showing. `data-native-scroll` is
- * what stops Lenis from swallowing the wheel inside it.
+ * second source of truth about which card is showing. Lenis sorts the two axes
+ * out itself through `allowNestedScroll` — the rail must *not* carry
+ * `data-native-scroll`, which shuts Lenis off here and froze the page under the
+ * cursor.
  *
  * The cards are figures rather than links. Surfaces are not catalogue routes —
  * the collections are cut by construction, not by weave — and a card that
@@ -70,8 +72,8 @@ export function SurfacesSection() {
   }, []);
 
   return (
-    <section ref={scope} aria-labelledby="surfaces-heading" className="band-dark">
-      <div className="container-page pt-section pb-10 md:pb-14">
+    <section ref={scope} aria-labelledby="surfaces-heading" className="screen-section band-dark">
+      <div className="container-page pt-section pb-6 md:pb-8">
         <div data-reveal>
           <SectionIntro
             eyebrow="Our surfaces"
@@ -90,35 +92,41 @@ export function SurfacesSection() {
                 Different material experience.
               </>
             }
-            action={<ArrowLink href={SHOP_ROUTES.collections}>Explore all</ArrowLink>}
+            action={
+              // The arrows ride in the intro's own right column rather than in
+              // a row of their own. That row was full width with a control at
+              // one end of it, so four fifths of a band that has to fit one
+              // screen went to empty ground \u2014 and the column they now sit in
+              // had trailing space under the link anyway.
+              <div className="flex flex-col gap-5 lg:items-end">
+                <ArrowLink href={SHOP_ROUTES.collections}>Explore all</ArrowLink>
+
+                {/* Square, hairline. Hidden on touch widths, where the swipe is
+                    the control and an arrow is just something to mis-tap. */}
+                <div className="hidden md:flex">
+                  <div className="flex items-center gap-px bg-white/15">
+                    {([-1, 1] as const).map((direction) => (
+                      <button
+                        key={direction}
+                        type="button"
+                        onClick={() => step(direction)}
+                        disabled={direction === -1 ? atStart : atEnd}
+                        aria-label={direction === -1 ? 'Previous surfaces' : 'Next surfaces'}
+                        className="grid size-12 place-items-center bg-ink text-lg text-white transition-colors duration-300 hover:bg-accent disabled:pointer-events-none disabled:text-white/25"
+                      >
+                        <span aria-hidden>{direction === -1 ? '\u2190' : '\u2192'}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            }
           />
-
-        </div>
-
-        {/* Square, hairline, set against the rail's right end. Hidden on touch
-            widths, where the swipe is the control and an arrow is just
-            something to mis-tap. */}
-        <div className="mt-10 hidden justify-end md:flex">
-          <div className="flex items-center gap-px bg-white/15">
-            {([-1, 1] as const).map((direction) => (
-              <button
-                key={direction}
-                type="button"
-                onClick={() => step(direction)}
-                disabled={direction === -1 ? atStart : atEnd}
-                aria-label={direction === -1 ? 'Previous surfaces' : 'Next surfaces'}
-                className="grid size-12 place-items-center bg-ink text-lg text-white transition-colors duration-300 hover:bg-accent disabled:pointer-events-none disabled:text-white/25"
-              >
-                <span aria-hidden>{direction === -1 ? '\u2190' : '\u2192'}</span>
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
       <ul
         ref={railRef}
-        data-native-scroll
         aria-label="The nine Motormats surfaces"
         className={cn(
           'native-scroll flex snap-x snap-mandatory gap-px bg-white/10',
@@ -129,13 +137,17 @@ export function SurfacesSection() {
           <li
             key={surfaceItem.src}
             data-reveal
-            className="group flex w-[78vw] shrink-0 snap-start flex-col bg-ink sm:w-[46vw] lg:w-[31vw] xl:w-[23rem]"
+            // Wider than it was at xl: the band is a screen tall and the intro
+            // only needs a third of it, so the rest belongs to the photography
+            // rather than to empty ground under the headline. Width is what
+            // sets the plate's height at a fixed 4:3.
+            className="group flex w-[78vw] shrink-0 snap-start flex-col bg-ink sm:w-[46vw] lg:w-[34vw] xl:w-[28rem]"
           >
             <EditorialFrame
               src={surfaceItem.src}
               alt={surfaceItem.alt}
               ratio="4/3"
-              sizes="(max-width: 639px) 78vw, (max-width: 1023px) 46vw, 31vw"
+              sizes="(max-width: 639px) 78vw, (max-width: 1023px) 46vw, 34vw"
               quality={82}
               imageClassName="transition-motion duration-[1200ms] group-hover:scale-[1.04]"
             />

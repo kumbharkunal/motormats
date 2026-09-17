@@ -177,13 +177,16 @@ export function InstagramReelsRail({ reels }: { reels: HomeReel[] }) {
   return (
     <ul
       className="native-scroll -mx-5 mt-12 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pb-2 [-ms-overflow-style:none] md:mt-16 lg:mx-0 lg:gap-5 lg:px-0 [&::-webkit-scrollbar]:hidden"
-      data-native-scroll
       aria-label="Instagram reels"
     >
       {reels.map((reel) => (
         <li
           key={reel.id}
-          className="w-[72%] max-w-[17rem] shrink-0 snap-center sm:w-[42%] md:max-w-[18rem] lg:w-[28%] lg:max-w-[20rem]"
+          // Narrower than it looks like it should be: these are 9:16, so width
+          // is what sets height, and a 20rem card is 569px tall — taller than
+          // the band it shares with a heading. Trimming the width keeps the
+          // whole frame visible where a height cap would crop the video.
+          className="w-[60%] max-w-[13rem] shrink-0 snap-center sm:w-[36%] md:max-w-[14rem] lg:w-[24%] lg:max-w-[15rem]"
         >
           <ReelCard reel={reel} unmutedId={unmutedId} onUnmute={setUnmutedId} />
         </li>

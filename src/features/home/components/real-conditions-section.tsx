@@ -49,7 +49,7 @@ export function RealConditionsSection() {
   useHeadlineReveal(scope);
 
   return (
-    <section ref={scope} aria-labelledby="conditions-heading" className="band-dark overflow-hidden">
+    <section ref={scope} aria-labelledby="conditions-heading" className="screen-section band-dark overflow-hidden">
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-0">
         <div className="container-page py-section lg:mx-0 lg:ml-auto lg:max-w-[calc(var(--container-page)/2)] lg:pr-12">
           <div data-reveal>

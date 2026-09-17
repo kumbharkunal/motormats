@@ -32,7 +32,7 @@ export function InteriorSpreadSection() {
   useParallaxPlates(scope);
 
   return (
-    <section ref={scope} aria-labelledby="spread-heading" className="band-dark overflow-hidden">
+    <section ref={scope} aria-labelledby="spread-heading" className="screen-section band-dark overflow-hidden">
       <h2 id="spread-heading" className="sr-only">
         Motormats sets photographed in the cabin
       </h2>

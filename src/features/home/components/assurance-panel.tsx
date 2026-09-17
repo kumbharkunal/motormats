@@ -4,12 +4,10 @@ import { Clock, PackageCheck, RefreshCw, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { useRef } from 'react';
 
-import { EditorialFrame, FrameCaption } from '@/components/media/editorial-frame';
 import { Button } from '@/components/ui/button';
 import { SHOP_ROUTES } from '@/features/catalog/routes';
 import { BUSINESS } from '@/features/marketing/business';
-import { PHOTOS } from '@/features/home/photo-assets';
-import { useEditorialReveal, useParallaxPlates } from '@/hooks/use-scroll-motion';
+import { useEditorialReveal } from '@/hooks/use-scroll-motion';
 import { formatPaise } from '@/lib/money';
 
 const ASSURANCES = [
@@ -36,101 +34,96 @@ const ASSURANCES = [
 ] as const;
 
 const ORDER_STEPS = [
-  { title: 'You order', detail: 'Make, model, year and design locked at checkout.' },
-  { title: 'We cut', detail: 'Pattern pulled from your generation and cut on CNC.' },
-  { title: 'We ship', detail: 'Packed as a full set with install notes in the box.' },
+  { num: '01', title: 'You order', detail: 'Make, model, year and design locked at checkout.' },
+  { num: '02', title: 'We cut', detail: 'Pattern pulled from your generation and cut on CNC.' },
+  { num: '03', title: 'We ship', detail: 'Packed as a full set with install notes in the box.' },
 ] as const;
 
 /**
- * Made to order.
+ * Made to order — redesigned.
  *
- * The three steps used to be three text cards in a row. They now run beside two
- * plates of the sets actually leaving the workshop, because "cut after you
- * order" is a claim in text and a fact in a photograph of a loaded trolley.
+ * Clean vertical timeline for steps, followed by a 2x2 assurance card grid.
+ * No photos — the copy carries the argument on its own, and the section
+ * reads cleanly on both mobile and desktop.
  */
 export function AssurancePanel() {
   const scope = useRef<HTMLElement>(null);
-
   useEditorialReveal(scope);
-  useParallaxPlates(scope);
 
   return (
-    <section ref={scope} aria-labelledby="assurance-heading" className="band-light border-y border-border">
+    <section ref={scope} aria-labelledby="assurance-heading" className="screen-section band-dark border-y border-white/10">
       <div className="container-page py-section">
-        <div className="max-w-2xl">
-          <p data-reveal className="text-eyebrow font-semibold tracking-[0.22em] text-accent uppercase">
+        {/* Header */}
+        <div data-reveal className="max-w-2xl">
+          <p className="text-eyebrow font-semibold tracking-[0.22em] text-accent uppercase">
             Made to order
           </p>
           <h2
             id="assurance-heading"
-            data-reveal
-            className="mt-4 display-type text-h2 text-foreground"
+            className="mt-4 display-type text-h2 text-white"
           >
             Made to order, backed after it arrives
           </h2>
-          <p data-reveal className="mt-5 text-[0.9375rem] leading-relaxed text-muted-foreground md:text-base">
+          <p className="mt-5 text-[0.9375rem] leading-relaxed text-white/60 md:text-base">
             One production run per car. Support that starts when tracking goes live, not when
             something goes wrong.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-12 lg:gap-12 lg:mt-16">
-          <div data-parallax="1" className="lg:col-span-4">
-            <EditorialFrame
-              {...PHOTOS.order.trolley}
-              sizes="(max-width: 1023px) 100vw, 32vw"
-              className=""
-            />
-            <FrameCaption index="01">Finished sets leaving the workshop floor.</FrameCaption>
-          </div>
+        {/* Steps timeline */}
+        <ol className="mt-10 grid gap-0 md:mt-14 md:grid-cols-3 md:gap-5">
+          {ORDER_STEPS.map((step, i) => (
+            <li
+              key={step.num}
+              data-reveal
+              className="relative flex gap-5 pb-8 md:flex-col md:gap-0 md:pb-0"
+            >
+              {/* Vertical line connector (mobile only) */}
+              {i < ORDER_STEPS.length - 1 && (
+                <div
+                  aria-hidden
+                  className="absolute top-10 left-[1.0625rem] bottom-0 w-px bg-accent/30 md:hidden"
+                />
+              )}
 
-          <ol className="flex flex-col justify-center gap-4 lg:col-span-4">
-            {ORDER_STEPS.map((step, index) => (
-              <li
-                key={step.title}
-                data-reveal
-                className="border border-border bg-surface p-6"
-              >
-                <span className="text-eyebrow font-semibold tracking-[0.18em] text-accent uppercase">
-                  Step {index + 1}
-                </span>
-                <h3 className="display-type mt-3 text-h3 text-foreground">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.detail}</p>
-              </li>
-            ))}
-          </ol>
+              {/* Step number circle */}
+              <div className="relative z-10 flex size-[2.125rem] shrink-0 items-center justify-center rounded-full border-2 border-accent bg-accent/10 text-xs font-bold tabular-nums text-accent md:mb-5">
+                {step.num}
+              </div>
 
-          <div data-parallax="2.5" className="lg:col-span-4">
-            <EditorialFrame
-              {...PHOTOS.order.stack}
-              sizes="(max-width: 1023px) 100vw, 32vw"
-              className=""
-            />
-            <FrameCaption index="02">Packed as a set, with install notes in the box.</FrameCaption>
-          </div>
-        </div>
+              <div className="flex-1 pt-1 md:pt-0">
+                {/* Horizontal accent bar (desktop only) */}
+                <div aria-hidden className="mb-4 hidden h-px bg-accent/25 md:block" />
+                <h3 className="display-type text-base text-white md:text-lg">{step.title}</h3>
+                <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/50">{step.detail}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
 
-        <ul className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
+        {/* Assurance cards */}
+        <ul className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 md:mt-12">
           {ASSURANCES.map(({ icon: Icon, title, body }) => (
             <li
               key={title}
               data-reveal
-              className="border border-border bg-surface p-5 transition-colors duration-500 hover:border-accent/30 md:p-6"
+              className="rounded-xl border border-white/10 bg-white/[0.04] p-5 transition-colors duration-500 hover:border-accent/30 md:p-6"
             >
-              <span className="mb-4 flex size-11 items-center justify-center border border-accent/20 bg-accent/5 md:mb-5">
+              <span className="mb-4 flex size-11 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 md:mb-5">
                 <Icon aria-hidden strokeWidth={1.5} className="size-5 text-accent" />
               </span>
-              <h3 className="display-type text-sm text-foreground">{title}</h3>
-              <p className="mt-2 text-[0.8125rem] leading-relaxed text-muted-foreground">{body}</p>
+              <h3 className="display-type text-sm text-white">{title}</h3>
+              <p className="mt-2 text-[0.8125rem] leading-relaxed text-white/50">{body}</p>
             </li>
           ))}
         </ul>
 
-        <div data-reveal className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:mt-14">
+        {/* CTA */}
+        <div data-reveal className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:mt-10">
           <Button asChild variant="flat" size="caps" shape="square" className="w-full sm:w-auto">
             <Link href={SHOP_ROUTES.findYourFit}>Start your order</Link>
           </Button>
-          <Button asChild variant="hairline" size="caps" shape="square" className="w-full sm:w-auto">
+          <Button asChild variant="hairline" size="caps" shape="square" className="w-full text-white sm:w-auto">
             <Link href={SHOP_ROUTES.shippingReturns}>Shipping and returns</Link>
           </Button>
         </div>

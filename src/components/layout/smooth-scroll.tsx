@@ -37,10 +37,20 @@ export function SmoothScroll() {
       autoRaf: false,
       // Responsive, not floaty: the wheel keeps up with the hand and settles
       // within a couple of frames. A lower lerp reads as lag, not smoothness.
-      lerp: 0.14,
-      wheelMultiplier: 1.15,
-      touchMultiplier: 1.6,
+      //
+      // `lerp` is the per-frame catch-up factor, and it is the only real speed
+      // control — 0.2 settles in ~0.23s against 0.33s at 0.14. Past ~0.3 the
+      // interpolation stops reading as smoothing at all and the wheel feels
+      // native; below ~0.1 it floats. 0.2 is the top of the band that still
+      // reads as smooth.
+      lerp: 0.2,
+      wheelMultiplier: 1.4,
+      touchMultiplier: 1.8,
       smoothWheel: true,
+      // Touch stays native on purpose. Phone momentum scrolling is already
+      // smooth and runs off the main thread; routing it through Lenis hands it
+      // to JS and adds latency, which reads as a *slower* page on the device
+      // where this matters most. Speed on touch comes from the multiplier.
       syncTouch: false,
       allowNestedScroll: true,
       // Next's <Link> handles in-app navigation; the Lenis anchor hijack caused

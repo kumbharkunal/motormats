@@ -31,7 +31,7 @@ export function FindYourFitPanel() {
       id="find-your-fit"
       aria-labelledby="fit-heading"
       // The header is fixed, so an anchored jump has to clear its real height.
-      className="band-light scroll-mt-[calc(var(--header-height)+1.5rem)] border-b border-border"
+      className="screen-section band-light scroll-mt-[calc(var(--header-height)+1.5rem)] border-b border-border"
     >
       <div className="container-page py-section">
         <div data-reveal>
@@ -49,7 +49,7 @@ export function FindYourFitPanel() {
           />
         </div>
 
-        <div data-reveal className="mt-12 md:mt-16">
+        <div data-reveal className="mt-8 md:mt-10">
           <FindYourFitWizard variant="home" />
         </div>
       </div>

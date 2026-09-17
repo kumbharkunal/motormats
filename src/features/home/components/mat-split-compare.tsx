@@ -45,6 +45,8 @@ export function MatSplitCompare({ className }: { className?: string }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [split, setSplit] = useState(50);
   const dragging = useRef(false);
+  const startPos = useRef<{ x: number; y: number } | null>(null);
+  const committed = useRef(false);
 
   const setFromClientX = useCallback((clientX: number) => {
     const track = trackRef.current;
@@ -55,8 +57,17 @@ export function MatSplitCompare({ className }: { className?: string }) {
 
   const startDrag = useCallback(
     (event: React.PointerEvent) => {
+      // For touch: don't prevent default yet — let the browser decide scroll vs drag
+      if (event.pointerType === 'touch') {
+        startPos.current = { x: event.clientX, y: event.clientY };
+        committed.current = false;
+        dragging.current = true;
+        return;
+      }
+      // For mouse: capture immediately
       event.preventDefault();
       dragging.current = true;
+      committed.current = true;
       trackRef.current?.setPointerCapture(event.pointerId);
       setFromClientX(event.clientX);
     },
@@ -66,8 +77,29 @@ export function MatSplitCompare({ className }: { className?: string }) {
   const moveDrag = useCallback(
     (event: React.PointerEvent) => {
       if (!dragging.current) return;
-      event.preventDefault();
-      setFromClientX(event.clientX);
+
+      // For touch: check if movement is primarily horizontal before committing
+      if (event.pointerType === 'touch' && !committed.current && startPos.current) {
+        const dx = Math.abs(event.clientX - startPos.current.x);
+        const dy = Math.abs(event.clientY - startPos.current.y);
+        // Need at least 8px movement to decide
+        if (dx < 8 && dy < 8) return;
+        // If vertical movement dominates, cancel drag and let page scroll
+        if (dy > dx) {
+          dragging.current = false;
+          startPos.current = null;
+          return;
+        }
+        // Horizontal wins — capture pointer and commit to drag
+        committed.current = true;
+        event.preventDefault();
+        trackRef.current?.setPointerCapture(event.pointerId);
+      }
+
+      if (committed.current) {
+        event.preventDefault();
+        setFromClientX(event.clientX);
+      }
     },
     [setFromClientX],
   );
@@ -75,6 +107,8 @@ export function MatSplitCompare({ className }: { className?: string }) {
   const endDrag = useCallback((event: React.PointerEvent) => {
     if (!dragging.current) return;
     dragging.current = false;
+    committed.current = false;
+    startPos.current = null;
     trackRef.current?.releasePointerCapture(event.pointerId);
   }, []);
 
@@ -82,13 +116,16 @@ export function MatSplitCompare({ className }: { className?: string }) {
     <div className={cn('mx-auto w-full max-w-lg', className)}>
       <div
         ref={trackRef}
-        className="relative aspect-[7/10] cursor-ew-resize touch-none select-none overflow-hidden"
+        className="relative aspect-[7/10] cursor-ew-resize select-none overflow-hidden"
+        style={{ touchAction: 'pan-y' }}
         onPointerDown={startDrag}
         onPointerMove={moveDrag}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onLostPointerCapture={() => {
           dragging.current = false;
+          committed.current = false;
+          startPos.current = null;
         }}
         role="slider"
         aria-valuemin={0}

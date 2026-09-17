@@ -72,16 +72,23 @@ export function HeaderBand({
         // The page gutter, so the logo sits on the same left edge as the
         // headline under it. This used to be its own `max(1.25rem, 4vw)`, which
         // put the mark 64px in while the hero type started at 28px.
-        'px-(--gutter-page) py-4 md:py-5',
+        'px-(--gutter-page) py-2 md:py-2.5',
         // No `backdrop-filter` here. The band floats over full-bleed
         // photography, and a real backdrop blur forces the GPU to re-sample a
         // changing backdrop every frame — the jank documented in globals.css.
-        'transition-[background-color,border-color] duration-500 ease-expo',
+        'transition-[background-color,box-shadow] duration-500 ease-expo',
         'motion-reduce:transition-none',
         // Ink once it leaves the cover, not paper: the nav's own type is light
         // and the bands below it alternate, so a ground that matched the paper
         // band left the header invisible over every dark one.
-        overHero ? 'border-b border-transparent bg-transparent' : 'border-b border-white/10 bg-ink',
+        //
+        // The bottom hairline is an inset shadow, not a border, because a border
+        // adds a 4th pixel row to the band's box while `--header-height` counts
+        // only padding + content. The hero pulls itself up by that token, so the
+        // extra pixel left a strip of paper ground above the cover.
+        overHero
+          ? 'bg-ink lg:bg-transparent shadow-none'
+          : 'bg-ink shadow-[inset_0_-1px_0_rgba(255,255,255,0.1)]',
       )}
     >
       {children}

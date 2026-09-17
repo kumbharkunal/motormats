@@ -32,7 +32,7 @@ export function MatsComparisonPanel() {
     <section
       ref={scope}
       aria-labelledby="compare-heading"
-      className="band-light border-b border-border"
+      className="screen-section band-light border-b border-border"
     >
       <h2 id="compare-heading" className="sr-only">
         Generic mats compared with Motormats

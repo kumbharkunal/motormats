@@ -25,7 +25,7 @@ test.describe('homepage', () => {
       'Generic mats compared with Motormats',
       'to finish your interior.',
       'Four surfaces, one exact fit',
-      'Motormats vs generic floor mats',
+      'generic floor mats.',
       'to finished mat.',
       'Every car mat in the country looks the same.',
       'Shot on location',

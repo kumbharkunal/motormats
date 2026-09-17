@@ -33,7 +33,7 @@ export function HeroPanel() {
     <section
       ref={section}
       aria-labelledby="hero-heading"
-      className="band-dark relative -mt-(--header-height) flex min-h-[100svh] items-center overflow-hidden"
+      className="band-dark relative -mt-(--header-height) flex min-h-[100svh] items-end lg:items-center overflow-hidden"
     >
       {/*
         The picture starts at 28%, not at the 42% where the type column ends.
@@ -51,13 +51,13 @@ export function HeroPanel() {
         flat wash; split on desktop it is beside the picture and needs only a
         horizontal fade to carry the left edge of the photograph into the ink.
       */}
-      <div aria-hidden className="absolute inset-0 z-1 bg-ink/70 lg:hidden" />
+      <div aria-hidden className="absolute inset-0 z-1 bg-gradient-to-t from-ink via-ink/60 to-transparent lg:hidden" />
       <div
         aria-hidden
         className="absolute inset-0 z-1 hidden bg-gradient-to-r from-ink via-ink/85 via-40% to-transparent to-70% lg:block"
       />
 
-      <div className="container-page relative z-10 w-full pt-(--header-height) pb-14 md:pb-20">
+      <div className="container-page relative z-10 w-full pt-(--header-height) pb-8 md:pb-20">
         {/* Headline, buttons, spec row. The eyebrow ("A better interior begins
             below") and the strapline under it were three separate pieces of
             copy saying the same thing before the reader reached a control. */}

@@ -29,16 +29,16 @@ export async function SiteHeader({ overlay = false }: { overlay?: boolean }) {
 
   return (
     <HeaderBand overlay={overlay}>
-      <div className="mx-auto grid h-12 max-w-(--container-page) grid-cols-[1fr_auto_1fr] items-center gap-4">
+      <div className="mx-auto grid h-11 max-w-(--container-page) grid-cols-[1fr_auto_1fr] items-center gap-4">
         <div className="flex items-center gap-3">
           <MobileNav isSignedIn={Boolean(user)} isAdmin={isAdmin} userName={user?.name ?? null} />
           <Link href="/" aria-label="Motormats home" className="hidden lg:flex">
-            <MotormatsLogo size="md" tone="brand" priority className="h-8" />
+            <MotormatsLogo size="md" tone="brand" priority className="h-10" />
           </Link>
         </div>
 
         <Link href="/" aria-label="Motormats home" className="justify-self-center lg:hidden">
-          <MotormatsLogo size="sm" tone="brand" priority className="h-7" />
+          <MotormatsLogo size="sm" tone="brand" priority className="h-9" />
         </Link>
 
         <nav aria-label="Primary" className="hidden justify-self-center lg:block">

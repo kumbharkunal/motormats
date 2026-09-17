@@ -26,7 +26,7 @@ export function CoverStorySection() {
     <section
       ref={scope}
       aria-labelledby="cover-story-heading"
-      className="band-light border-b border-border"
+      className="screen-section band-light border-b border-border"
     >
       <div className="container-page py-section">
         <div
@@ -44,7 +44,7 @@ export function CoverStorySection() {
             <EditorialFrame
               {...PHOTOS.detail.badge}
               sizes="(max-width: 1023px) 100vw, 40vw"
-              className=""
+              className="max-h-[62svh]"
             />
           </div>
 

@@ -148,7 +148,12 @@ export function FindYourFitWizard({ variant = 'page' }: FindYourFitWizardProps) 
                     onClick={() => pickBrand(b.slug)}
                     style={{ ['--brand' as string]: b.brandColor }}
                     className={cn(
-                      'group/tile relative flex h-full w-full flex-col items-center gap-3 px-2.5 py-5 transition-colors duration-500 sm:px-4',
+                      'group/tile relative flex h-full w-full flex-col items-center px-2.5 transition-colors duration-500 sm:px-4',
+                      // Three rows of tiles, so a little padding here is
+                      // multiplied by three in the band's height. The homepage
+                      // shares its screen with a heading; the dedicated page
+                      // does not and keeps the roomier tile.
+                      isHome ? 'gap-2 py-3.5' : 'gap-3 py-5',
                       active
                         ? 'bg-surface-hover text-(--brand)'
                         : 'bg-surface text-muted-foreground hover:text-(--brand)',

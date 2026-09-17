@@ -42,4 +42,18 @@ export const HOME_INSTAGRAM_REELS: HomeReel[] = [
     poster: DECK.reels.suvLip,
     href: SHOP_ROUTES.instagram,
   },
+  {
+    id: 'boot-liner',
+    caption: 'Boot liner dropped in without lifting the parcel shelf.',
+    videoSrc: '/video/hero-mobile.mp4',
+    poster: DECK.reels.bootLiner,
+    href: SHOP_ROUTES.instagram,
+  },
+  {
+    id: 'quick-swap',
+    caption: 'Old mat out, new set in — the whole swap in one clip.',
+    videoSrc: '/video/hero-desktop.mp4',
+    poster: DECK.reels.quickSwap,
+    href: SHOP_ROUTES.instagram,
+  },
 ];

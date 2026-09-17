@@ -61,16 +61,8 @@ type SeedProduct = {
 function buildImages(base: string, name: string) {
   return [
     {
-      assetId: `motormats/products/${base}`,
+      assetId: `/products/${base}.webp`,
       alt: `A set of ${name} car mats laid flat on a white background`,
-    },
-    {
-      assetId: `motormats/products/${base}-fitted`,
-      alt: `${name} fitted in the footwell of a car`,
-    },
-    {
-      assetId: `motormats/products/${base}-detail`,
-      alt: `Close-up of the material and edge finish on the ${name}`,
     },
   ];
 }
@@ -120,19 +112,8 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         basePricePaise: 449_900,
         compareAtPricePaise: 599_900,
         isFeatured: true,
-        imageBase: '7d-sport',
+        imageBase: '1',
         variants: buildVariants('7DS', 449_900, ['Black', 'Tan', 'Red']),
-      },
-      {
-        slug: '7d-executive-mat',
-        name: '7D Executive Mat',
-        summary: 'Quieter foam core tuned for chauffeur-driven comfort.',
-        description:
-          'The Executive shares the 7D moulding but adds an acoustic foam core that measurably lowers road noise in the rear cabin. Finished with a stitched leatherette border.',
-        brand: 'Motormats',
-        basePricePaise: 529_900,
-        imageBase: '7d-executive',
-        variants: buildVariants('7DE', 529_900, ['Black', 'Beige']),
       },
     ],
   },
@@ -153,19 +134,8 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         basePricePaise: 529_900,
         compareAtPricePaise: 649_900,
         isFeatured: true,
-        imageBase: 'carbon-series',
+        imageBase: '2',
         variants: buildVariants('CBS', 529_900, ['Black', 'Graphite']),
-      },
-      {
-        slug: 'carbon-gt-mat',
-        name: 'Carbon GT Mat',
-        summary: 'Lighter carbon weave with a contrast stitched edge.',
-        description:
-          'The GT trims 400g per mat against the standard Carbon Series and finishes the perimeter with a contrast stitch. Intended for performance interiors where weight is tracked.',
-        brand: 'Motormats',
-        basePricePaise: 589_900,
-        imageBase: 'carbon-gt',
-        variants: buildVariants('CGT', 589_900, ['Black', 'Red']),
       },
     ],
   },
@@ -185,7 +155,7 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         brand: 'Motormats',
         basePricePaise: 389_900,
         isFeatured: true,
-        imageBase: 'executive-carpet',
+        imageBase: '3',
         variants: buildVariants('EXC', 389_900, ['Charcoal', 'Beige']),
       },
     ],
@@ -207,19 +177,8 @@ const CATALOG: { category: { slug: string; name: string; description: string }; 
         basePricePaise: 299_900,
         compareAtPricePaise: 379_900,
         isFeatured: true,
-        imageBase: 'all-weather',
+        imageBase: '4',
         variants: buildVariants('AWM', 299_900, ['Black', 'Grey']),
-      },
-      {
-        slug: 'all-weather-cargo-liner',
-        name: 'All-Weather Cargo Liner',
-        summary: 'Boot liner with a raised lip and a non-slip surface.',
-        description:
-          'Covers the full boot floor with a 40mm lip. Sized per model so the tailgate still closes on the liner rather than around it.',
-        brand: 'Motormats',
-        basePricePaise: 349_900,
-        imageBase: 'cargo-liner',
-        variants: buildVariants('AWC', 349_900, ['Black']),
       },
     ],
   },
