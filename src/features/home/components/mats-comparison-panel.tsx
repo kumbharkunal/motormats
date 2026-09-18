@@ -52,7 +52,9 @@ export function MatsComparisonPanel() {
             className="lg:order-1"
           />
 
-          <div data-reveal className="lg:order-2">
+          {/* Not `data-reveal`: it holds a slider, and a transformed ancestor puts
+              a gesture control out of step with where it is painted. */}
+          <div data-no-reveal className="lg:order-2">
             <MatSplitCompare />
           </div>
 

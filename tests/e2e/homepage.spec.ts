@@ -14,27 +14,24 @@ test.describe('homepage', () => {
   test('server HTML carries every section, so crawlers see the whole page', async ({ request }) => {
     const html = await (await request.get('/')).text();
 
-    // One phrase per band, in running order — the eight editorial bands that
-    // are the page's spine, then the magazine sections between them. Only the
-    // two product zones are left out: they are fed by the catalogue and the
-    // second is dropped when it holds four or fewer active products, so
-    // asserting on their copy would tie this test to the seed size.
+    // One phrase per band, in running order. The page is nine bands now, from
+    // seventeen: eight editorial sections that repeated the same shape were
+    // folded into one photography band, and three that argued fit in three
+    // different registers were folded into the range grid.
+    //
+    // Left out: the range grid itself, which is fed by the catalogue and
+    // renders nothing when it holds no active products — asserting on it would
+    // tie this test to the seed size.
     for (const phrase of [
       'Your car.',
       'A better floor.',
+      'See installs in motion',
       'Generic mats compared with Motormats',
       'to finish your interior.',
-      'Four surfaces, one exact fit',
-      'generic floor mats.',
-      'to finished mat.',
-      'Every car mat in the country looks the same.',
-      'Shot on location',
-      'Real conditions.',
       'Stories from the floorpan',
-      'See installs in motion',
-      'What drivers say',
-      'Made to order, backed after it arrives',
+      'to finished mat.',
       'Your car deserves better.',
+      'Cut after you order',
     ]) {
       expect(html, `missing from server HTML: ${phrase}`).toContain(phrase);
     }
@@ -43,6 +40,10 @@ test.describe('homepage', () => {
   test('the page actually scrolls and reaches the footer', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/', { waitUntil: 'load' });
+    // `load` is not "rendered". The page awaits the catalogue, so a cold request
+    // is still streaming when it fires and the whole tree sits inside a hidden
+    // Suspense template with no layout at all.
+    await page.locator('#hero-heading').waitFor({ state: 'visible' });
 
     const scrollable = await page.evaluate(
       () => document.documentElement.scrollHeight > window.innerHeight + 200,
@@ -76,17 +77,27 @@ test.describe('homepage', () => {
     expect(y, 'the wheel should move the page').toBeGreaterThan(300);
   });
 
-  test('the hero fills the viewport and runs under the floating header', async ({ page }) => {
+  test('the hero fills the screen below the header', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/', { waitUntil: 'load' });
 
+    await page.locator('#hero-heading').waitFor({ state: 'visible' });
+
     const hero = page.locator('section', { has: page.locator('#hero-heading') });
     const box = await hero.boundingBox();
+    const header = await page.locator('header').first().boundingBox();
 
     expect(box, 'hero section should be laid out').not.toBeNull();
-    // Pulled up under the header, so it starts at the very top of the document.
-    expect(Math.abs(box!.y)).toBeLessThanOrEqual(2);
-    expect(box!.height).toBeGreaterThanOrEqual(880);
+    expect(header, 'header should be laid out').not.toBeNull();
+
+    // The band is an opaque ink ground on every route, so a cover running
+    // beneath it would be hidden behind it rather than showing through — it
+    // starts where the header ends.
+    expect(box!.y).toBeGreaterThanOrEqual(header!.height - 2);
+    expect(box!.y).toBeLessThanOrEqual(header!.height + 2);
+
+    // And it still fills what is left of the screen.
+    expect(box!.height).toBeGreaterThanOrEqual(900 - header!.height - 2);
   });
 
   test('no section overflows its own width at any breakpoint', async ({ page }) => {
@@ -100,6 +111,8 @@ test.describe('homepage', () => {
     ] as const) {
       await page.setViewportSize({ width, height });
       await page.goto('/', { waitUntil: 'load' });
+
+      await page.locator('#hero-heading').waitFor({ state: 'visible' });
 
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -120,7 +133,7 @@ test.describe('homepage', () => {
     await expect(page.locator('html')).toHaveClass(/lenis/);
   });
 
-  test('the header never leaves the screen, and paints once past the cover', async ({ page }) => {
+  test('the header never leaves the screen', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/', { waitUntil: 'load' });
     await page.waitForTimeout(500);
@@ -128,9 +141,7 @@ test.describe('homepage', () => {
     const header = page.locator('header').first();
     const top = async () => (await header.boundingBox())?.y ?? 0;
 
-    // Over the cover it is transparent, however far the cover has scrolled.
     expect(await top()).toBe(0);
-    await expect(header).toHaveAttribute('data-over-hero', 'true');
 
     await page.mouse.move(720, 450);
     const wheel = async (dy: number, times: number) => {
@@ -142,9 +153,8 @@ test.describe('homepage', () => {
     };
 
     // It used to retract on scroll down. It must not any more, in either
-    // direction, and it still has to pick up its painted ground past the cover.
+    // direction.
     await wheel(400, 10);
-    await expect(header).toHaveAttribute('data-over-hero', 'false');
     expect(await top(), 'header should stay pinned to the top on scroll down').toBe(0);
 
     await wheel(400, 10);
@@ -154,13 +164,17 @@ test.describe('homepage', () => {
     expect(await top(), 'header should stay pinned on scroll up').toBe(0);
   });
 
-  test('the header never retracts on a route without a hero', async ({ page }) => {
+  test('the header is pinned and painted on every other route too', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/our-story', { waitUntil: 'load' });
     await page.waitForTimeout(400);
 
     const header = page.locator('header').first();
-    await expect(header).toHaveAttribute('data-over-hero', 'false');
     expect((await header.boundingBox())?.y).toBe(0);
+
+    // One opaque ground on every route: there is no transparent state left to
+    // get wrong, which is the whole reason the overlay machinery went.
+    const ground = await header.evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(ground).not.toBe('rgba(0, 0, 0, 0)');
   });
 });

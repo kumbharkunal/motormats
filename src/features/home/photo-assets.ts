@@ -24,8 +24,9 @@ function frame(name: string, alt: string): Photo {
 
 export const PHOTOS = {
   /**
-   * The cover. A dark light-tunnel frame, chosen so white type and the two CTAs
-   * carry over it without a scrim heavy enough to flatten the picture.
+   * The old cover. The band now rotates through `HERO_SLIDES`, which is built
+   * from the client's masters in two orientations, so nothing renders this any
+   * more — it stays as part of the frame library.
    */
   cover: frame(
     'cover-tunnel',
@@ -88,21 +89,3 @@ export const PHOTOS = {
     group: frame('lifestyle-group', 'Three men standing in a heritage courtyard with a mat set'),
   },
 } as const;
-
-/**
- * The cover's fading banner run.
- *
- * Cabin and surface frames only. The cover crops to a landscape panel on a
- * desktop viewport, and these are the frames whose subject sits in the middle
- * third of a 2:3 portrait — an environmental shot loses its subject entirely at
- * that crop, which is why the courtyard and trolley frames are not here.
- */
-export const HERO_BANNERS = [
-  PHOTOS.interiors.wide,
-  PHOTOS.zones.madeToFit,
-  PHOTOS.ranges['7d-luxury'],
-  PHOTOS.interiors.driver,
-  PHOTOS.ranges.carpet,
-  PHOTOS.detail.weave,
-] satisfies Photo[];
-

@@ -50,6 +50,48 @@ export async function sendOtp(e164Phone: string, containerId: string): Promise<C
   return signInWithPhoneNumber(firebaseAuth(), e164Phone, getRecaptchaVerifier(containerId));
 }
 
+/**
+ * Which sign-in path produced the error.
+ *
+ * Several Firebase codes are raised by more than one method, and a single map
+ * had to pick one meaning for each. It picked SMS — so choosing *Google* and
+ * hitting `auth/unauthorized-domain`, which is what an origin missing from the
+ * Firebase authorised-domains list raises, told the reader that "Sign-in by SMS
+ * is unavailable right now. Please use Google instead." They had just pressed
+ * Google. Advice that names the method the reader did not choose is worse than
+ * no advice, so the shared codes resolve per method.
+ */
+export type AuthMethod = 'sms' | 'google' | 'password';
+
+const SMS_ELSEWHERE = 'Sign-in by SMS is unavailable right now. Please use Google instead.';
+
+/** Codes either path can raise, answered per path. */
+const BY_METHOD: Record<string, Partial<Record<AuthMethod, string>> & { default: string }> = {
+  'auth/unauthorized-domain': {
+    // In development this almost always means the LAN IP or tunnel host the site
+    // is being opened on is not in Firebase's authorised-domains list. The
+    // reader cannot act on that, so they get the plain fact and the console gets
+    // the code.
+    google: 'Google sign-in is not available on this address.',
+    sms: SMS_ELSEWHERE,
+    default: 'Sign-in is not available on this address.',
+  },
+  'auth/operation-not-allowed': {
+    google: 'Google sign-in is switched off for this site.',
+    sms: SMS_ELSEWHERE,
+    default: 'That sign-in method is not enabled.',
+  },
+  'auth/quota-exceeded': {
+    google: 'Sign-in is temporarily unavailable. Please try again shortly.',
+    sms: SMS_ELSEWHERE,
+    default: 'Sign-in is temporarily unavailable. Please try again shortly.',
+  },
+  'auth/internal-error': {
+    google: 'Google sign-in did not complete. Please try again.',
+    default: 'Something went wrong signing you in. Please try again.',
+  },
+};
+
 const AUTH_MESSAGES: Record<string, string> = {
   'auth/popup-closed-by-user': 'Sign-in was cancelled.',
   'auth/cancelled-popup-request': 'Sign-in was cancelled.',
@@ -60,13 +102,8 @@ const AUTH_MESSAGES: Record<string, string> = {
     'That email is already registered with a different sign-in method.',
   'auth/network-request-failed': 'Network problem. Check your connection and try again.',
   'auth/too-many-requests': 'Too many attempts. Please wait a few minutes and try again.',
-  'auth/billing-not-enabled': 'Sign-in by SMS is unavailable right now. Please use Google instead.',
-  'auth/quota-exceeded': 'Sign-in by SMS is unavailable right now. Please use Google instead.',
-  'auth/invalid-app-credential':
-    'Sign-in by SMS is unavailable right now. Please use Google instead.',
-  'auth/operation-not-allowed':
-    'Sign-in by SMS is unavailable right now. Please use Google instead.',
-  'auth/unauthorized-domain': 'Sign-in by SMS is unavailable right now. Please use Google instead.',
+  'auth/billing-not-enabled': SMS_ELSEWHERE,
+  'auth/invalid-app-credential': SMS_ELSEWHERE,
   'auth/captcha-check-failed': 'The security check did not pass. Please try again.',
   'auth/invalid-phone-number': 'That mobile number does not look right.',
   'auth/invalid-verification-code': 'That code is incorrect or has expired. Request a new one.',
@@ -91,10 +128,15 @@ export function isCancelledByUser(error: unknown): boolean {
   );
 }
 
-export function authErrorMessage(error: unknown, fallback: string): string {
+export function authErrorMessage(error: unknown, fallback: string, method?: AuthMethod): string {
   const code = authErrorCode(error);
   if (code) console.error('[auth]', code, error);
-  return AUTH_MESSAGES[code ?? ''] ?? fallback;
+  if (!code) return fallback;
+
+  const shared = BY_METHOD[code];
+  if (shared) return (method && shared[method]) ?? shared.default;
+
+  return AUTH_MESSAGES[code] ?? fallback;
 }
 
 function authErrorCode(error: unknown): string | null {

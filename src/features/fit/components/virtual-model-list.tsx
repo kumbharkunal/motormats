@@ -2,9 +2,12 @@
 
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 
 import { CarSketch } from '@/features/vehicles/components/car-sketch';
 import type { VehicleModel } from '@/features/vehicles/data/brands';
+import { isTap } from '@/lib/gesture';
+import { tapFeedback } from '@/lib/haptics';
 
 const ROW_HEIGHT = 64;
 
@@ -68,12 +71,56 @@ export function VirtualModelList({
   );
 }
 
-/** Drawn, like the brand tiles — the row is recognisable before it is read. */
+/**
+ * Drawn, like the brand tiles — the row is recognisable before it is read.
+ *
+ * The press is qualified rather than taken at face value. These rows live inside
+ * a momentum scroller, and a flick that happens to end on a row fires its
+ * `click` — so a reader scrolling the list would arrive at a model they never
+ * chose. Anything that travelled, or that was held, is a scroll and is ignored.
+ */
 function ModelRow({ model, onPick }: { model: VehicleModel; onPick: (slug: string) => void }) {
+  const origin = useRef<{ x: number; y: number; t: number } | null>(null);
+
+  const start = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    // No haptic here: a finger lands on a row every time the list is scrolled,
+    // and buzzing on each one would make scrolling feel broken. The confirmation
+    // belongs to the press that actually chooses something.
+    origin.current = { x: event.clientX, y: event.clientY, t: performance.now() };
+  };
+
+  const pick = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const from = origin.current;
+    origin.current = null;
+    if (!from) return;
+    if (
+      !isTap({
+        dx: event.clientX - from.x,
+        dy: event.clientY - from.y,
+        dt: performance.now() - from.t,
+      })
+    ) {
+      return;
+    }
+    tapFeedback();
+    onPick(model.slug);
+  };
+
   return (
     <button
       type="button"
-      onClick={() => onPick(model.slug)}
+      onPointerDown={start}
+      onPointerUp={pick}
+      onPointerCancel={() => {
+        origin.current = null;
+      }}
+      // Keyboard and assistive activation never went through the pointer path,
+      // so they still need this. `detail === 0` is what distinguishes them: a
+      // pointer-driven click carries a click count and was already decided above.
+      onClick={(event) => {
+        if (event.detail !== 0) return;
+        onPick(model.slug);
+      }}
       className="group/row flex h-16 w-full items-center gap-4 px-4 text-left transition-colors duration-300 hover:bg-surface-hover"
     >
       <CarSketch

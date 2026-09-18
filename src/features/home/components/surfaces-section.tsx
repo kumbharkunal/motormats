@@ -72,7 +72,14 @@ export function SurfacesSection() {
   }, []);
 
   return (
-    <section ref={scope} aria-labelledby="surfaces-heading" className="screen-section band-dark">
+    <section
+      ref={scope}
+      aria-labelledby="surfaces-heading"
+      // Paper. The page carries its ink in three deliberate places — the cover,
+      // the photography band and the close — and a fourth here broke the rhythm
+      // by putting two dark screens either side of the comparison.
+      className="band-light border-b border-border"
+    >
       <div className="container-page pt-section pb-6 md:pb-8">
         <div data-reveal>
           <SectionIntro
@@ -93,31 +100,34 @@ export function SurfacesSection() {
               </>
             }
             action={
-              // The arrows ride in the intro's own right column rather than in
-              // a row of their own. That row was full width with a control at
-              // one end of it, so four fifths of a band that has to fit one
-              // screen went to empty ground \u2014 and the column they now sit in
-              // had trailing space under the link anyway.
-              <div className="flex flex-col gap-5 lg:items-end">
+              /*
+                One row, not a stack.
+
+                The link and the arrows used to sit one above the other in the
+                intro's right-hand column, which made that column three blocks
+                tall against a two-line headline on the left \u2014 so the band opened
+                with a wide strip of empty paper between them before the
+                photography could start. Side by side they are one 44px row, and
+                the header gives roughly 90px back to the rail below it.
+              */
+              <div className="flex items-center gap-5 lg:justify-end">
                 <ArrowLink href={SHOP_ROUTES.collections}>Explore all</ArrowLink>
 
                 {/* Square, hairline. Hidden on touch widths, where the swipe is
                     the control and an arrow is just something to mis-tap. */}
-                <div className="hidden md:flex">
-                  <div className="flex items-center gap-px bg-white/15">
-                    {([-1, 1] as const).map((direction) => (
-                      <button
-                        key={direction}
-                        type="button"
-                        onClick={() => step(direction)}
-                        disabled={direction === -1 ? atStart : atEnd}
-                        aria-label={direction === -1 ? 'Previous surfaces' : 'Next surfaces'}
-                        className="grid size-12 place-items-center bg-ink text-lg text-white transition-colors duration-300 hover:bg-accent disabled:pointer-events-none disabled:text-white/25"
-                      >
-                        <span aria-hidden>{direction === -1 ? '\u2190' : '\u2192'}</span>
-                      </button>
-                    ))}
-                  </div>
+                <div className="hidden items-center gap-px bg-border md:flex">
+                  {([-1, 1] as const).map((direction) => (
+                    <button
+                      key={direction}
+                      type="button"
+                      onClick={() => step(direction)}
+                      disabled={direction === -1 ? atStart : atEnd}
+                      aria-label={direction === -1 ? 'Previous surfaces' : 'Next surfaces'}
+                      className="grid size-11 place-items-center bg-ink text-white transition-colors duration-300 hover:bg-accent disabled:pointer-events-none disabled:text-white/25"
+                    >
+                      <span aria-hidden>{direction === -1 ? '\u2190' : '\u2192'}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             }
@@ -129,7 +139,7 @@ export function SurfacesSection() {
         ref={railRef}
         aria-label="The nine Motormats surfaces"
         className={cn(
-          'native-scroll flex snap-x snap-mandatory gap-px bg-white/10',
+          'native-scroll flex snap-x snap-mandatory gap-px bg-border',
           '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         )}
       >
@@ -141,7 +151,7 @@ export function SurfacesSection() {
             // only needs a third of it, so the rest belongs to the photography
             // rather than to empty ground under the headline. Width is what
             // sets the plate's height at a fixed 4:3.
-            className="group flex w-[78vw] shrink-0 snap-start flex-col bg-ink sm:w-[46vw] lg:w-[34vw] xl:w-[28rem]"
+            className="group flex w-[78vw] shrink-0 snap-start flex-col bg-surface sm:w-[46vw] lg:w-[34vw] xl:w-[28rem]"
           >
             <EditorialFrame
               src={surfaceItem.src}
@@ -154,17 +164,17 @@ export function SurfacesSection() {
 
             <div className="flex flex-1 flex-col gap-5 p-5 md:p-6">
               <div className="flex items-baseline justify-between gap-4">
-                <h3 className="display-type text-h3 text-white">{surfaceItem.name}</h3>
-                <span aria-hidden className="caps text-eyebrow text-white/30">
+                <h3 className="display-type text-h3 text-foreground">{surfaceItem.name}</h3>
+                <span aria-hidden className="caps text-eyebrow text-subtle-foreground">
                   {String(index + 1).padStart(2, '0')}
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed text-white/60">{surfaceItem.body}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{surfaceItem.body}</p>
 
-              <p className="mt-auto text-sm text-white/80">{surfaceItem.tagline}</p>
+              <p className="mt-auto text-sm text-foreground">{surfaceItem.tagline}</p>
 
-              <p className="caps border-t border-white/15 pt-4 text-eyebrow text-white/40">
+              <p className="caps border-t border-border pt-4 text-eyebrow text-subtle-foreground">
                 {surfaceItem.colors.join(' · ')}
               </p>
             </div>

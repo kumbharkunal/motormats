@@ -6,9 +6,10 @@ import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { BrandLoader } from '@/components/feedback/brand-loader';
+import { BrandedLoader } from '@/components/feedback/branded-loader';
 import { Button } from '@/components/ui/button';
 import { GoogleMark } from '@/features/auth/components/google-mark';
+import { UnauthorisedHostNotice } from '@/features/auth/components/unauthorised-host-notice';
 import { OtpInput } from '@/features/auth/components/otp-input';
 import { cn } from '@/lib/utils';
 import {
@@ -121,7 +122,7 @@ export function SignInForm({ next }: { next: string }) {
       // customer's problem, so only the codes they can act on are shown.
       resetRecaptcha();
       toast.error(
-        authErrorMessage(error, 'We could not send the code. Please try again in a moment.'),
+        authErrorMessage(error, 'We could not send the code. Please try again in a moment.', 'sms'),
       );
     } finally {
       setPending(null);
@@ -150,7 +151,7 @@ export function SignInForm({ next }: { next: string }) {
       // Deliberately generic: distinguishing "wrong code" from "unknown number"
       // tells an attacker which numbers are registered.
       toast.error(
-        authErrorMessage(error, 'That code is incorrect or has expired. Request a new one.'),
+        authErrorMessage(error, 'That code is incorrect or has expired. Request a new one.', 'sms'),
       );
       setCode('');
       setPending(null);
@@ -180,7 +181,7 @@ export function SignInForm({ next }: { next: string }) {
     } catch (error) {
       // Closing the popup is a choice, not a failure worth shouting about.
       if (!isCancelledByUser(error)) {
-        toast.error(authErrorMessage(error, 'Google sign-in did not complete.'));
+        toast.error(authErrorMessage(error, 'Google sign-in did not complete.', 'google'));
       }
       setPending(null);
     }
@@ -209,9 +210,11 @@ export function SignInForm({ next }: { next: string }) {
 
   return (
     <>
-      {leaving ? <BrandLoader label="Signing you in…" /> : null}
+      {leaving ? <BrandedLoader label="Signing you in…" showLabel /> : null}
 
       <div className="rounded-3xl card-surface p-6 sm:p-8">
+        <UnauthorisedHostNotice />
+
         {step === 'phone' ? (
           <>
             <h1 className="text-h2">Sign in</h1>

@@ -13,5 +13,5 @@ import { MotormatsLogo } from '@/components/layout/motormats-logo';
  * size the mark, and so the sidebar and the sign-in screen cannot drift apart.
  */
 export function AdminLogo({ size = 'sm' }: { size?: 'sm' | 'md' }) {
-  return <MotormatsLogo size={size} />;
+  return <MotormatsLogo size={size} tone="mark" />;
 }

@@ -5,9 +5,11 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { ArrowRight, LayoutDashboard, LogIn, LogOut, Menu, Package, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { MotormatsLogo } from '@/components/layout/motormats-logo';
+import { tapFeedback } from '@/lib/haptics';
+import { startScroll, stopScroll } from '@/lib/scroll-sync';
 import { NAV_LINKS } from '@/components/layout/nav-links';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -33,6 +35,30 @@ export function MobileNav({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
+  /**
+   * Radix locks `<body>` while the drawer is open, but Lenis animates the real
+   * scroll position and never saw that lock — so the page carried on drifting
+   * behind the open panel. Stopping Lenis is the other half of the lock.
+   *
+   * **Driven by the state, not by the close handlers.** This used to live in
+   * `onOpenChange`, which Radix calls for the X button, Escape and the overlay —
+   * but not for `setOpen(false)`. Every link in the drawer closed it that way,
+   * so tapping a link stopped the page and never started it again: Lenis is
+   * created once in the root layout and survives navigation, so the next route
+   * arrived with scrolling frozen and only a reload fixed it. Tying it to the
+   * effect means no close path can miss it, and unmounting releases it too.
+   */
+  useEffect(() => {
+    if (!open) return;
+    stopScroll();
+    return () => startScroll();
+  }, [open]);
+
+  const onOpenChange = (next: boolean) => {
+    setOpen(next);
+    tapFeedback();
+  };
+
   const accountLinks = isSignedIn
     ? [...ACCOUNT_LINKS, ...(isAdmin ? [ADMIN_LINK] : [])]
     : GUEST_LINKS;
@@ -43,14 +69,14 @@ export function MobileNav({
   const close = () => setOpen(false);
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger asChild>
         <button
           type="button"
           aria-label="Open menu"
-          // No capsule: the header is an ink band, so the trigger sits on it
-          // directly, like the cart icon beside it.
-          className="flex size-11 items-center justify-center text-white/75 transition-colors duration-200 hover:text-white active:scale-95 lg:hidden"
+          // No capsule: the header is one paper band, so the trigger sits on
+          // it directly, like the cart icon beside it.
+          className="flex size-11 items-center justify-center text-muted-foreground transition-colors duration-200 hover:text-foreground active:scale-95 lg:hidden"
         >
           <Menu aria-hidden size={20} strokeWidth={1.5} />
         </button>
@@ -60,9 +86,9 @@ export function MobileNav({
         {/* Ink rather than black, and far lighter than the dark theme's 70%:
             the drawer now reads as a white panel lifted off the page, so the
             scrim only has to push the page back, not black it out. */}
-        <Dialog.Overlay className="fixed inset-0 z-[100] bg-foreground/20 backdrop-blur-[2px] data-[state=closed]:animate-[overlay-out_200ms_ease-in] data-[state=open]:animate-[overlay-in_250ms_ease-out]" />
+        <Dialog.Overlay className="fixed inset-0 z-[100] bg-ink/45 backdrop-blur-[2px] data-[state=closed]:animate-[overlay-out_200ms_ease-in] data-[state=open]:animate-[overlay-in_250ms_ease-out]" />
 
-        <Dialog.Content className="fixed inset-y-0 left-0 z-[101] flex w-[86vw] max-w-sm flex-col border-r border-border bg-surface data-[state=closed]:animate-[drawer-out_220ms_ease-in] data-[state=open]:animate-[drawer-in_280ms_cubic-bezier(0.25,1,0.5,1)]">
+        <Dialog.Content className="band-dark fixed inset-y-0 left-0 z-[101] flex w-[86vw] max-w-sm flex-col border-r border-border data-[state=closed]:animate-[drawer-out_220ms_ease-in] data-[state=open]:animate-[drawer-in_280ms_cubic-bezier(0.25,1,0.5,1)]">
           <VisuallyHidden>
             <Dialog.Title>Navigation menu</Dialog.Title>
           </VisuallyHidden>
@@ -75,13 +101,13 @@ export function MobileNav({
 
           <div className="flex h-[4.5rem] shrink-0 items-center justify-between border-b border-border px-5">
             <Link href="/" onClick={close} aria-label="Motormats home">
-              <MotormatsLogo size="sm" className="h-8" />
+              <MotormatsLogo size="sm" />
             </Link>
             <Dialog.Close asChild>
               <button
                 type="button"
                 aria-label="Close menu"
-                className="flex size-11 items-center justify-center rounded-xl text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-foreground active:scale-95"
+                className="flex size-11 items-center justify-center text-muted-foreground transition-colors duration-200 hover:bg-surface-hover hover:text-foreground active:scale-95"
               >
                 <X aria-hidden size={20} strokeWidth={1.5} />
               </button>
@@ -93,7 +119,7 @@ export function MobileNav({
               <Link
                 href="/account"
                 onClick={close}
-                className="mb-5 flex min-h-14 items-center gap-3 rounded-2xl card-surface px-4 py-3"
+                className="mb-5 flex min-h-14 items-center gap-3 card-surface px-4 py-3"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-text">
                   <User aria-hidden size={18} strokeWidth={1.8} />
@@ -127,9 +153,10 @@ export function MobileNav({
                       onClick={close}
                       aria-current={active ? 'page' : undefined}
                       className={cn(
-                        'group relative flex min-h-12 items-center justify-between rounded-xl py-3 pr-4 pl-5 text-lg transition-colors duration-200',
+                        'group relative flex min-h-14 items-center justify-between py-3 pr-4 pl-5 transition-colors duration-200',
+                        'display-type text-h3 active:scale-[0.99]',
                         active
-                          ? 'bg-accent/8 font-semibold text-foreground'
+                          ? 'bg-surface-hover text-foreground'
                           : 'text-foreground/75 hover:bg-surface-hover hover:text-foreground',
                       )}
                     >
@@ -137,7 +164,7 @@ export function MobileNav({
                       <span
                         aria-hidden
                         className={cn(
-                          'absolute top-1/2 left-0 h-6 w-[3px] -translate-y-1/2 rounded-full bg-accent transition-motion duration-200',
+                          'absolute top-1/2 left-0 h-7 w-[3px] -translate-y-1/2 bg-accent transition-motion duration-200',
                           active ? 'scale-y-100' : 'scale-y-0',
                         )}
                       />
@@ -159,7 +186,7 @@ export function MobileNav({
                   <Link
                     href={href}
                     onClick={close}
-                    className="flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-[0.9375rem] text-foreground/75 transition-colors duration-200 hover:bg-surface-hover hover:text-foreground"
+                    className="flex min-h-11 items-center gap-3 px-4 py-2.5 text-[0.9375rem] text-foreground/75 transition-colors duration-200 hover:bg-surface-hover hover:text-foreground"
                   >
                     <Icon aria-hidden size={17} className="shrink-0 text-muted-foreground" />
                     {label}
@@ -173,7 +200,7 @@ export function MobileNav({
                   <Link
                     href={SIGN_OUT_LINK.href}
                     onClick={close}
-                    className="flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-[0.9375rem] font-medium text-accent-text transition-colors duration-200 hover:bg-accent/10"
+                    className="flex min-h-11 items-center gap-3 px-4 py-2.5 text-[0.9375rem] font-medium text-accent-text transition-colors duration-200 hover:bg-accent/10"
                   >
                     <LogOut aria-hidden size={17} className="shrink-0" />
                     {SIGN_OUT_LINK.label}
@@ -184,7 +211,9 @@ export function MobileNav({
           </nav>
 
           <div className="border-t border-border p-5">
-            <Button asChild size="lg" className="w-full">
+            {/* Square and flat, like the header's own call to action. The pill
+                was the only rounded object left in the drawer. */}
+            <Button asChild variant="flat" size="lg" shape="square" className="w-full">
               <Link href="/collections" onClick={close}>
                 Shop now
               </Link>

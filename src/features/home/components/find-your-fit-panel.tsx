@@ -49,7 +49,13 @@ export function FindYourFitPanel() {
           />
         </div>
 
-        <div data-reveal className="mt-8 md:mt-10">
+        {/*
+          Not `data-reveal`. The wizard is the control surface, and a wrapper
+          carrying a transform for 900ms is what made its brand tiles miss taps
+          on iOS. The heading above still reveals; the thing you press does not
+          move before you press it.
+        */}
+        <div data-no-reveal className="mt-8 md:mt-10">
           <FindYourFitWizard variant="home" />
         </div>
       </div>

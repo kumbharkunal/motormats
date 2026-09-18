@@ -22,8 +22,12 @@
      them, and each band re-points the text tokens so type inside it stays
      legible without every component knowing which ground it landed on. */
   --color-ink: #0a0a0a; /* dark bands — near-black, not slate */
-  --color-paper: #f4f2f0; /* light bands — warm off-white, not blue-grey */
-  --color-background: #f4f2f0; /* app canvas */
+  --color-paper: #f6f4f0; /* light bands — warm off-white, not blue-grey */
+  --color-background: #f6f4f0; /* app canvas */
+  /* The binding on the mats, so a surface tint next to the product photography
+     is a colour the photograph already contains. */
+  --color-sand: #ddd5c5;
+  --color-clay: #9e8b6e;
   --color-surface: #ffffff; /* fields, cards on paper */
   --color-surface-elevated: #ffffff;
   --color-surface-hover: #ebe7e3;
@@ -70,14 +74,14 @@
   --color-toast-info: #e8effb;
 
   /* ── Typography ──────────────────────────────────────────────────────── */
-  --font-sans: var(--font-jakarta), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
-  --font-display: var(--font-heros), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  --font-sans: var(--font-geist), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  --font-display: var(--font-instrument), Georgia, 'Times New Roman', serif;
 
-  /* Display scale. Every size here is set uppercase in `--font-display` at 800+
-     (see the `display-type` utility), which is why the line heights are below 1
-     and the tracking is negative: caps have no descenders, so setting them at
-     body-copy leading leaves a visible gap between two stacked lines, and the
-     heavy weight closes the word spaces up on its own. */
+  /* Display scale. Set in `--font-display`, a high-contrast serif at a single
+     weight, in sentence case (see the `display-type` utility). The line heights
+     stay below 1 because the face is set very large and its ascenders and
+     descenders are short; the negative tracking closes the word spaces that a
+     high-contrast serif opens up at size. */
   /* Height-aware, like the section rhythm. These were pure `vw`, so a 1280x720
      laptop got the same headline as a 1280x1024 desktop with 300px less room to
      put it in — the single reason most bands still overran on a short screen.
@@ -212,6 +216,22 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* Every control is tapped, not double-tapped. `manipulation` drops the
+     double-tap-to-zoom gesture on these, which is what mobile browsers are
+     waiting on before they release the click — and while they wait, a thumb
+     that rolls a few pixels turns the tap into a pan and the click never
+     arrives. It buys nothing on a page that already sets `text-size-adjust`
+     and has no zoomable UI, and it costs a selection that reads as dead
+     controls: the brand tiles in the fit wizard, most of all. */
+  a,
+  button,
+  [role='button'],
+  label,
+  select,
+  summary {
+    touch-action: manipulation;
+  }
+
   body {
     margin: 0;
     background-color: var(--color-background);
@@ -238,7 +258,17 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 800;
+    /* The display face ships one weight. Size and stroke contrast carry the
+       emphasis — asking for a weight the file does not contain is what left the
+       old face rendering a step lighter than it was drawn for. */
+    font-weight: 400;
+    /* And if something does ask, refuse rather than fake it. A `font-semibold`
+       on a heading used as a small UI label — which is a thing that happens,
+       because headings are chosen for document structure, not for looks — made
+       the browser smear the 400 serif into a counterfeit bold at 14px. Without
+       synthesis it simply renders at 400, which is right; a label that genuinely
+       wants weight belongs on the UI face and says so with `font-sans`. */
+    font-synthesis-weight: none;
     letter-spacing: -0.02em;
     margin: 0;
   }
@@ -278,19 +308,88 @@
     color: var(--color-foreground);
   }
 
+  /*
+   * The scrollbar, in the page's own language: one hairline rule and a square
+   * bar, no pill.
+   *
+   * **Every colour is a token, and none of them is `--color-background`.** The
+   * track is transparent and the rule and thumb read `--color-border` and
+   * `--color-foreground`, both of which `band-dark` re-points — so a scroller
+   * inside a dark band gets a white bar on a dark rule without a second rule
+   * being written for it, and the document's own bar stays ink on paper.
+   *
+   * **Twelve pixels wide, six of them painted.** The bar it replaces was 5px
+   * edge to edge, which looks refined in a screenshot and is genuinely hard to
+   * catch with a mouse — and this is a very long page. The transparent border
+   * plus `background-clip: content-box` is what separates the two numbers: a
+   * 6px bar sitting in a 12px grab target.
+   *
+   * Red on grab, never at rest. Accent is the page's action colour and it is
+   * spent on things you can press; a permanently red scrollbar would compete
+   * with every call to action on the page for the same signal.
+   *
+   * Not hidden, and not replaced with a JS progress bar. On a nine-band page the
+   * scrollbar is the only thing telling a reader how much is left.
+   */
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 12px;
+    height: 12px;
   }
+
   ::-webkit-scrollbar-track {
-    background: var(--color-background);
+    background: transparent;
   }
+
+  /* The hairline sits on the edge the content is on, so it reads as the same
+     1px rule the bands are built from rather than as a box around the bar. */
+  ::-webkit-scrollbar-track:vertical {
+    box-shadow: inset 1px 0 0 var(--color-border);
+  }
+
+  ::-webkit-scrollbar-track:horizontal {
+    box-shadow: inset 0 1px 0 var(--color-border);
+  }
+
   ::-webkit-scrollbar-thumb {
-    background: var(--color-border-strong);
-    border-radius: 100px;
+    background-color: var(--color-foreground);
+    /* Square: `--radius-card` is 0 and this is the last rounded chrome left. */
+    border-radius: 0;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    transition: background-color 200ms var(--ease-smooth);
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-subtle-foreground);
+    background-color: var(--color-accent);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--color-accent-hover);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /*
+   * Firefox has two properties and no pseudo-elements — and they have to be kept
+   * away from everything above.
+   *
+   * Since Chromium 121, setting `scrollbar-color` switches an element onto the
+   * standard scrollbar and makes it ignore `::-webkit-scrollbar` completely.
+   * `scrollbar-color` also inherits, so declaring it on `html` silently disabled
+   * every rule above for the whole document: the measured bar came back 2px wide
+   * with no hairline, no square thumb and no hover.
+   *
+   * The feature query is the fence. Firefox does not recognise
+   * `::-webkit-scrollbar` as a selector, so it takes this branch; Chromium and
+   * Safari do, so they skip it and keep the pseudo-elements.
+   */
+  @supports not selector(::-webkit-scrollbar) {
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-foreground) transparent;
+    }
   }
 
   /* Honour the OS setting globally. Component-level guards still apply for
@@ -380,34 +479,6 @@
  * gone on purpose — it imitated light raking onto a raised dark surface and
  * says nothing on white, where a cast shadow does that job instead.
  */
-@utility nav-pill {
-  background-image: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.72) 0%,
-    rgba(255, 255, 255, 0.88) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow:
-    0 8px 24px rgba(16, 24, 40, 0.1),
-    0 1px 2px rgba(16, 24, 40, 0.06);
-}
-
-/*
- * Over the hero the pills go back to the original dark glass.
- *
- * The hero is a deliberate dark island — video under a dark scrim — so a light
- * capsule there would be a bright slab on top of the footage, and the brand
- * asset's white "MOTOR" would have nothing to sit against. This is the exact
- * gradient the dark theme used, at a lower alpha so more of the video reads
- * through. A descendant selector rather than a second utility, so every pill in
- * the header follows the band without any of them knowing where they are.
- */
-header[data-over-hero='true'] .nav-pill {
-  background-image: linear-gradient(180deg, rgba(44, 44, 50, 0.45) 0%, rgba(15, 15, 17, 0.55) 100%);
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
 /*
  * Transition for the motion utilities.
  *
@@ -549,64 +620,34 @@ header[data-over-hero='true'] .nav-pill {
   }
 }
 
-/* ── Premium loader: "Ignition Sequence" ──────────────────────────────── */
+/* ── Loader: the scan pass ────────────────────────────────────────────── */
 
-/* Draw the brand-mark's two parallelogram strokes on screen.
-   dashoffset travels from the path's full length (set inline) to 0. */
-@keyframes mark-draw {
+/*
+ * The beam travelling down the brand mark, and the window it reveals through.
+ * Both run this, in step, so the red edge and the red fill arrive together.
+ *
+ * 160 is the viewBox depth: the reveal window is a full-height rect parked
+ * directly above the mark, so carrying it down by exactly one box height takes
+ * the mark from untouched to fully covered. Inside an SVG a CSS `px` length is
+ * one user unit, which is why this reads as pixels and behaves as units.
+ *
+ * Runs `alternate`, so the pass falls and then lifts. Ending a pass and
+ * restarting it from the top would snap a fully red mark back to a dark one on
+ * every loop; reversing is the same motion without the cut.
+ */
+@keyframes mark-scan {
   0% {
-    stroke-dashoffset: var(--path-len);
-    opacity: 0.6;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-}
-
-/* After the stroke is drawn, cross-fade to the solid fill. */
-@keyframes mark-fill {
-  0% {
-    fill-opacity: 0;
-  }
-  100% {
-    fill-opacity: 1;
-  }
-}
-
-/* Wordmark slides up from 10px below and fades in. */
-@keyframes word-reveal {
-  0% {
-    transform: translateY(10px);
-    opacity: 0;
-  }
-  100% {
     transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* The glowing racing-red progress line. Sweeps left→right once. */
-@keyframes progress-race {
-  0% {
-    transform: scaleX(0);
   }
   100% {
-    transform: scaleX(1);
+    transform: translateY(160px);
   }
 }
 
-/* A subtle glow pulse that radiates from the progress line. */
-@keyframes glow-pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
+/* The hairline's short segment, running the width of its track. The track is
+   `overflow: hidden` and the segment is a third of it, so 0 to 200% carries it
+   from one edge to the other. Alternates in step with `mark-scan`, so the rule
+   and the beam turn together rather than drifting in and out of phase. */
 /* The loader exit: scale up slightly + fade out. */
 @keyframes loader-exit {
   0% {
@@ -615,6 +656,63 @@ header[data-over-hero='true'] .nav-pill {
   }
   100% {
     transform: scale(1.03);
+    opacity: 0;
+  }
+}
+
+/*
+ * The comparison split, as a registered custom property.
+ *
+ * Registering it gives the value a type, and a typed custom property is the only
+ * kind that can be transitioned — an unregistered one is an untyped string and
+ * jumps. The drag writes this imperatively so React never re-renders mid-gesture;
+ * a tap borrows the transition below so the split travels to the finger instead
+ * of teleporting.
+ */
+@property --split {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+[data-split-track][data-animating='true'] {
+  /* The duration is written by `useDragValue` so one transition can serve both
+     callers: a tap wants to land quickly, the one-shot hint wants to be watched.
+     `--ease-expo` decelerates hard, which reads as the handle being *placed*
+     rather than flung. */
+  transition: --split var(--split-duration, 300ms) var(--ease-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-split-track][data-animating='true'] {
+    transition: none;
+  }
+}
+
+/*
+ * The splash's exit. `loader-exit` was defined here and wired to nothing for as
+ * long as the splash dismissed by unmounting a React tree; the overlay is now
+ * removed from a script, which gives it something to animate out with.
+ */
+#app-splash[data-state='leaving'] {
+  animation: loader-exit 280ms var(--ease-quart) forwards;
+  pointer-events: none;
+}
+
+/*
+ * Hidden, never removed. The splash is server-rendered inside the React tree,
+ * so taking the node out from a script would leave the client hydrating against
+ * markup that no longer exists. CSS can retire it without touching the DOM
+ * shape, and `display: none` takes it out of the accessibility tree too.
+ */
+#app-splash[data-state='gone'],
+html[data-splash='off'] #app-splash {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app-splash[data-state='leaving'] {
+    animation: none;
     opacity: 0;
   }
 }
@@ -711,8 +809,11 @@ header[data-over-hero='true'] .nav-pill {
  */
 @utility display-type {
   font-family: var(--font-display);
-  font-weight: 800;
-  text-transform: uppercase;
+  font-weight: 400;
+  /* Sentence case. The serif has real lowercase letterforms and an all-caps
+     setting throws away the thing it was drawn for; `caps` still owns every
+     tracked uppercase label. */
+  letter-spacing: -0.02em;
   font-synthesis-weight: none;
 }
 

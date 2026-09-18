@@ -5,8 +5,8 @@ import { useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { SHOP_ROUTES } from '@/features/catalog/routes';
-import { HeroCarousel } from '@/features/home/components/hero-carousel';
-import { useCoverScrub } from '@/hooks/use-scroll-motion';
+import { HeroSlideshow } from '@/features/home/components/hero-slideshow';
+import { useCoverScrub, useHeroIntro } from '@/hooks/use-scroll-motion';
 
 /** The spec row under the buttons. Three claims, no punctuation, no verbs. */
 const SPECS = ['3D scanned', 'Precision cut', 'Made to order'];
@@ -14,61 +14,81 @@ const SPECS = ['3D scanned', 'Precision cut', 'Made to order'];
 /**
  * The cover.
  *
- * Type on ink at the left, photography bleeding off the right edge. The split
- * is 42/58 rather than half and half so the headline gets a measure wide enough
- * to set "YOUR FLOOR." on one line at every desktop width — the break between
- * the two sentences is the whole composition, and a headline that reflows to
- * three lines loses it.
+ * **Five frames, each cut for the band it lands in.** The rotation, and the
+ * reason a phone and a desktop are served differently shaped crops of the same
+ * photograph, both live in `HeroSlideshow`. Only the first frame is eager, so
+ * the largest contentful paint still costs one image rather than five.
  *
- * Below `lg` the panel collapses: the photograph becomes the full background
- * and the type sits on a scrim over it.
+ * **It sits below the header, not under it.** The band is opaque paper on every
+ * route now, so a cover running beneath it would be hidden by it rather than
+ * showing through. `screen-section` gives it exactly what is left of the screen.
  */
 export function HeroPanel() {
   const section = useRef<HTMLElement>(null);
   const media = useRef<HTMLDivElement>(null);
 
+  useHeroIntro(section);
   useCoverScrub(section, media);
 
   return (
     <section
       ref={section}
       aria-labelledby="hero-heading"
-      className="band-dark relative -mt-(--header-height) flex min-h-[100svh] items-end lg:items-center overflow-hidden"
+      /*
+        Bottom-left at every width.
+
+        It used to centre vertically on desktop, which left the headline floating
+        in the middle of the left edge with the subject of the photograph below
+        it — two centres of attention, neither winning. Low and left puts the
+        type on the ground plane of all five frames (the dune, the sand, the
+        car's flank, the railing) rather than in their sky, which is both the
+        better composition and the more legible one: the scrim has to work
+        hardest exactly where the picture is already darkest.
+      */
+      className="band-dark screen-section relative items-stretch justify-end overflow-hidden"
     >
-      {/*
-        The picture starts at 28%, not at the 42% where the type column ends.
-        The scrim fades out across 40–70%, so the photograph has to already be
-        under that range — start it at the column edge and the fade runs out
-        over flat ink instead, which shows as a hard vertical seam.
-      */}
-      <div ref={media} className="absolute inset-0 z-0 lg:left-[28%]">
-        <HeroCarousel />
+      <div ref={media} className="absolute inset-0 z-0">
+        <HeroSlideshow />
       </div>
 
       {/*
-        Two scrims, because the type sits in a different place at each
-        breakpoint. Stacked on mobile the copy is over the picture and needs a
-        flat wash; split on desktop it is beside the picture and needs only a
-        horizontal fade to carry the left edge of the photograph into the ink.
+        Two scrims, crossed rather than swapped.
+
+        The copy now sits bottom-left at every width, so both washes are wanted
+        at once and each only has to do half the work: the vertical one anchors
+        the type to the bottom edge, the horizontal one weights the left. Neither
+        is heavy enough alone to flatten the picture, and where they overlap —
+        the bottom-left corner, which is the only place white type ever lands —
+        they are more than enough. The horizontal one stays off below `lg`, where
+        the copy runs the full width and a side wash would just dim the frame.
       */}
-      <div aria-hidden className="absolute inset-0 z-1 bg-gradient-to-t from-ink via-ink/60 to-transparent lg:hidden" />
       <div
         aria-hidden
-        className="absolute inset-0 z-1 hidden bg-gradient-to-r from-ink via-ink/85 via-40% to-transparent to-70% lg:block"
+        className="absolute inset-0 z-1 bg-gradient-to-t from-ink via-ink/65 via-32% to-transparent to-72%"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 z-1 hidden bg-gradient-to-r from-ink/80 via-ink/35 via-28% to-transparent to-60% lg:block"
       />
 
-      <div className="container-page relative z-10 w-full pt-(--header-height) pb-8 md:pb-20">
-        {/* Headline, buttons, spec row. The eyebrow ("A better interior begins
-            below") and the strapline under it were three separate pieces of
-            copy saying the same thing before the reader reached a control. */}
-        <div className="max-w-2xl motion-safe:animate-[fade-up_900ms_var(--ease-expo)_both] lg:max-w-[46%]">
+      <div className="container-page relative z-10 w-full pb-20 md:pb-28">
+        <div className="max-w-2xl lg:max-w-[48%]">
           <h1 id="hero-heading" className="display-type text-display text-white">
-            Your car.
-            <br />
-            Your floor.
+            {/* Each line clips its own rise. The wrapper is the mask; the hook
+                only has to move what is inside it. */}
+            <span className="block overflow-hidden pb-[0.08em]">
+              <span data-hero-line className="block">
+                Your car.
+              </span>
+            </span>
+            <span className="block overflow-hidden pb-[0.08em]">
+              <span data-hero-line className="block">
+                Your floor.
+              </span>
+            </span>
           </h1>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+          <div data-hero-item className="mt-8 flex flex-col gap-3 sm:flex-row md:mt-10">
             <Button asChild variant="flat" size="caps" shape="square">
               <Link href={SHOP_ROUTES.findYourFit}>
                 Find your fit <span aria-hidden>&rarr;</span>
@@ -79,7 +99,10 @@ export function HeroPanel() {
             </Button>
           </div>
 
-          <ul className="mt-12 flex flex-wrap items-center gap-x-4 gap-y-3 md:mt-16">
+          <ul
+            data-hero-item
+            className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-3 short:mt-6 md:mt-14"
+          >
             {SPECS.map((spec, i) => (
               <li key={spec} className="flex items-center gap-4">
                 {/* Above `sm` only. The row wraps on a phone, and a rule that
@@ -91,8 +114,6 @@ export function HeroPanel() {
           </ul>
         </div>
       </div>
-
-      <div aria-hidden data-header-boundary className="absolute inset-x-0 bottom-0 h-px" />
     </section>
   );
 }

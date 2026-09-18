@@ -2,123 +2,145 @@
 
 import { useRef } from 'react';
 
-import { ArrowLink } from '@/components/editorial/arrow-link';
-import { SectionIntro } from '@/components/editorial/section-intro';
-import { EditorialFrame } from '@/components/media/editorial-frame';
-import { SHOP_ROUTES } from '@/features/catalog/routes';
-import { PHOTOS } from '@/features/home/photo-assets';
+import { PROCESS_ART } from '@/features/home/process-art';
 import { useEditorialReveal, useHeadlineReveal } from '@/hooks/use-scroll-motion';
-import { cn } from '@/lib/utils';
+
+/**
+ * How a mat gets made, in five drawn steps.
+ *
+ * **The art is the client's, and it sets the rules.** The five illustrations
+ * are line drawings on their own warm off-white ground, within a shade or two
+ * of `--color-paper`. That is why each one sits in a hairline card rather than
+ * floating on the band: a drawn rectangle whose background almost — but not
+ * quite — matches the page reads as a printing error, while the same rectangle
+ * inside a ruled box reads as a plate. The card is doing colour-management work,
+ * not decoration.
+ *
+ * **Centred, unlike every other band.** `SectionIntro` is deliberately
+ * asymmetric — headline left, support copy across the gutter — and that shape
+ * needs a right-hand column to balance it. This band has none: five equal steps
+ * under one title. So the heading is written out here, still carrying
+ * `data-headline` so `useHeadlineReveal` finds it.
+ *
+ * The steps are an `<ol>`, so the order is in the markup rather than only in the
+ * numerals, and the arrows the previous version drew between cards are gone —
+ * they were decorative, hidden from the accessibility tree, and had to be
+ * rendered invisibly on the last step to stop it sitting lower than the rest.
+ */
 
 const STEPS = [
   {
     index: '01',
     name: 'Scan',
-    body: 'We map the actual floorpan.',
-    photo: PHOTOS.interiors.driver,
+    body: 'We map the actual floorpan of your exact vehicle.',
+    alt: 'A laptop showing a vehicle alongside the mat shapes scanned from it',
   },
   {
     index: '02',
     name: 'Engineer',
     body: 'The scan becomes a vehicle-specific pattern.',
-    photo: PHOTOS.detail.radial,
+    alt: 'Hands drawing a cutting line across a mat laid on a gridded bench',
   },
   {
     index: '03',
     name: 'Cut',
     body: 'Material is precision-cut to the pattern.',
-    photo: PHOTOS.detail.weave,
+    alt: 'A machine running along the edge of a mat, following the pattern',
   },
   {
     index: '04',
     name: 'Finish',
     body: 'Edges are bound and every set is inspected.',
-    photo: PHOTOS.detail.badge,
+    alt: 'Two hands holding up a finished mat with a bound red edge',
   },
   {
     index: '05',
     name: 'Deliver',
     body: 'Made to order and shipped to your door.',
-    photo: PHOTOS.order.trolley,
+    alt: 'A Motormats box open on a stack of finished mats',
   },
 ];
 
-/**
- * How a mat gets made, in five frames.
- *
- * The arrows between steps are decorative and hidden from the accessibility
- * tree — the list is already ordered and the numerals already say so, so
- * announcing four "right arrow" glyphs in the middle of it adds nothing. They
- * drop out below `lg`, where the steps become a swipe rail and the reading
- * order is left to right anyway.
- */
 export function ProcessSection() {
   const scope = useRef<HTMLElement>(null);
   useEditorialReveal(scope);
   useHeadlineReveal(scope);
 
   return (
-    <section ref={scope} aria-labelledby="process-heading" className="screen-section band-light border-b border-border">
+    <section
+      ref={scope}
+      aria-labelledby="process-heading"
+      className="screen-section band-light border-b border-border"
+    >
       <div className="container-page py-section">
-        <div data-reveal>
-          <SectionIntro
-            eyebrow="How it's made"
-            titleId="process-heading"
-            title={
-              <>
-                From floorpan
-                <br />
-                to finished mat.
-              </>
-            }
-            body="Every mat starts with the actual vehicle. We scan, engineer, cut and finish around its exact contours — so it fits the way it should, not the way it can."
-            action={<ArrowLink href={SHOP_ROUTES.ourStory}>Learn more</ArrowLink>}
-          />
+        <div data-reveal className="mx-auto max-w-2xl text-center">
+          {/*
+            The eyebrow's rules are drawn with flex children rather than
+            pseudo-elements so they share the row's own centring and shrink with
+            it — at 320px the label keeps its width and the rules give way.
+          */}
+          <p className="flex items-center justify-center gap-4">
+            <span aria-hidden className="h-px min-w-4 flex-1 bg-border" />
+            <span className="caps text-eyebrow text-accent-text">After you order</span>
+            <span aria-hidden className="h-px min-w-4 flex-1 bg-border" />
+          </p>
+
+          {/* The clip has to be the element that does not move; `pb` is
+              descender room for the "p" in "floorpan". */}
+          <h2
+            id="process-heading"
+            className="mt-5 overflow-hidden pb-[0.12em] text-h2 text-foreground"
+          >
+            <span data-headline className="display-type block">
+              From floorpan to finished mat
+            </span>
+          </h2>
         </div>
 
-        <ol
-          className="mt-14 -mx-5 flex native-scroll gap-4 px-5 md:mt-16 lg:mx-0 lg:grid lg:grid-cols-[repeat(5,minmax(0,1fr))] lg:gap-0 lg:px-0"
-        >
-          {STEPS.map((step, i) => (
-            <li
-              key={step.index}
-              data-reveal
-              className="flex min-w-[13rem] shrink-0 items-start lg:min-w-0"
-            >
-              <div className="flex-1">
-                <EditorialFrame
-                  src={step.photo.src}
-                  alt={step.photo.alt}
-                  ratio="2/3"
-                  sizes="(max-width: 1023px) 45vw, 17vw"
-                  quality={72}
-                  className="aspect-[4/3]"
-                />
+        <ol className="native-scroll -mx-(--gutter-page) mt-12 flex snap-x snap-mandatory gap-4 px-(--gutter-page) md:mt-16 lg:mx-0 lg:grid lg:grid-cols-5 lg:px-0">
+          {STEPS.map((step, i) => {
+            const art = PROCESS_ART[i];
 
-                <p className="caps mt-4 text-eyebrow text-subtle-foreground">{step.index}</p>
-                <h3 className="display-type mt-2 text-sm text-foreground">{step.name}</h3>
-                <p className="mt-2 max-w-[11rem] text-xs leading-relaxed text-muted-foreground">
-                  {step.body}
-                </p>
-              </div>
-
-              {/*
-                Rendered on the last step too, just invisible. Every step is a
-                flex row of [frame, arrow], so dropping the arrow from the last
-                one gave its frame the arrow's width as well — a wider box at a
-                fixed 4:3 is a taller box, and step five sat lower than the rest.
-              */}
-              <span
-                aria-hidden
-                className={cn(
-                  'hidden shrink-0 self-start px-3 pt-14 text-xs text-border-strong lg:block',
-                  i === STEPS.length - 1 && 'invisible',
-                )}
+            return (
+              <li
+                key={step.index}
+                data-reveal
+                className="flex w-60 shrink-0 snap-start flex-col border border-border bg-surface lg:w-auto"
               >
-                &rarr;
-              </span>
-            </li>
-          ))}
+                <div className="flex flex-1 flex-col p-5">
+                  <p className="flex items-center gap-3">
+                    <span className="caps text-eyebrow text-accent-text">{step.index}</span>
+                    <span aria-hidden className="h-px w-5 bg-accent/40" />
+                  </p>
+
+                  <h3 className="display-type mt-3 text-xl text-foreground">{step.name}</h3>
+
+                  {/* `flex-1` pushes nothing — it lets the copy block absorb the
+                      difference between a one-line and a two-line body so all
+                      five illustrations start on the same line. */}
+                  <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground">
+                    {step.body}
+                  </p>
+                </div>
+
+                {art ? (
+                  // A plain <img>: `images.loader` is custom with no resizer, so
+                  // next/image would ship this exact file anyway, just heavier.
+                  // Native width/height reserve the box and keep CLS at zero.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={art.src}
+                    alt={step.alt}
+                    width={art.width}
+                    height={art.height}
+                    loading="lazy"
+                    decoding="async"
+                    className="mt-auto block h-auto w-full"
+                  />
+                ) : null}
+              </li>
+            );
+          })}
         </ol>
       </div>
     </section>

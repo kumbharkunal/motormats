@@ -38,7 +38,7 @@ export function QuantityStepper({
     // No fixed height: with a border, h-11 gives a 42px content box and clips
     // the 44px children. Hugging them keeps the tap targets honest.
     <div
-      className="inline-flex items-center rounded-full border border-border bg-surface"
+      className="inline-flex items-center border border-border bg-surface"
       role="group"
       aria-label={label}
     >
@@ -89,7 +89,7 @@ function StepButton({
       disabled={disabled}
       aria-label={label}
       className={cn(
-        'flex size-11 shrink-0 items-center justify-center rounded-full transition-colors duration-200',
+        'flex size-11 shrink-0 items-center justify-center transition-colors duration-200',
         disabled
           ? 'cursor-not-allowed text-subtle-foreground'
           : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground active:scale-90',

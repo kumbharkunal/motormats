@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -112,63 +113,105 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         ]}
       />
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-14">
+      {/*
+        Two measured columns, centred — not an edge-to-edge split.
+
+        The mat cutouts are composed on a 4:5 frame, so a gallery given the full
+        half of a 1440px page is over a thousand pixels tall and runs off the
+        screen before the price beside it has been read. Capping both columns and
+        centring the pair keeps the frame at a readable size and gives the page
+        an editorial measure instead of two columns stretched to the gutters.
+
+        The buy column sticks.
+
+        The gallery is the taller element and the column beside it is short, so
+        on a desktop the reader scrolled the price and the add-to-cart button off
+        the screen while still looking at the product. `items-start` plus
+        `sticky` keeps the decision in view for as long as the pictures last —
+        which is the one thing a product page is for.
+      */}
+      <div className="mt-8 grid items-start justify-center gap-10 lg:grid-cols-[minmax(0,34rem)_minmax(0,30rem)] lg:gap-16">
         <ProductGallery images={product.images} productName={product.name} />
 
-        <div>
-          {product.brand ? (
-            <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-              {product.brand}
-            </p>
-          ) : null}
+        <div className="lg:sticky lg:top-[calc(var(--header-height)+2rem)]">
+          <p className="caps text-eyebrow text-subtle-foreground">
+            {product.category?.name ?? product.brand ?? 'Motormats'}
+          </p>
 
-          <h1 className="mt-2 text-h1">{product.name}</h1>
+          <h1 className="display-type mt-4 text-h1 text-foreground">{product.name}</h1>
 
           {product.summary ? (
-            <p className="mt-3 text-balance text-muted-foreground">{product.summary}</p>
+            <p className="mt-5 text-balance text-body text-muted-foreground">{product.summary}</p>
           ) : null}
 
-          {product.ratingAverage !== null ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              <span className="text-accent-text" aria-hidden>
-                ★
-              </span>{' '}
-              {product.ratingAverage.toFixed(1)} out of 5 ({product.ratingCount} reviews)
+          {product.ratingAverage !== null && product.ratingCount > 0 ? (
+            <p className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="flex" aria-hidden>
+                {Array.from({ length: 5 }, (_, index) => (
+                  <Star
+                    key={index}
+                    size={13}
+                    className={
+                      index < Math.floor(product.ratingAverage ?? 0)
+                        ? 'fill-accent text-accent'
+                        : 'text-muted-foreground/30'
+                    }
+                  />
+                ))}
+              </span>
+              <span className="tabular-nums">{product.ratingAverage.toFixed(1)}</span>
+              <span className="text-subtle-foreground">({product.ratingCount})</span>
             </p>
           ) : null}
 
-          <div className="mt-8">
+          <div className="mt-9 border-t border-border pt-9">
             <VariantSelector product={product} />
           </div>
 
-          {product.description ? (
-            <div className="mt-10 border-t border-border pt-8">
-              <h2 className="text-h3">Details</h2>
-              <p className="mt-3 leading-relaxed text-muted-foreground">{product.description}</p>
-            </div>
-          ) : null}
-
-          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-border pt-8 text-sm">
-            <div>
-              <dt className="text-xs tracking-wide text-muted-foreground uppercase">Price range</dt>
-              <dd className="mt-1 font-semibold">
-                {lowestPrice === highestPrice
-                  ? formatPaise(lowestPrice)
-                  : `${formatPaise(lowestPrice)} – ${formatPaise(highestPrice)}`}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs tracking-wide text-muted-foreground uppercase">Dispatch</dt>
-              <dd className="mt-1 font-semibold">{BUSINESS.dispatchDays}</dd>
-            </div>
+          {/* The three things a reader asks before committing, as hairline rows
+              rather than a two-column block that left "Dispatch" stranded. */}
+          <dl className="mt-9 border-t border-border text-sm">
+            <SpecRow term="Price range">
+              {lowestPrice === highestPrice
+                ? formatPaise(lowestPrice)
+                : `${formatPaise(lowestPrice)} – ${formatPaise(highestPrice)}`}
+            </SpecRow>
+            <SpecRow term="Dispatch">{BUSINESS.dispatchDays}</SpecRow>
+            <SpecRow term="Returns">{BUSINESS.returnWindowDays} days, unused</SpecRow>
           </dl>
         </div>
       </div>
+
+      {product.description ? (
+        <section
+          aria-labelledby="details-heading"
+          className="mt-16 border-t border-border pt-10 md:mt-24"
+        >
+          <div className="grid gap-6 lg:grid-cols-12 lg:gap-12">
+            <h2 id="details-heading" className="display-type text-h3 text-foreground lg:col-span-4">
+              Details
+            </h2>
+            <p className="max-w-prose text-body leading-relaxed text-muted-foreground lg:col-span-8">
+              {product.description}
+            </p>
+          </div>
+        </section>
+      ) : null}
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
+    </div>
+  );
+}
+
+/** One hairline row of the spec list. */
+function SpecRow({ term, children }: { term: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-6 border-b border-border py-3.5">
+      <dt className="caps text-eyebrow text-subtle-foreground">{term}</dt>
+      <dd className="text-right font-medium text-foreground tabular-nums">{children}</dd>
     </div>
   );
 }

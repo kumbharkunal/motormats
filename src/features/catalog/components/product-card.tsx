@@ -2,6 +2,8 @@ import { Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { MatPlate } from '@/components/media/mat-plate';
+import { matCutoutForAsset } from '@/features/catalog/mat-cutouts';
 import { QuickAddButton } from '@/features/cart/components/quick-add-button';
 import { formatPaise } from '@/lib/money';
 import { cn } from '@/lib/utils';
@@ -30,53 +32,64 @@ export type ProductCardItem = {
   inStock?: boolean;
 };
 
+const PLATE_SIZES =
+  '(max-width: 639px) 78vw, (max-width: 1023px) 46vw, (max-width: 1439px) 30vw, 22vw';
+
 /**
  * One product card for the whole storefront.
  *
- * The homepage and the collections grid had drifted into two cards that shared
- * a wrapper class and nothing else — different image fit, type scale, rating
- * treatment and price size, and only one of them could add to the cart.
+ * The plate is a 4:5 frame with the mat sitting *inside* padding, not filling
+ * it. The photography is a transparent cutout of a single mat, and the previous
+ * `object-cover` on a 2:1 box guillotined it — the card showed a band of weave
+ * with the bound edge and the badge cropped away. `object-contain` on a frame
+ * built at the cutouts' own ratio shows the whole object, and the shadow is a
+ * `drop-shadow`, which follows the alpha channel and so is cast by the mat's
+ * silhouette rather than by its bounding box.
+ *
+ * Square corners, because `--radius-card` is 0: the layout is built from
+ * hairline rules and butted plates, and the card was the last rounded object.
  *
  * Note the card is deliberately *not* one big `<Link>`: quick-add is a button,
  * and a button nested inside an anchor is invalid and unclickable on some
- * browsers. The title carries the navigation instead.
+ * browsers. The plate and the title carry the navigation instead.
  */
 export function ProductCard({
   product,
   priority = false,
-  dense = false,
   className,
 }: {
   product: ProductCardItem;
   priority?: boolean;
-  /**
-   * A flatter, tighter card for grids that share a screen-height band with a
-   * feature photograph. Beyond the plate ratio (2:1 instead of square, so two
-   * rows lose real height rather than just losing the extra squareness), the
-   * padding and type scale come down too — a card built at the collections
-   * grid's own comfortable size still ran two rows past the band's floor.
-   */
-  dense?: boolean;
   className?: string;
 }) {
   const soldOut = product.inStock === false;
   const hasDiscount =
     product.compareAtPricePaise != null && product.compareAtPricePaise > product.fromPricePaise;
+  const cutout = matCutoutForAsset(product.imageAssetId);
 
   return (
     <article
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-2xl card-surface transition-colors duration-500 hover:border-accent/30 md:rounded-3xl',
+        'group relative flex h-full flex-col border border-border bg-surface transition-colors duration-500 hover:border-accent/40',
         className,
       )}
     >
-      <div
-        className={cn(
-          'relative overflow-hidden bg-surface',
-          dense ? 'aspect-2/1' : 'aspect-4/3 lg:aspect-square',
-        )}
-      >
-        {product.imageAssetId ? (
+      <div className="relative aspect-4/5 overflow-hidden bg-paper">
+        {cutout ? (
+          <Link
+            href={`/products/${product.slug}`}
+            className="absolute inset-0 z-[1] block p-6 md:p-8"
+            aria-label={`View ${product.name}`}
+          >
+            <MatPlate
+              {...cutout}
+              alt={product.imageAlt ?? cutout.alt}
+              sizes={PLATE_SIZES}
+              priority={priority}
+              className="drop-shadow-[0_18px_28px_rgba(10,10,10,0.14)] transition-motion duration-700 ease-expo group-hover:-translate-y-2"
+            />
+          </Link>
+        ) : product.imageAssetId ? (
           <Link
             href={`/products/${product.slug}`}
             className="absolute inset-0 z-[1] block"
@@ -87,7 +100,7 @@ export function ProductCard({
               alt={product.imageAlt ?? `${product.name} car mat`}
               fill
               priority={priority}
-              sizes="(max-width: 639px) 70vw, (max-width: 1023px) 46vw, 22vw"
+              sizes={PLATE_SIZES}
               className="object-cover transition-motion duration-700 group-hover:scale-105"
             />
           </Link>
@@ -100,8 +113,8 @@ export function ProductCard({
         <Badge soldOut={soldOut} hasDiscount={hasDiscount} product={product} />
       </div>
 
-      <div className={cn('relative z-[2] flex flex-1 flex-col', dense ? 'p-3' : 'p-4')}>
-        <h3 className={dense ? 'text-sm font-semibold' : 'text-base font-semibold md:text-lg'}>
+      <div className="relative z-[2] flex flex-1 flex-col border-t border-border p-3 sm:p-4">
+        <h3 className="font-display text-base leading-tight md:text-lg">
           <Link
             href={`/products/${product.slug}`}
             className="transition-colors duration-200 hover:text-accent-text"
@@ -110,15 +123,25 @@ export function ProductCard({
           </Link>
         </h3>
 
-        <Rating average={product.ratingAverage} count={product.ratingCount} dense={dense} />
+        <Rating average={product.ratingAverage} count={product.ratingCount} />
 
-        <div className={cn('mt-auto flex items-end justify-between gap-3', dense ? 'pt-2' : 'pt-3')}>
-          <p
-            className={cn(
-              'flex items-baseline gap-2 font-semibold text-foreground',
-              dense ? 'text-base' : 'text-lg md:text-xl',
-            )}
-          >
+        {/*
+          A two-column grid, not a wrapping flex row.
+
+          The quick-add button is 44px and cannot get smaller — that is the touch
+          target floor — so on a 320px screen in a two-up grid the price and the
+          button together are wider than the card. Letting the row wrap solved the
+          overflow and introduced a worse bug: a wrapped line holds one item, and
+          `justify-between` puts a lone item at flex-start, so the button jumped
+          to the *left* edge on exactly those cards with a compare-at price and
+          stayed right on the rest. Across a grid it read as random.
+
+          `minmax(0,1fr)` lets the price column shrink and wrap inside itself
+          instead, so the button is pinned bottom-right on every card at every
+          width, and nothing overflows.
+        */}
+        <div className="mt-auto grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 pt-3">
+          <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 font-semibold text-foreground tabular-nums">
             {formatPaise(product.fromPricePaise)}
             {hasDiscount ? (
               <span className="text-xs font-normal text-muted-foreground line-through">
@@ -149,10 +172,10 @@ function Badge({
   product: ProductCardItem;
 }) {
   const base =
-    'absolute top-3 left-3 z-10 rounded-full px-3 py-1 text-[0.625rem] font-semibold tracking-[0.1em] uppercase';
+    'absolute top-0 left-0 z-10 px-2.5 py-1.5 text-[0.625rem] font-semibold tracking-[0.12em] uppercase';
 
   if (soldOut) {
-    return <span className={cn(base, 'bg-background/90 text-muted-foreground')}>Sold out</span>;
+    return <span className={cn(base, 'bg-ink text-white')}>Sold out</span>;
   }
 
   if (hasDiscount) {
@@ -165,34 +188,19 @@ function Badge({
 
   if (product.categoryName) {
     return (
-      <span className={cn(base, 'border border-border bg-surface-elevated/90 text-foreground')}>
-        {product.categoryName}
-      </span>
+      <span className={cn(base, 'bg-ink/85 text-white')}>{product.categoryName}</span>
     );
   }
 
   return null;
 }
 
-function Rating({
-  average,
-  count,
-  dense,
-}: {
-  average: number | null;
-  count: number;
-  dense: boolean;
-}) {
+function Rating({ average, count }: { average: number | null; count: number }) {
   if (average === null || count === 0) return null;
   const filled = Math.floor(average);
 
   return (
-    <p
-      className={cn(
-        'flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground',
-        dense ? 'mt-1' : 'mt-1.5',
-      )}
-    >
+    <p className="mt-1.5 flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground">
       <span className="flex" aria-hidden>
         {Array.from({ length: 5 }, (_, index) => (
           <Star

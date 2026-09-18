@@ -51,25 +51,28 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
 
   return (
     <div className="space-y-6">
-      <p className="flex items-baseline gap-3">
-        <span className="font-sans text-h2 font-semibold tabular-nums">
+      <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        {/* The UI face, not the display serif: this is a number to compare, and
+            tabular figures are the whole reason the body face was chosen. */}
+        <span className="font-sans text-[clamp(1.75rem,1.2rem+1.6vw,2.5rem)] leading-none font-semibold text-foreground tabular-nums">
           {formatPaise(selectedVariant?.pricePaise ?? product.basePricePaise)}
         </span>
         {product.compareAtPricePaise &&
         product.compareAtPricePaise > (selectedVariant?.pricePaise ?? product.basePricePaise) ? (
-          <span className="text-sm text-muted-foreground line-through">
+          <span className="text-sm text-muted-foreground line-through tabular-nums">
             {formatPaise(product.compareAtPricePaise)}
           </span>
         ) : null}
-        <span className="text-xs text-muted-foreground">incl. GST</span>
+        <span className="caps text-eyebrow text-subtle-foreground">incl. GST</span>
       </p>
 
       {optionGroups.map((group) => (
         <fieldset key={group.name}>
-          <legend className="mb-2 text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase">
-            {group.label}
-          </legend>
-          <div className="flex flex-wrap gap-2">
+          <legend className="caps mb-3 text-eyebrow text-subtle-foreground">{group.label}</legend>
+          {/* `w-fit`: the hairline ground is the gap between swatches, so a
+                container stretched to the column width paints it as a slab
+                past the last option. */}
+          <div className="flex w-fit flex-wrap gap-px bg-border">
             {group.values.map((value) => {
               const candidate = { ...selection, [group.name]: value };
               const match = findVariant(product.variants, candidate);
@@ -87,15 +90,19 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
                     setQuantity(1);
                   }}
                   className={cn(
-                    'inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition-colors duration-200',
+                    // Square, and separated by the grid's own hairline rather
+                    // than by each swatch carrying a border — a selected border
+                    // in a wrapping row nudges every neighbour by a pixel.
+                    'inline-flex min-h-11 items-center gap-2 px-5 text-sm transition-colors duration-200',
+                    'active:scale-[0.98]',
                     active
-                      ? 'border-accent bg-accent text-white'
-                      : 'border-border text-muted-foreground hover:border-border-strong hover:text-foreground',
+                      ? 'bg-ink text-white'
+                      : 'bg-surface text-muted-foreground hover:bg-surface-hover hover:text-foreground',
                     !match && 'cursor-not-allowed opacity-35',
                     unavailable && match && 'line-through',
                   )}
                 >
-                  {active ? <Check aria-hidden size={14} /> : null}
+                  {active ? <Check aria-hidden size={13} strokeWidth={2.5} /> : null}
                   {value}
                 </button>
               );
@@ -121,7 +128,14 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
           />
         </div>
 
-        <Button size="lg" onClick={addToCart} disabled={outOfStock} className="sm:flex-1">
+        <Button
+          variant="flat"
+          shape="square"
+          size="lg"
+          onClick={addToCart}
+          disabled={outOfStock}
+          className="sm:flex-1"
+        >
           <ShoppingBag aria-hidden size={18} />
           {outOfStock ? 'Sold out' : 'Add to cart'}
         </Button>
@@ -131,18 +145,36 @@ export function VariantSelector({ product }: { product: ProductDetail }) {
 }
 
 function StockNotice({ variant }: { variant: Variant | undefined }) {
+  const base = 'caps flex items-center gap-2 text-eyebrow';
+
   if (!variant) {
-    return <p className="text-sm text-muted-foreground">This combination isn&apos;t available.</p>;
+    return <p className={cn(base, 'text-muted-foreground')}>This combination isn&apos;t available</p>;
   }
   if (variant.stockQuantity <= 0) {
-    return <p className="text-sm text-muted-foreground">Out of stock in this finish.</p>;
+    return <p className={cn(base, 'text-muted-foreground')}>Out of stock in this finish</p>;
   }
   if (variant.isLowStock) {
     return (
-      <p className="text-sm text-accent-text">Only {variant.stockQuantity} left in this finish.</p>
+      <p className={cn(base, 'text-accent-text')}>
+        <Dot tone="accent" /> Only {variant.stockQuantity} left in this finish
+      </p>
     );
   }
-  return <p className="text-sm text-success">In stock, ships in 2–4 days.</p>;
+  return (
+    <p className={cn(base, 'text-muted-foreground')}>
+      <Dot tone="success" /> In stock &middot; ships in 2&ndash;4 days
+    </p>
+  );
+}
+
+/** A 6px square, not a circle — the same corner radius as everything else. */
+function Dot({ tone }: { tone: 'accent' | 'success' }) {
+  return (
+    <span
+      aria-hidden
+      className={cn('size-1.5 shrink-0', tone === 'accent' ? 'bg-accent' : 'bg-success')}
+    />
+  );
 }
 
 type OptionGroup = { name: string; label: string; values: string[] };

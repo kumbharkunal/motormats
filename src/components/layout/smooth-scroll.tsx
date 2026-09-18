@@ -4,11 +4,24 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+
+import { publishLenis, resyncScroll } from '@/lib/scroll-sync';
 
 import 'lenis/dist/lenis.css';
 
-if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+
+  /*
+   * The mobile URL bar changes `innerHeight` as it retracts and fires a resize,
+   * and ScrollTrigger's default answer is to re-measure every trigger on the
+   * page mid-scroll — which is exactly when it is least affordable. Every band
+   * here is sized in `svh`, so their boxes do not move when the bar does; there
+   * is nothing to re-measure. A genuine rotation still refreshes.
+   */
+  ScrollTrigger.config({ ignoreMobileResize: true });
+}
 
 /**
  * Document-level inertia, and the single place Lenis and ScrollTrigger are
@@ -27,7 +40,6 @@ if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
  */
 export function SmoothScroll() {
   const pathname = usePathname();
-  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -60,7 +72,7 @@ export function SmoothScroll() {
       prevent: (node) => Boolean(node.closest('[data-native-scroll]')),
     });
 
-    lenisRef.current = lenis;
+    publishLenis(lenis);
     document.documentElement.classList.add('lenis', 'lenis-smooth');
 
     const raf = (time: number) => lenis.raf(time * 1000);
@@ -68,20 +80,47 @@ export function SmoothScroll() {
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
+    /*
+     * The page changes height without a navigation, and until now nothing told
+     * either library. Picking a brand in the fit wizard swaps a six-row grid for
+     * a short model list and takes 441px out of the document in one frame; the
+     * browser scroll-anchors the real position to compensate, and Lenis's cached
+     * position and limit are left behind by exactly that much, while every
+     * ScrollTrigger start and end still describes the taller page. The effects
+     * are the ones that read as "the tap did nothing": the next swipe jumps back
+     * to the stale position, and reveals fire against bounds that have moved.
+     *
+     * Debounced, because `refresh()` re-measures every trigger on the page and a
+     * resize observer fires per frame during an animated height change. This is
+     * the safety net for height changes nothing predicted; a change the app
+     * *made* calls `resyncScroll()` itself, the moment it settles.
+     */
+    let pending = 0;
+    const remeasure = () => {
+      window.clearTimeout(pending);
+      pending = window.setTimeout(() => {
+        lenis.resize();
+        ScrollTrigger.refresh();
+      }, 150);
+    };
+    const observer = new ResizeObserver(remeasure);
+    observer.observe(document.body);
+
     return () => {
+      window.clearTimeout(pending);
+      observer.disconnect();
       gsap.ticker.remove(raf);
       gsap.ticker.lagSmoothing(500, 33);
       document.documentElement.classList.remove('lenis', 'lenis-smooth');
       lenis.destroy();
-      lenisRef.current = null;
+      publishLenis(null);
     };
   }, []);
 
   useEffect(() => {
-    lenisRef.current?.resize();
     // Route changes replace the whole document body, so every trigger's
     // measured start and end are stale until this runs.
-    ScrollTrigger.refresh();
+    resyncScroll();
   }, [pathname]);
 
   return null;

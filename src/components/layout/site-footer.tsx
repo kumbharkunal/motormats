@@ -63,7 +63,7 @@ export function SiteFooter() {
             min-content and pushed the whole page 28px wide at 320px. */}
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
           <div className="md:col-span-3">
-            <MotormatsLogo size="md" tone="brand" className="h-8" />
+            <MotormatsLogo size="md" tone="bare" />
             <p className="mt-6 max-w-xs text-sm leading-relaxed text-muted-foreground">
               A better floor, for every drive. Premium protection for drivers who want the interior
               to look the way it did on day one.
