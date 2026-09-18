@@ -97,4 +97,4 @@ file.
 Builds to a standard `next start` Node server with no host-specific coupling —
 runs on Hostinger Web Apps, a VPS, Docker or Vercel unchanged. The process is
 assumed to be restartable at any time, so nothing that matters for correctness
-is kept in memory.
+is kept in memory..
