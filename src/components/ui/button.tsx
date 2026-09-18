@@ -39,16 +39,31 @@ const buttonVariants = cva(
           'border border-border-strong bg-surface text-foreground hover:border-accent/80 hover:bg-accent/5 hover:-translate-y-0.5 active:translate-y-px active:scale-[0.97]',
         subtle: 'bg-surface-elevated text-foreground hover:bg-surface-hover active:scale-[0.97]',
         icon: 'bg-surface-elevated text-muted-foreground hover:bg-surface-hover hover:text-foreground active:scale-95',
+
+        /*
+         * The editorial pair. Flat, square and unlit: no gradient, no glow, no
+         * hover lift. On a page built from hairlines and butted plates a button
+         * that floats is the only object breaking the surface, so these change
+         * on hover by darkening or filling instead of by moving.
+         *
+         * `hairline` inherits `currentColor`, so the same variant works on
+         * paper and on ink without a second definition.
+         */
+        flat: 'bg-accent text-white hover:bg-accent-hover',
+        hairline: 'border border-current/35 bg-transparent hover:border-current/70 hover:bg-current/5',
       },
       size: {
         sm: 'h-9 px-4 text-xs',
         md: 'h-12 px-8 text-sm',
         lg: 'h-14 px-10 text-sm uppercase tracking-[0.15em]',
         icon: 'size-11',
+        /** The editorial button face: tracked caps, generous horizontal padding. */
+        caps: 'caps h-13 px-8 text-label',
       },
       shape: {
         pill: 'rounded-full',
         rounded: 'rounded-lg',
+        square: 'rounded-none',
       },
     },
     defaultVariants: { variant: 'primary', size: 'md', shape: 'pill' },

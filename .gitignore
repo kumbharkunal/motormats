@@ -66,3 +66,15 @@ desktop.ini
 # `public/` is the only web root, so these would be 15MB of dead weight in the
 # repo. See docs/ai-image-prompts.md.
 /motormats/
+
+# Photography masters: the client's deck and the HD shoot drops. 2.8GB of
+# camera originals and zips that `scripts/` converts into `public/`.
+#
+# `*` rather than the bare directory, so the negation below can re-include a
+# subfolder — git will not descend into an excluded directory to find one.
+/images-deck/*
+
+# The exception: the unpacked naming deck (66MB, 65 plates). This is the source
+# the surfaces carousel and the mat comparison are cut from, so the repo needs
+# it to rebuild either of those.
+!/images-deck/_extract/

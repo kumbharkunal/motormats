@@ -17,17 +17,25 @@
 
 @theme {
   /* ── Surfaces ────────────────────────────────────────────────────────── */
-  /* Elevation inverts with the theme. A dark surface rises by lightening; a
-     light one rises by whitening toward pure #FFF and taking a real shadow. */
-  --color-background: #f6f7f9; /* app canvas — the plane cards sit on */
-  --color-surface: #ffffff; /* cards, header, menus */
-  --color-surface-elevated: #f9fafb; /* recessed strips inside a card */
-  --color-surface-hover: #f2f4f7;
+  /* The page is built from two grounds that alternate band by band: warm paper
+     and near-black ink. Both are set here; `band-light` and `band-dark` apply
+     them, and each band re-points the text tokens so type inside it stays
+     legible without every component knowing which ground it landed on. */
+  --color-ink: #0a0a0a; /* dark bands — near-black, not slate */
+  --color-paper: #f6f4f0; /* light bands — warm off-white, not blue-grey */
+  --color-background: #f6f4f0; /* app canvas */
+  /* The binding on the mats, so a surface tint next to the product photography
+     is a colour the photograph already contains. */
+  --color-sand: #ddd5c5;
+  --color-clay: #9e8b6e;
+  --color-surface: #ffffff; /* fields, cards on paper */
+  --color-surface-elevated: #ffffff;
+  --color-surface-hover: #ebe7e3;
 
   /* ── Text ────────────────────────────────────────────────────────────── */
-  --color-foreground: #101828; /* 17.8:1 — near-black slate; pure black is harsh on white */
-  --color-muted-foreground: #475467; /*  7.7:1 — body copy and captions */
-  --color-subtle-foreground: #667085; /*  5.0:1 — tertiary labels */
+  --color-foreground: #0a0a0a; /* 19.3:1 on paper — the display face wants full black */
+  --color-muted-foreground: #5c5754; /*  7.2:1 — body copy and captions */
+  --color-subtle-foreground: #8a8480; /*  3.6:1 — eyebrows and micro-labels only, never body */
 
   /* ── Racing red ──────────────────────────────────────────────────────── */
   --color-accent: #e10600; /* 4.97:1 on white — surfaces, CTAs and, here, ink */
@@ -49,8 +57,8 @@
 
   /* ── Lines ───────────────────────────────────────────────────────────── */
   /* Solid, not rgba: a translucent line muddies over the tinted canvas. */
-  --color-border: #e4e7ec;
-  --color-border-strong: #d0d5dd;
+  --color-border: #ddd8d3;
+  --color-border-strong: #c6bfb8;
 
   /* ── Status — text-grade against white ───────────────────────────────── */
   --color-success: #15803d; /* the dark theme's #22c55e is 2.3:1 here */
@@ -66,28 +74,44 @@
   --color-toast-info: #e8effb;
 
   /* ── Typography ──────────────────────────────────────────────────────── */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-geist), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  --font-display: var(--font-instrument), Georgia, 'Times New Roman', serif;
 
-  /* Fluid sans scale — Instagram-aligned, all Inter. */
-  --text-display: clamp(2.75rem, 6vw + 1rem, 5.5rem);
-  --text-display--line-height: 1.02;
-  --text-display--letter-spacing: -0.02em;
-  --text-h1: clamp(2.25rem, 4vw + 0.5rem, 3.75rem);
-  --text-h1--line-height: 1.05;
-  --text-h1--letter-spacing: -0.015em;
-  --text-h2: clamp(1.875rem, 3vw + 0.25rem, 3rem);
-  --text-h2--line-height: 1.1;
-  --text-h2--letter-spacing: -0.01em;
-  --text-h3: clamp(1.25rem, 1.5vw + 0.4rem, 1.625rem);
-  --text-h3--line-height: 1.2;
-  --text-h3--letter-spacing: 0;
-  /* The small uppercase label that sits above a heading — Inter, not the
-     serif, because a display serif at 12px is noise. */
-  --text-eyebrow: 0.6875rem;
+  /* Display scale. Set in `--font-display`, a high-contrast serif at a single
+     weight, in sentence case (see the `display-type` utility). The line heights
+     stay below 1 because the face is set very large and its ascenders and
+     descenders are short; the negative tracking closes the word spaces that a
+     high-contrast serif opens up at size. */
+  /* Height-aware, like the section rhythm. These were pure `vw`, so a 1280x720
+     laptop got the same headline as a 1280x1024 desktop with 300px less room to
+     put it in — the single reason most bands still overran on a short screen.
+     `min()` lets whichever axis is tighter set the size; the clamp floor keeps
+     it readable when both are small. */
+  --text-display: clamp(2.5rem, min(5.6vw + 0.5rem, 9vh), 5rem);
+  --text-display--line-height: 0.9;
+  --text-display--letter-spacing: -0.025em;
+  --text-h1: clamp(2rem, min(4vw + 0.5rem, 6.8vh), 3.75rem);
+  --text-h1--line-height: 0.92;
+  --text-h1--letter-spacing: -0.022em;
+  --text-h2: clamp(1.75rem, min(3.2vw + 0.4rem, 5.2vh), 3rem);
+  --text-h2--line-height: 0.94;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h3: clamp(1.125rem, 1.2vw + 0.5rem, 1.5rem);
+  --text-h3--line-height: 1.05;
+  --text-h3--letter-spacing: -0.01em;
+
+  /* The micro-labels. `eyebrow` sits above a heading, `label` is the face of a
+     button or a card title. Both are UI-face, never display: the display cut is
+     too heavy to hold its counters at 10px. */
+  --text-eyebrow: 0.625rem;
   --text-eyebrow--line-height: 1;
-  --text-eyebrow--letter-spacing: 0.22em;
-  --text-body: clamp(0.9375rem, 0.5vw + 0.75rem, 1.0625rem);
-  --text-body--line-height: 1.7;
+  --text-eyebrow--letter-spacing: 0.2em;
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1;
+  --text-label--letter-spacing: 0.16em;
+
+  --text-body: clamp(0.875rem, 0.35vw + 0.78rem, 0.9375rem);
+  --text-body--line-height: 1.75;
 
   /* ── Motion ──────────────────────────────────────────────────────────── */
   --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -103,15 +127,43 @@
   --shadow-raised: 0 4px 12px rgba(16, 24, 40, 0.08);
   --shadow-panel: 0 -8px 32px rgba(16, 24, 40, 0.08);
 
-  --radius-card: 1rem;
-  --radius-card-lg: 1.5rem;
+  /* Square. The layout is built from hairline rules and butted photographic
+     plates, and a radius on either turns the grid soft — the one thing this
+     design language does not do. Kept as tokens so the few genuinely round
+     things (avatars, the carousel arrows) still have to ask for it. */
+  --radius-card: 0px;
+  --radius-card-lg: 0px;
 
-  /* Section rhythm, matching the reference: 130px between bands and 100px
-     inside one, collapsing to ~45%/50% of that on a phone. */
-  --spacing-section: clamp(3.625rem, 7vw, 8.125rem);
-  --spacing-band: clamp(3.125rem, 5vw, 6.25rem);
+  /* Section rhythm. Tightened from 58-130px to 44-104px once the page became
+     picture-led: with photographs carrying the page, the old gap left a band
+     of empty ground between every plate. Full-bleed image sections take no
+     vertical padding at all and rely on this only for their type. */
+  /* Height-aware, not just width-aware. These were pure `vw`, which is why a
+     short-but-wide viewport — a 1280x720 laptop, a landscape phone — blew every
+     band past the screen: the padding grew with the width while the thing it
+     had to fit inside was the height. `min(vw, vh)` lets the wider axis propose
+     and the shorter axis veto, so a band compresses on a short screen and keeps
+     its full rhythm on a tall one. */
+  --spacing-section: clamp(1.75rem, min(5vw, 5.5vh), 6.5rem);
+  --spacing-band: clamp(1.5rem, min(3.5vw, 4vh), 4.5rem);
 
-  --container-page: 1340px;
+  /*
+   * 1920px, up from 1340. The page is picture-led and most of its plates are
+   * full-bleed, so a narrow column put every heading 208px inside the left edge
+   * of the photographs it was introducing. At the common desktop widths the
+   * column is now the sheet, and the gutter below is the only inset; past 1920
+   * it still caps rather than running to an ultrawide measure.
+   */
+  --container-page: 1920px;
+
+  /*
+   * The page gutter, in one place.
+   *
+   * Both `container-page` and the bleed rails inset by this, which is what
+   * makes a heading in the column and a rail that escapes it share a left edge.
+   * The rails used to carry their own `px-8` and missed by 4px.
+   */
+  --gutter-page: clamp(1.25rem, 3vw, 1.75rem);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -123,17 +175,26 @@
      them offsets by these rather than by a hardcoded number, which is how
      the cart summary ended up sliding under the checkout steps. */
   :root {
-    /* Padding above AND below the 3rem pill row, so the band is symmetric:
-       16 + 48 + 16. It used to be padded only on top, which left the pills
-       sitting flush on the band's bottom edge with content running right up
-       under them. */
-    --header-height: 5rem;
+    /* Padding above AND below the 2.75rem action row, so the band is symmetric:
+       8 + 44 + 8. It used to be padded only on top, which left the row sitting
+       flush on the band's bottom edge with content running right up under it.
+
+       The row is 44px because that is the touch-target floor and the primary
+       button fills it exactly — the band cannot get shorter without either
+       clipping that button or breaking the minimum.
+
+       These must equal the band's real rendered height — the hero pulls itself
+       up by exactly this, and four sticky offsets measure from it, so a token
+       that drifts from `header-band.tsx` opens a strip of paper above the
+       cover. The bottom hairline is an inset shadow for the same reason: a
+       border would add a pixel row this token does not count. */
+    --header-height: 3.75rem;
     --checkout-steps-height: 3.25rem;
   }
 
   @media (min-width: 768px) {
     :root {
-      --header-height: 5.5rem;
+      --header-height: 4rem;
     }
   }
 
@@ -155,6 +216,22 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* Every control is tapped, not double-tapped. `manipulation` drops the
+     double-tap-to-zoom gesture on these, which is what mobile browsers are
+     waiting on before they release the click — and while they wait, a thumb
+     that rolls a few pixels turns the tap into a pan and the click never
+     arrives. It buys nothing on a page that already sets `text-size-adjust`
+     and has no zoomable UI, and it costs a selection that reads as dead
+     controls: the brand tiles in the fit wizard, most of all. */
+  a,
+  button,
+  [role='button'],
+  label,
+  select,
+  summary {
+    touch-action: manipulation;
+  }
+
   body {
     margin: 0;
     background-color: var(--color-background);
@@ -174,14 +251,26 @@
     overflow-x: clip;
   }
 
+  /* Display face by default, so a heading is never accidentally set in the UI
+     face. No `text-wrap: balance`: the headlines here are written to break at a
+     chosen word and the balancer moves that break at some widths. */
   h1,
   h2,
   h3 {
-    font-family: var(--font-sans);
-    font-weight: 600;
+    font-family: var(--font-display);
+    /* The display face ships one weight. Size and stroke contrast carry the
+       emphasis — asking for a weight the file does not contain is what left the
+       old face rendering a step lighter than it was drawn for. */
+    font-weight: 400;
+    /* And if something does ask, refuse rather than fake it. A `font-semibold`
+       on a heading used as a small UI label — which is a thing that happens,
+       because headings are chosen for document structure, not for looks — made
+       the browser smear the 400 serif into a counterfeit bold at 14px. Without
+       synthesis it simply renders at 400, which is right; a label that genuinely
+       wants weight belongs on the UI face and says so with `font-sans`. */
+    font-synthesis-weight: none;
     letter-spacing: -0.02em;
     margin: 0;
-    text-wrap: balance;
   }
 
   /* h4 and below are labels and captions, not display type — they stay on the
@@ -219,19 +308,88 @@
     color: var(--color-foreground);
   }
 
+  /*
+   * The scrollbar, in the page's own language: one hairline rule and a square
+   * bar, no pill.
+   *
+   * **Every colour is a token, and none of them is `--color-background`.** The
+   * track is transparent and the rule and thumb read `--color-border` and
+   * `--color-foreground`, both of which `band-dark` re-points — so a scroller
+   * inside a dark band gets a white bar on a dark rule without a second rule
+   * being written for it, and the document's own bar stays ink on paper.
+   *
+   * **Twelve pixels wide, six of them painted.** The bar it replaces was 5px
+   * edge to edge, which looks refined in a screenshot and is genuinely hard to
+   * catch with a mouse — and this is a very long page. The transparent border
+   * plus `background-clip: content-box` is what separates the two numbers: a
+   * 6px bar sitting in a 12px grab target.
+   *
+   * Red on grab, never at rest. Accent is the page's action colour and it is
+   * spent on things you can press; a permanently red scrollbar would compete
+   * with every call to action on the page for the same signal.
+   *
+   * Not hidden, and not replaced with a JS progress bar. On a nine-band page the
+   * scrollbar is the only thing telling a reader how much is left.
+   */
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 12px;
+    height: 12px;
   }
+
   ::-webkit-scrollbar-track {
-    background: var(--color-background);
+    background: transparent;
   }
+
+  /* The hairline sits on the edge the content is on, so it reads as the same
+     1px rule the bands are built from rather than as a box around the bar. */
+  ::-webkit-scrollbar-track:vertical {
+    box-shadow: inset 1px 0 0 var(--color-border);
+  }
+
+  ::-webkit-scrollbar-track:horizontal {
+    box-shadow: inset 0 1px 0 var(--color-border);
+  }
+
   ::-webkit-scrollbar-thumb {
-    background: var(--color-border-strong);
-    border-radius: 100px;
+    background-color: var(--color-foreground);
+    /* Square: `--radius-card` is 0 and this is the last rounded chrome left. */
+    border-radius: 0;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    transition: background-color 200ms var(--ease-smooth);
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-subtle-foreground);
+    background-color: var(--color-accent);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--color-accent-hover);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /*
+   * Firefox has two properties and no pseudo-elements — and they have to be kept
+   * away from everything above.
+   *
+   * Since Chromium 121, setting `scrollbar-color` switches an element onto the
+   * standard scrollbar and makes it ignore `::-webkit-scrollbar` completely.
+   * `scrollbar-color` also inherits, so declaring it on `html` silently disabled
+   * every rule above for the whole document: the measured bar came back 2px wide
+   * with no hairline, no square thumb and no hover.
+   *
+   * The feature query is the fence. Firefox does not recognise
+   * `::-webkit-scrollbar` as a selector, so it takes this branch; Chromium and
+   * Safari do, so they skip it and keep the pseudo-elements.
+   */
+  @supports not selector(::-webkit-scrollbar) {
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-foreground) transparent;
+    }
   }
 
   /* Honour the OS setting globally. Component-level guards still apply for
@@ -256,7 +414,38 @@
   width: 100%;
   max-width: var(--container-page);
   margin-inline: auto;
-  padding-inline: clamp(1.25rem, 4vw, 2rem);
+  /* The gutter stops growing at laptop width instead of tracking the viewport:
+     4vw is 77px at 1920 and reads as a margin, not a gutter. Phones keep the
+     1.25rem they need to clear the screen edge. */
+  padding-inline: var(--gutter-page);
+}
+
+/*
+ * Edge-to-edge photography.
+ *
+ * A picture-led page cannot run every plate inside the 1340px column: the
+ * leftover gutter reads as dead space on a wide screen, which is exactly the
+ * container space that had to go. Type stays in `container-page`; photographs
+ * break out to the viewport.
+ *
+ * `100vw` is deliberately avoided — it includes the scrollbar and produces a
+ * horizontal overflow of a few pixels, which the homepage overflow test
+ * catches at every breakpoint.
+ */
+@utility full-bleed {
+  width: 100%;
+  margin-inline: 0;
+  padding-inline: 0;
+  max-width: none;
+}
+
+/*
+ * A magazine gutter: the narrow, even gap between plates on a spread. Used
+ * where photographs butt against each other instead of sitting in bands with
+ * their own vertical padding.
+ */
+@utility plate-gap {
+  gap: clamp(0.375rem, 0.8vw, 0.75rem);
 }
 
 /*
@@ -290,34 +479,6 @@
  * gone on purpose — it imitated light raking onto a raised dark surface and
  * says nothing on white, where a cast shadow does that job instead.
  */
-@utility nav-pill {
-  background-image: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.72) 0%,
-    rgba(255, 255, 255, 0.88) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow:
-    0 8px 24px rgba(16, 24, 40, 0.1),
-    0 1px 2px rgba(16, 24, 40, 0.06);
-}
-
-/*
- * Over the hero the pills go back to the original dark glass.
- *
- * The hero is a deliberate dark island — video under a dark scrim — so a light
- * capsule there would be a bright slab on top of the footage, and the brand
- * asset's white "MOTOR" would have nothing to sit against. This is the exact
- * gradient the dark theme used, at a lower alpha so more of the video reads
- * through. A descendant selector rather than a second utility, so every pill in
- * the header follows the band without any of them knowing where they are.
- */
-header[data-over-hero='true'] .nav-pill {
-  background-image: linear-gradient(180deg, rgba(44, 44, 50, 0.45) 0%, rgba(15, 15, 17, 0.55) 100%);
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
 /*
  * Transition for the motion utilities.
  *
@@ -459,12 +620,100 @@ header[data-over-hero='true'] .nav-pill {
   }
 }
 
-@keyframes loader-sweep {
+/* ── Loader: the scan pass ────────────────────────────────────────────── */
+
+/*
+ * The beam travelling down the brand mark, and the window it reveals through.
+ * Both run this, in step, so the red edge and the red fill arrive together.
+ *
+ * 160 is the viewBox depth: the reveal window is a full-height rect parked
+ * directly above the mark, so carrying it down by exactly one box height takes
+ * the mark from untouched to fully covered. Inside an SVG a CSS `px` length is
+ * one user unit, which is why this reads as pixels and behaves as units.
+ *
+ * Runs `alternate`, so the pass falls and then lifts. Ending a pass and
+ * restarting it from the top would snap a fully red mark back to a dark one on
+ * every loop; reversing is the same motion without the cut.
+ */
+@keyframes mark-scan {
   0% {
-    transform: translateX(-120%);
+    transform: translateY(0);
   }
   100% {
-    transform: translateX(220%);
+    transform: translateY(160px);
+  }
+}
+
+/* The hairline's short segment, running the width of its track. The track is
+   `overflow: hidden` and the segment is a third of it, so 0 to 200% carries it
+   from one edge to the other. Alternates in step with `mark-scan`, so the rule
+   and the beam turn together rather than drifting in and out of phase. */
+/* The loader exit: scale up slightly + fade out. */
+@keyframes loader-exit {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.03);
+    opacity: 0;
+  }
+}
+
+/*
+ * The comparison split, as a registered custom property.
+ *
+ * Registering it gives the value a type, and a typed custom property is the only
+ * kind that can be transitioned — an unregistered one is an untyped string and
+ * jumps. The drag writes this imperatively so React never re-renders mid-gesture;
+ * a tap borrows the transition below so the split travels to the finger instead
+ * of teleporting.
+ */
+@property --split {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+[data-split-track][data-animating='true'] {
+  /* The duration is written by `useDragValue` so one transition can serve both
+     callers: a tap wants to land quickly, the one-shot hint wants to be watched.
+     `--ease-expo` decelerates hard, which reads as the handle being *placed*
+     rather than flung. */
+  transition: --split var(--split-duration, 300ms) var(--ease-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-split-track][data-animating='true'] {
+    transition: none;
+  }
+}
+
+/*
+ * The splash's exit. `loader-exit` was defined here and wired to nothing for as
+ * long as the splash dismissed by unmounting a React tree; the overlay is now
+ * removed from a script, which gives it something to animate out with.
+ */
+#app-splash[data-state='leaving'] {
+  animation: loader-exit 280ms var(--ease-quart) forwards;
+  pointer-events: none;
+}
+
+/*
+ * Hidden, never removed. The splash is server-rendered inside the React tree,
+ * so taking the node out from a script would leave the client hydrating against
+ * markup that no longer exists. CSS can retire it without touching the DOM
+ * shape, and `display: none` takes it out of the accessibility tree too.
+ */
+#app-splash[data-state='gone'],
+html[data-splash='off'] #app-splash {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app-splash[data-state='leaving'] {
+    animation: none;
+    opacity: 0;
   }
 }
 
@@ -485,15 +734,98 @@ header[data-over-hero='true'] .nav-pill {
   }
 }
 
-/* Dual-tone homepage bands — Motor Red only on CTAs, eyebrows, and accents. */
+/*
+ * The two grounds the page alternates between.
+ *
+ * Each band re-points the text, line and accent tokens for its own ground, so
+ * a component written once with `text-muted-foreground` and `border-border`
+ * reads correctly on either. Without this every section on black needed its
+ * own `text-white/60 border-white/15` pair, which is how the old deck ended up
+ * with eleven different greys.
+ */
 @utility band-light {
-  background-color: #ffffff;
+  background-color: var(--color-paper);
   color: var(--color-foreground);
 }
 
 @utility band-dark {
-  background-color: var(--color-foreground);
+  background-color: var(--color-ink);
   color: #ffffff;
+
+  --color-foreground: #ffffff;
+  --color-muted-foreground: #9b9691; /* 6.8:1 on ink */
+  --color-subtle-foreground: #706b67; /* 3.5:1 — labels only */
+  --color-border: #232120;
+  --color-border-strong: #383533;
+  --color-surface: #131211;
+  --color-surface-elevated: #1a1817;
+  --color-surface-hover: #221f1d;
+  /* #E10600 drops to 3.57:1 on ink; the lighter cut reaches 5.19:1. */
+  --color-accent-text: var(--color-accent-on-dark);
+}
+
+/*
+ * One band, one screen.
+ *
+ * The homepage ran from a 213px strip to a 3014px stack because only the cover
+ * had a height floor — every other band was whatever its content came to. This
+ * gives them all the same floor so the page reads as a deck on a fast scroll.
+ *
+ * `min-height`, never `height`. A band whose content genuinely needs more room
+ * than the screen has — a landscape phone at 360px, a long heading at 200% text
+ * zoom — grows instead of clipping. That is the difference between a page that
+ * fits and a page that hides things.
+ *
+ * `svh` rather than `dvh` or `vh` on purpose: `dvh` changes as the mobile URL
+ * bar hides, and every change re-lays out every band on the page, which
+ * invalidates the start and end of every ScrollTrigger measured against them.
+ * `svh` is the stable small-viewport height and does not move.
+ */
+@utility screen-section {
+  display: flex;
+  /*
+   * Not `100svh`. The header is `position: sticky`, so once a reader scrolls
+   * past the cover it detaches from flow and overlays whatever section is
+   * underneath it — it does not push that section's content down the way a
+   * normal in-flow element would. A section sized to the full viewport height
+   * is therefore always `--header-height` taller than what is actually visible
+   * at once: the header eats real pixels off its top edge but the section's own
+   * box never shrank to give them back. Confirmed by measuring the two
+   * together — at a 900px viewport the header's `bottom` sat 64px into a
+   * "one-screen" band, overlapping it rather than sitting above it.
+   */
+  min-height: calc(100svh - var(--header-height));
+  flex-direction: column;
+  justify-content: center;
+}
+
+/*
+ * Headline voice: heavy grotesk, uppercase, tight.
+ *
+ * Applied alongside a `text-display`/`text-h1`/`text-h2` size, which carry the
+ * matching leading and tracking. `text-balance` is deliberately not set here —
+ * these headlines are written to break at a specific word and the balancer
+ * moves the break at some widths.
+ */
+@utility display-type {
+  font-family: var(--font-display);
+  font-weight: 400;
+  /* Sentence case. The serif has real lowercase letterforms and an all-caps
+     setting throws away the thing it was drawn for; `caps` still owns every
+     tracked uppercase label. */
+  letter-spacing: -0.02em;
+  font-synthesis-weight: none;
+}
+
+/*
+ * Eyebrows, button faces, card titles, spec rows — the wide-tracked caps that
+ * hold the layout together between the headlines and the body copy.
+ */
+@utility caps {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
 }
 
 /** Below-fold homepage sections — skip layout/paint until near viewport. */
@@ -502,9 +834,51 @@ header[data-over-hero='true'] .nav-pill {
   contain-intrinsic-size: auto 720px;
 }
 
+/*
+ * The select inside a fit field.
+ *
+ * `appearance: none` plus a transparent background, because the field's border,
+ * padding and chevron belong to the wrapping label — the control itself is only
+ * the text and the popup. Padded on the right so a long model name cannot run
+ * under the chevron.
+ */
+@utility fit-field-control {
+  appearance: none;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding-right: 1.5rem;
+  border: 0;
+  background-color: transparent;
+  color: var(--color-foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--color-subtle-foreground);
+    cursor: not-allowed;
+  }
+}
+/*
+ * A scroller the page scrolls *past*, not into.
+ *
+ * `overscroll-behavior` used to be `contain` on both axes, which trapped the
+ * wheel: hovering any rail stopped the page dead, because the rail refused to
+ * chain the vertical scroll outward and Lenis had already been told to keep its
+ * hands off anything in here. Containing the X axis alone is what a sideways
+ * rail actually wants — the swipe stays in the rail, the wheel still carries
+ * the reader down the page. A scroller that is genuinely vertical asks for
+ * `overscroll-y-contain` itself.
+ */
 @utility native-scroll {
-  overflow: auto;
-  overscroll-behavior: contain;
+  /* Sideways only, and said explicitly. `overflow: auto` leaves the Y axis
+     nominally scrollable even with nothing to scroll, and Lenis's nested-scroll
+     check believes it — so the wheel was handed to a rail that could not move
+     and the page stopped. `hidden` on Y removes the ambiguity. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }

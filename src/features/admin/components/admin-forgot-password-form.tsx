@@ -43,7 +43,7 @@ export function AdminForgotPasswordForm() {
       setSent(true);
       setCooldown(RESEND_SECONDS);
     } catch (cause) {
-      setError(authErrorMessage(cause, 'Could not send the reset email. Please try again.'));
+      setError(authErrorMessage(cause, 'Could not send the reset email. Please try again.', 'password'));
     } finally {
       setPending(false);
     }

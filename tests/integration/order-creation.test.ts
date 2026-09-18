@@ -3,7 +3,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { db, pool } from '@db/client';
 import { productVariants } from '@db/schema/catalog';
-import { addresses, couponRedemptions, coupons, orderItems, orders } from '@db/schema/commerce';
+import {
+  addresses,
+  couponRedemptions,
+  coupons,
+  orderItems,
+  orders,
+  payments,
+} from '@db/schema/commerce';
 import { users } from '@db/schema/identity';
 
 import { cancelUnpaidOrder, createOrder } from '@/features/orders/server/order-service';
@@ -79,6 +86,9 @@ beforeAll(async () => {
 beforeEach(async () => {
   await db.delete(couponRedemptions);
   await db.delete(orderItems);
+  // Before orders: payments is the one child with ON DELETE RESTRICT, so a single
+  // leftover row wedges every run of this suite against a shared database.
+  await db.delete(payments);
   await db.delete(orders);
   await db.delete(coupons);
   await setStock(100);
@@ -87,6 +97,7 @@ beforeEach(async () => {
 afterAll(async () => {
   await db.delete(couponRedemptions);
   await db.delete(orderItems);
+  await db.delete(payments);
   await db.delete(orders);
   await db.delete(coupons);
   await db.delete(addresses).where(eq(addresses.userId, userId));

@@ -13,7 +13,7 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
-import { BrandLoader } from '@/components/feedback/brand-loader';
+import { BrandedLoader } from '@/components/feedback/branded-loader';
 
 import { AdminAuthLayout, QUIET_LINK } from './admin-auth-layout';
 import {
@@ -85,7 +85,7 @@ export function AdminSignInForm({ next, initialError }: { next: string; initialE
       setError(
         cause instanceof Error && !('code' in cause)
           ? cause.message
-          : authErrorMessage(cause, 'Sign-in failed. Please try again.'),
+          : authErrorMessage(cause, 'Sign-in failed. Please try again.', 'password'),
       );
     } finally {
       setPending(false);
@@ -94,7 +94,7 @@ export function AdminSignInForm({ next, initialError }: { next: string; initialE
 
   return (
     <>
-      {leaving ? <BrandLoader label="Opening the admin panel…" /> : null}
+      {leaving ? <BrandedLoader label="Opening the admin panel…" showLabel /> : null}
 
       <AdminAuthLayout
         title="Sign in"

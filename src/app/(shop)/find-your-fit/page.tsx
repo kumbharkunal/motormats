@@ -1,36 +1,13 @@
-import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
-import { FitFlowSteps } from '@/features/fit/components/fit-flow-steps';
-import { FindYourFitWizard } from '@/features/fit/components/find-your-fit-wizard';
-
-export const metadata: Metadata = {
-  title: 'Find Your Perfect Fit',
-  description:
-    'Choose your car, model and year, confirm exact fit, pick a material, and shop Motormats cut for your floorpan.',
-  alternates: { canonical: '/find-your-fit' },
-};
-
+/**
+ * The fit flow is a homepage section now, not a page of its own.
+ *
+ * This route stays as a redirect rather than being removed: it was linked from
+ * the header, the hero, the comparison table and the closing band, it is in the
+ * sitemap, and it is the kind of URL people bookmark. A 404 for all of that is
+ * a worse answer than a hop to the section.
+ */
 export default function FindYourFitPage() {
-  return (
-    <div className="band-light min-h-[70vh]">
-      <div className="container-page py-12 md:py-16">
-        <header className="mx-auto max-w-2xl text-center">
-          <p className="text-eyebrow font-semibold tracking-[0.22em] text-accent uppercase">
-            Find your perfect fit
-          </p>
-          <h1 className="mt-4 text-h1 font-semibold tracking-tight text-balance">Built for your exact car</h1>
-          <p className="mt-4 text-muted-foreground">
-            No size charts. Pick your vehicle, confirm the floorpan, choose a material, and shop.
-          </p>
-          <div className="mt-8">
-            <FitFlowSteps />
-          </div>
-        </header>
-
-        <div className="mx-auto mt-10 max-w-4xl">
-          <FindYourFitWizard variant="page" />
-        </div>
-      </div>
-    </div>
-  );
+  redirect('/#find-your-fit');
 }

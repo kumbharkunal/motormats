@@ -90,7 +90,7 @@ export default function OurStoryPage() {
               <span className="mb-4 flex size-11 items-center justify-center rounded-xl border border-border bg-surface-elevated">
                 <Icon aria-hidden strokeWidth={1.5} className="size-5 text-accent-text" />
               </span>
-              <h3 className="text-sm font-semibold md:text-base">{title}</h3>
+              <h3 className="font-sans text-sm font-semibold md:text-base">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </li>
           ))}
@@ -108,7 +108,7 @@ export default function OurStoryPage() {
                 href={range.href}
                 className="block h-full rounded-2xl card-surface p-6 transition-colors duration-300 hover:border-accent/30 md:rounded-3xl"
               >
-                <h3 className="text-sm font-semibold md:text-base">{range.name}</h3>
+                <h3 className="font-sans text-sm font-semibold md:text-base">{range.name}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{range.body}</p>
               </Link>
             </li>

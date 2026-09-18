@@ -6,8 +6,8 @@ import {
   type ListingSearchParams,
 } from '@/features/catalog/components/product-listing';
 import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton';
+import { BrandMark } from '@/features/vehicles/components/brand-mark';
 import { VEHICLE_BRANDS } from '@/features/vehicles/data/brands';
-import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'All Collections',
@@ -47,13 +47,9 @@ export default async function CollectionsPage({
       <header className="max-w-2xl">
         <div className="flex items-center gap-3">
           {activeBrand ? (
-            <Image
-              src={activeBrand.image}
-              alt={activeBrand.name}
-              width={200}
-              height={120}
-              unoptimized
-              className="h-14 w-24 object-contain md:h-16 md:w-28"
+            <BrandMark
+              brand={activeBrand.slug}
+              className="w-10 shrink-0 text-border-strong md:w-12"
             />
           ) : null}
           <h1 className="text-h1">{heading}</h1>
@@ -63,7 +59,7 @@ export default async function CollectionsPage({
         </p>
         {fitConfirmed && activeBrand ? (
           <p className="mt-4 inline-flex rounded-full bg-foreground px-4 py-1.5 text-xs font-semibold tracking-wide text-white uppercase">
-            Exact fit confirmed — shop your material
+            Exact fit confirmed. Shop your design
           </p>
         ) : null}
       </header>

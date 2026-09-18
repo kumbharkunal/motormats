@@ -66,9 +66,12 @@ export function AccountMenu({ name, isAdmin = false }: { name: string | null; is
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className="flex h-12 items-center gap-2 rounded-full nav-pill pr-3 pl-2 text-foreground/80 transition-colors duration-200 group-data-[over-hero=true]/header:text-white/85 hover:text-foreground group-data-[over-hero=true]/header:hover:text-white"
+        // No capsule. The band is one opaque paper ground now, so the trigger
+        // sits on it directly like the cart icon beside it — which is also what
+        // retired `nav-pill`, whose whole job was faking glass over the hero.
+        className="flex h-11 items-center gap-2 px-1 text-muted-foreground transition-colors duration-200 hover:text-foreground active:scale-95"
       >
-        <span className="flex size-8 items-center justify-center rounded-full bg-accent/15 text-accent-text">
+        <span className="flex size-8 items-center justify-center bg-accent/12 text-accent-text">
           <User aria-hidden size={16} strokeWidth={1.8} />
         </span>
         <span className="hidden max-w-24 truncate text-sm font-medium xl:block">{label}</span>

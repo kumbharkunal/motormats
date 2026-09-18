@@ -1,9 +1,11 @@
 'use client';
 
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
 
 import { nudgeCartAdded } from '@/lib/cart-nudge';
 import { tapFeedback } from '@/lib/haptics';
+import { cn } from '@/lib/utils';
 import { useAppDispatch } from '@/store';
 import { itemAdded } from '@/store/slices/cart-slice';
 
@@ -45,11 +47,14 @@ function AddButton({
   productName: string;
 }) {
   const dispatch = useAppDispatch();
+  const [popping, setPopping] = useState(false);
 
   function handleClick() {
     tapFeedback();
     dispatch(itemAdded({ variantPublicId, quantity: 1 }));
     nudgeCartAdded(dispatch, productName);
+    setPopping(true);
+    setTimeout(() => setPopping(false), 350);
   }
 
   return (
@@ -57,7 +62,10 @@ function AddButton({
       type="button"
       onClick={handleClick}
       aria-label={`Add ${productName} to cart`}
-      className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-white shadow-glow-sm transition-[translate,scale,box-shadow] duration-300 hover:shadow-glow active:scale-90"
+      className={cn(
+        'flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-white shadow-glow-sm transition-[translate,scale,box-shadow] duration-300 hover:shadow-glow active:scale-90',
+        popping && 'animate-[cart-pop_350ms_ease-out]',
+      )}
     >
       <Plus aria-hidden size={20} />
     </button>

@@ -1,39 +1,127 @@
 'use client';
 
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+
+import { publishLenis, resyncScroll } from '@/lib/scroll-sync';
 
 import 'lenis/dist/lenis.css';
 
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+
+  /*
+   * The mobile URL bar changes `innerHeight` as it retracts and fires a resize,
+   * and ScrollTrigger's default answer is to re-measure every trigger on the
+   * page mid-scroll — which is exactly when it is least affordable. Every band
+   * here is sized in `svh`, so their boxes do not move when the bar does; there
+   * is nothing to re-measure. A genuine rotation still refreshes.
+   */
+  ScrollTrigger.config({ ignoreMobileResize: true });
+}
+
 /**
- * Document-level Lenis — snappy wheel smoothing without sluggish overshoot.
- * Disabled when `prefers-reduced-motion: reduce`.
+ * Document-level inertia, and the single place Lenis and ScrollTrigger are
+ * joined.
+ *
+ * The two cannot be left to run independently. Lenis animates the real
+ * scroll position off its own rAF loop while ScrollTrigger reads that position
+ * on GSAP's ticker, so every scroll-linked animation lands a frame or two
+ * behind the page it is pinned to. The fix is to let GSAP drive Lenis instead
+ * of Lenis driving itself: `autoRaf: false`, `lenis.raf` on `gsap.ticker`, and
+ * `lagSmoothing(0)` so GSAP never tries to compensate for a long frame by
+ * jumping the playhead.
+ *
+ * Reduced motion gets no Lenis at all and no `lenis` class on `<html>`, which
+ * is what the homepage suite asserts.
  */
 export function SmoothScroll() {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const lenis = new Lenis({
-      autoRaf: true,
-      lerp: 0.095,
-      duration: 0.85,
-      wheelMultiplier: 1.12,
-      touchMultiplier: 1.35,
+      // GSAP's ticker owns the loop, so Lenis must not run its own.
+      autoRaf: false,
+      // Responsive, not floaty: the wheel keeps up with the hand and settles
+      // within a couple of frames. A lower lerp reads as lag, not smoothness.
+      //
+      // `lerp` is the per-frame catch-up factor, and it is the only real speed
+      // control — 0.2 settles in ~0.23s against 0.33s at 0.14. Past ~0.3 the
+      // interpolation stops reading as smoothing at all and the wheel feels
+      // native; below ~0.1 it floats. 0.2 is the top of the band that still
+      // reads as smooth.
+      lerp: 0.2,
+      wheelMultiplier: 1.4,
+      touchMultiplier: 1.8,
       smoothWheel: true,
+      // Touch stays native on purpose. Phone momentum scrolling is already
+      // smooth and runs off the main thread; routing it through Lenis hands it
+      // to JS and adds latency, which reads as a *slower* page on the device
+      // where this matters most. Speed on touch comes from the multiplier.
       syncTouch: false,
       allowNestedScroll: true,
-      anchors: { duration: 0.9 },
-      easing: (t) => 1 - Math.pow(1 - t, 4),
+      // Next's <Link> handles in-app navigation; the Lenis anchor hijack caused
+      // hard jumps and full reloads.
+      anchors: false,
+      stopInertiaOnNavigate: true,
       prevent: (node) => Boolean(node.closest('[data-native-scroll]')),
     });
 
+    publishLenis(lenis);
     document.documentElement.classList.add('lenis', 'lenis-smooth');
 
+    const raf = (time: number) => lenis.raf(time * 1000);
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(raf);
+    gsap.ticker.lagSmoothing(0);
+
+    /*
+     * The page changes height without a navigation, and until now nothing told
+     * either library. Picking a brand in the fit wizard swaps a six-row grid for
+     * a short model list and takes 441px out of the document in one frame; the
+     * browser scroll-anchors the real position to compensate, and Lenis's cached
+     * position and limit are left behind by exactly that much, while every
+     * ScrollTrigger start and end still describes the taller page. The effects
+     * are the ones that read as "the tap did nothing": the next swipe jumps back
+     * to the stale position, and reveals fire against bounds that have moved.
+     *
+     * Debounced, because `refresh()` re-measures every trigger on the page and a
+     * resize observer fires per frame during an animated height change. This is
+     * the safety net for height changes nothing predicted; a change the app
+     * *made* calls `resyncScroll()` itself, the moment it settles.
+     */
+    let pending = 0;
+    const remeasure = () => {
+      window.clearTimeout(pending);
+      pending = window.setTimeout(() => {
+        lenis.resize();
+        ScrollTrigger.refresh();
+      }, 150);
+    };
+    const observer = new ResizeObserver(remeasure);
+    observer.observe(document.body);
+
     return () => {
+      window.clearTimeout(pending);
+      observer.disconnect();
+      gsap.ticker.remove(raf);
+      gsap.ticker.lagSmoothing(500, 33);
       document.documentElement.classList.remove('lenis', 'lenis-smooth');
       lenis.destroy();
+      publishLenis(null);
     };
   }, []);
+
+  useEffect(() => {
+    // Route changes replace the whole document body, so every trigger's
+    // measured start and end are stale until this runs.
+    resyncScroll();
+  }, [pathname]);
 
   return null;
 }

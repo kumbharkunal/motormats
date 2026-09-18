@@ -96,7 +96,7 @@ export default tseslint.config(
 
   {
     // CLI scripts report progress on stdout; that is their interface.
-    files: ['db/**/*.{ts,mjs}'],
+    files: ['db/**/*.{ts,mjs}', 'scripts/**/*.{ts,mjs}'],
     rules: { 'no-console': 'off' },
   },
 

@@ -194,7 +194,7 @@ function BrandPanel() {
           aria-label="Motormats — go to the storefront"
           style={{ display: 'inline-flex' }}
         >
-          <MotormatsLogo size="md" />
+          <MotormatsLogo size="md" tone="mark" />
         </Link>
       </Box>
 

@@ -2,7 +2,7 @@
 
 import { useFormStatus } from 'react-dom';
 
-import { BrandLoader } from '@/components/feedback/brand-loader';
+import { BrandedLoader } from '@/components/feedback/branded-loader';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -21,7 +21,7 @@ export function SignOutSubmit() {
 
   return (
     <>
-      {pending ? <BrandLoader label="Signing you out…" /> : null}
+      {pending ? <BrandedLoader label="Signing you out…" showLabel /> : null}
 
       <Button type="submit" size="lg" className="w-full" disabled={pending} isLoading={pending}>
         Sign out

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
-import { BrandLoader } from '@/components/feedback/brand-loader';
+import { BrandedLoader } from '@/components/feedback/branded-loader';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddressForm } from '@/features/checkout/components/address-form';
@@ -19,6 +19,7 @@ import {
 import { listAddressesAction } from '@/features/addresses/actions/address-actions';
 import type { SavedAddress } from '@/features/addresses/server/address-repository';
 import { formatPaise } from '@/lib/money';
+import { randomUUID } from '@/lib/random-id';
 import { cn } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { cartCleared } from '@/store/slices/cart-slice';
@@ -125,7 +126,7 @@ export function CheckoutView({
     startPaying(async () => {
       // A fresh key per attempt: a retry after a genuine failure is a new
       // order, while a double-click within one attempt is not.
-      const idempotencyKey = crypto.randomUUID();
+      const idempotencyKey = randomUUID();
 
       const placed = await placeOrderAction({
         lines,
@@ -207,9 +208,9 @@ export function CheckoutView({
   // `leavingFor` is checked first: `isConfirming` is never cleared, so once the
   // payment is confirmed and we start navigating, this is what updates the
   // caption from "confirming" to "taking you to your order".
-  if (leavingFor) return <BrandLoader label={leavingFor} />;
+  if (leavingFor) return <BrandedLoader label={leavingFor} showLabel />;
 
-  if (isConfirming) return <BrandLoader label="Confirming your payment…" />;
+  if (isConfirming) return <BrandedLoader label="Confirming your payment…" showLabel />;
 
   return (
     <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_22rem] lg:items-start">
@@ -304,7 +305,16 @@ export function CheckoutView({
               placeholder="Enter a code"
               autoCapitalize="characters"
               disabled={Boolean(totals?.couponCode)}
-              className="h-12 flex-1 rounded-full border border-border bg-surface px-5 text-sm disabled:opacity-50"
+              /*
+                `sm:flex-1`, not `flex-1`.
+
+                Below `sm` this row is `flex-col`, and `flex-1` is
+                `flex: 1 1 0%` — in a column the basis is the *height*, so the
+                field was being given a 0px basis with no free space to grow
+                into and `h-12` lost to it. It rendered as a hairline. The
+                stretch is only ever wanted once the row turns horizontal.
+              */
+              className="h-12 w-full rounded-full border border-border bg-surface px-5 text-sm disabled:opacity-50 sm:w-auto sm:flex-1"
             />
             <Button
               type="button"

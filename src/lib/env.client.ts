@@ -15,6 +15,12 @@ const clientEnvSchema = z.object({
    * the files in `public/video`, so a checkout without them still renders.
    */
   NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER: z.string().optional(),
+  /**
+   * ImageKit endpoint serving the deck photography in `public/`, e.g.
+   * "https://ik.imagekit.io/motormats". Optional: unset, `src/lib/image-loader.ts`
+   * serves the WebP files from `public/deck` directly.
+   */
+  NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: z.url().optional(),
 });
 
 const parsed = clientEnvSchema.safeParse({
@@ -26,6 +32,7 @@ const parsed = clientEnvSchema.safeParse({
   NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER: process.env.NEXT_PUBLIC_CLOUDINARY_VIDEO_FOLDER,
+  NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT,
 });
 
 if (!parsed.success) {

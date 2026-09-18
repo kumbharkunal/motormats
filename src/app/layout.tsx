@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 
 import { AppLoadSplash } from '@/components/feedback/app-load-splash';
+import { TapHaptics } from '@/components/feedback/tap-haptics';
 import { Toaster } from '@/components/feedback/toaster';
+import { HashScroll } from '@/components/layout/hash-scroll';
 import { SmoothScroll } from '@/components/layout/smooth-scroll';
 import { StoreProvider } from '@/store/store-provider';
 import { clientEnv } from '@/lib/env.client';
-import { fontLogo, fontSans } from '@/lib/fonts';
-import { cn } from '@/lib/utils';
+import { fontDisplay, fontSans } from '@/lib/fonts';
 
 import '@/styles/globals.css';
 
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#F6F7F9',
+  themeColor: '#0A0A0A',
   colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
@@ -40,8 +41,22 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  /*
+   * `suppressHydrationWarning` covers this element's own attributes only, one
+   * level deep. It is here because `AppLoadSplash` ships a `beforeInteractive`
+   * script that stamps `data-splash` on the root before React hydrates — which
+   * is the whole point of it, since an attribute set after hydration arrives too
+   * late to stop the overlay painting. React then finds an attribute on <html>
+   * that its own output does not have and reports a mismatch. This is the
+   * documented answer for a root-marking script, and it suppresses nothing else
+   * in the tree.
+   */
   return (
-    <html lang="en" className={cn(fontSans.variable, fontLogo.variable)}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${fontSans.variable} ${fontDisplay.variable}`}
+    >
       <body className="bg-background font-sans text-foreground antialiased">
         <AppLoadSplash />
         <a
@@ -51,6 +66,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <SmoothScroll />
+        <HashScroll />
+        <TapHaptics />
         <StoreProvider>{children}</StoreProvider>
         <Toaster />
       </body>
